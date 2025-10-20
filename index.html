@@ -1,1066 +1,1625 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
-<title>Retro Platforms — Pro Edition</title>
-<style>
-:root{
-  --sky:#87ceeb; --ground:#6b4f2a; --ground-top:#8f6b3a; --ground-edge: #5a4121;
-  --player:#3498db; --enemy:#e67e22; --turtle:#16a085; --flier:#9b59b6; --shooter:#e74c3c;
-  --spike:#c0392b; --goal:#2ecc71; --spring:#5dade2; --water:#3aa6ffcc;
-  --coin:#f1c40f; 
-  --ui:#000000cc; --text:#fff;
-  --btn-width: 70px; 
-  --btn-spacing: 12px;
-}
-html,body{margin:0;background:#0d1117;color:var(--text);font-family:system-ui,Segoe UI,Roboto;overscroll-behavior: none;}
-#game{display:block;margin:0 auto;background:var(--sky);image-rendering:pixelated;outline:none}
-.topbar{position:fixed;top:8px;left:8px;right:8px;display:flex;gap:8px;align-items:center;z-index:5}
-.panel{background:var(--ui);padding:8px 12px;border-radius:12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-.grow{flex:1}
-.btn{appearance:none;border:0;border-radius:10px;padding:8px 12px;font-weight:800;cursor:pointer}
-.btn.primary{background:#2ecc71;color:#062}
-.btn.ghost{background:#ffffff10;color:#fff;border:1px solid #ffffff33}
-.centered{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(2px);background:#0008;z-index:10}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ليدو - Ludo</title>
+    <style>
+        /* الخط الرئيسي للواجهة باللغة العربية */
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
 
-/* ===================================== */
-/* ✨ إصلاح رقم 2: تعديل أماكن أزرار التحكم */
-/* ===================================== */
-.touch{
-  position:fixed; bottom:var(--btn-spacing); left:var(--btn-spacing); right:var(--btn-spacing);
-  display:flex; 
-  justify-content: space-between; /* <-- هذا هو الحل! يضمن التباعد بغض النظر عن dir */
-  gap:var(--btn-spacing);
-  pointer-events:none; z-index:4;
-}
-.pad{display:flex;gap:var(--btn-spacing);}
-.tbtn{
-  width:var(--btn-width); height:var(--btn-width); 
-  border-radius:50%; background:#ffffff22; border:2px solid #ffffff55;
-  pointer-events:auto; touch-action:none; user-select:none; backdrop-filter:blur(6px);
-  color:#fff; font-size:24px; font-weight:900;
-  display: flex; align-items: center; justify-content: center;
-}
-/* تصميم عصي التحكم (D-Pad style) للحركة */
-#btnLeft { border-radius: 50% 10% 10% 50%; }
-#btnRight { border-radius: 10% 50% 50% 10%; }
-/* ترتيب أزرار الحركة ليصبح اليسار ثم اليمين */
-#btnLeft{order: 1;}
-#btnRight{order: 2;}
-/* ترتيب أزرار الأكشن ليصبح الإطلاق ثم القفز */
-#btnShoot{order: 1;}
-#btnJump{order: 2;}
+        body {
+            font-family: 'Cairo', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            color: #333;
+            overflow-x: hidden;
+        }
 
-@media (min-width:900px){.touch{display:none}}
-.hearts{letter-spacing:2px}
-.hint{opacity:.8;font-size:12px;margin-top:6px}
-.badge{display:inline-block;padding:2px 8px;border-radius:999px;background:#ffffff22;border:1px solid #ffffff33}
-.splash{width:min(900px,92vw);max-width:92vw;border-radius:16px;overflow:hidden;box-shadow:0 20px 60px #000a}
-.splash-head{position:relative;height:min(340px,48vh);background:
-  radial-gradient(1000px 280px at 20% 0%, #6ec5ff33 0%, transparent 60%),
-  radial-gradient(800px 260px at 90% 10%, #e0a3ff33 0%, transparent 55%),
-  linear-gradient(180deg,#223 0%,#112 100%);display:flex;align-items:center;justify-content:center}
-.splash-canvas{position:absolute;inset:0}
-.splash-title{position:relative;z-index:2;font-size:clamp(24px,5.2vw,44px);font-weight:900;letter-spacing:1px;color:#e8f7ff;text-shadow:0 2px 0 #0008,0 0 24px #69d1ff77}
-.splash-body{background:#0b0f18;padding:14px}
-.shop-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; margin-top: 15px; }
-.shop-item { background: #1a1e27; padding: 10px; border-radius: 8px; text-align: center; border: 1px solid #333; }
-.shop-item h4 { margin: 0 0 5px 0; color: var(--text); }
-.shop-item p { margin: 0 0 10px 0; font-size: 14px; color: #aaa; }
-.shop-cost { font-weight: bold; color: var(--coin); display: block; margin-bottom: 8px;}
-</style>
+        /* حاوية اللعبة الرئيسية */
+        #game-container {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            max-width: 500px;
+            margin: 10px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            background-color: #fff;
+            padding: 15px;
+        }
+
+        /* واجهة اللوحة القماشية */
+        #ludo-board {
+            touch-action: none; /* لمنع السحب عند اللعب */
+            border-radius: 8px;
+            background-color: #ddd;
+            margin-bottom: 15px;
+            width: 100%; /* اجعل اللوحة مرنة */
+            aspect-ratio: 1 / 1; /* حافظ على نسبة 1:1 */
+        }
+
+        /* منطقة التحكم والحالة */
+        #controls-status {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 0 10px;
+        }
+
+        #status-display {
+            background-color: #eef;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 1.1em;
+            font-weight: bold;
+            min-height: 40px;
+        }
+
+        #dice-area {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            gap: 10px;
+        }
+
+        #dice-display {
+            width: 60px;
+            height: 60px;
+            border: 3px solid #333;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.2em;
+            font-weight: bold;
+            background-color: #fff;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.1s ease;
+        }
+
+        /* زر رمي النرد */
+        .dice-button {
+            background-color: #4CAF50; /* أخضر جذاب */
+            color: white;
+            padding: 15px 25px;
+            font-size: 1.2em;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 0 5px #388e3c;
+            transition: all 0.2s;
+            flex-grow: 1;
+        }
+
+        .dice-button:hover {
+            background-color: #5cb85c;
+        }
+
+        .dice-button:active {
+            background-color: #388e3c;
+            box-shadow: 0 2px #388e3c;
+            transform: translateY(3px);
+        }
+
+        .dice-button:disabled {
+            background-color: #ccc;
+            box-shadow: none;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* أزرار الإعدادات/الصوت */
+        .setting-button, #mute-button {
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: #333;
+            padding: 5px;
+            transition: color 0.2s;
+        }
+
+        .setting-button:hover, #mute-button:hover {
+            color: #4CAF50;
+        }
+
+        /* الواجهات المنبثقة (Modals) */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            visibility: hidden;
+            opacity: 0;
+            transition: visibility 0s, opacity 0.3s;
+        }
+
+        .modal.active {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-content h2 {
+            color: #4CAF50;
+            margin-top: 0;
+            font-size: 1.8em;
+        }
+
+        .modal-content button {
+            margin-top: 15px;
+            padding: 10px 20px;
+            font-size: 1em;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .modal-content .primary-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .modal-content .primary-btn:hover {
+            background-color: #388e3c;
+        }
+
+        .modal-content .secondary-btn {
+            background-color: #f0f0f0;
+            color: #333;
+            margin-right: 10px;
+        }
+
+        /* شاشة الإعدادات */
+        #setup-screen {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .setup-group {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+            padding: 10px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+        }
+
+        .player-setup-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            gap: 10px;
+        }
+
+        .player-setup-row label {
+            min-width: 50px;
+            font-weight: bold;
+        }
+
+        .player-setup-row select {
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            flex-grow: 1;
+            font-family: 'Cairo', sans-serif;
+            text-align: right;
+            direction: rtl;
+        }
+
+        .player-setup-row .color-indicator {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-left: 10px;
+            border: 1px solid #33333333;
+        }
+
+        /* شريط الأدوات العلوي */
+        #top-bar {
+            width: 100%;
+            max-width: 500px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+        }
+        
+        /* التلميحات */
+        #tooltip-modal {
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: auto;
+            max-width: 90%;
+            height: auto;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 10px;
+            padding: 15px;
+            color: white;
+            font-size: 0.9em;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            display: block; /* Overrides visibility: hidden */
+            position: absolute;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+        #tooltip-modal.active {
+            opacity: 1;
+        }
+    </style>
 </head>
 <body>
-  <div class="topbar">
-    <div class="panel grow" id="hudLeft">
-      <span id="hearts" class="hearts">❤❤❤</span>
-      <span id="shield" class="hint">🛡 0</span>
-      <span id="coins" style="color:var(--coin); font-weight:bold;">💰 0</span> <span id="stage" class="badge">L1</span>
-    </div>
-    <div class="panel" id="hudRight">
-      <button class="btn ghost" id="btnShop" title="المتجر">🛒</button> <button class="btn ghost" id="btnLang">العربية</button>
-      <button class="btn ghost" id="btnMusic">🔇</button>
-      <button class="btn ghost" id="btnPause">⏸︎</button>
-    </div>
-  </div>
 
-  <canvas id="game" width="960" height="540" tabindex="0" aria-label="Game canvas"></canvas>
+    <div id="top-bar">
+        <button id="mute-button" title="كتم الصوت/تشغيل الصوت">🔊</button>
+        <button id="setting-button" class="setting-button" title="الإعدادات">⚙️</button>
+    </div>
 
-  <div class="touch" id="touch">
-    <div class="pad">
-      <button class="tbtn" id="btnLeft">◀</button>
-      <button class="tbtn" id="btnRight">▶</button>
-    </div>
-    <div class="pad">
-      <button class="tbtn" id="btnShoot">✹</button>
-      <button class="tbtn" id="btnJump">⤊</button>
-    </div>
-  </div>
+    <div id="game-container">
+        <canvas id="ludo-board"></canvas>
 
-  <template id="tplOverlay">
-    <div class="centered" id="overlay">
-      <div class="panel" style="min-width:min(720px,94vw);text-align:center;max-height:90vh;overflow:auto">
-        <div id="ovTitle" style="font-size:24px;font-weight:900;margin-bottom:8px">—</div>
-        <div id="ovBody" style="line-height:1.6;margin-bottom:12px">—</div>
-        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap" id="ovButtons"></div>
-        <div class="hint" id="ovHint">← → move, Space/W jump, F shoot, Esc pause</div>
-      </div>
+        <div id="controls-status">
+            <div id="status-display">... تهيئة اللعبة ...</div>
+
+            <div id="dice-area">
+                <button class="dice-button" id="roll-dice-button" disabled>رمي النرد</button>
+                <div id="dice-display">🎲</div>
+            </div>
+        </div>
     </div>
-  </template>
+
+    <div id="win-modal" class="modal">
+        <div class="modal-content">
+            <h2>🎉 تهانينا! 🎉</h2>
+            <p id="winner-message" style="font-size: 1.3em; margin: 20px 0;"></p>
+            <button class="primary-btn" id="new-game-from-win">بدء لعبة جديدة</button>
+            <button class="secondary-btn" id="share-screenshot">مشاركة لقطة</button>
+        </div>
+    </div>
+
+    <div id="setup-modal" class="modal active">
+        <div class="modal-content">
+            <h2>إعدادات لعبة ليدو</h2>
+
+            <div id="setup-screen">
+                <div class="setup-group">
+                    <label for="player-count">عدد اللاعبين:</label>
+                    <select id="player-count">
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4" selected>4</option>
+                    </select>
+                </div>
+
+                <div class="setup-group" id="player-config">
+                    <p style="font-weight: bold; margin-bottom: 10px;">نوع اللاعبين:</p>
+                    </div>
+            </div>
+
+            <div style="margin-top: 20px;">
+                <button class="primary-btn" id="start-new-game">بدء لعبة جديدة</button>
+                <button class="secondary-btn" id="resume-game" style="display: none;">استئناف اللعبة</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="tooltip-modal" class="active">
+        اضغط على زر "رمي النرد" لبدء الدور، ثم اضغط على القطعة لتحريكها!
+        <button class="secondary-btn" onclick="document.getElementById('tooltip-modal').classList.remove('active');" style="margin-right: 10px; padding: 5px 10px;">إغلاق</button>
+    </div>
+
 
 <script>
-(()=>{'use strict';
+    //================================================================================
+    // 1. إعدادات الثوابت والألوان والترجمة العربية
+    //================================================================================
 
-/* ================= I18N ================= */
-const I18N={
-  ar:{title:'منصات احترافية',desc:'لعبة منصات احترافية مع نظام رسوميات Sprite، فيزياء متقدمة، 10 مراحل مدمجة، ومراحل إضافية. اجمع العملات 💰 لشراء تحسينات دائمة من المتجر 🛒.',
-      start:'ابدأ لعبة جديدة', cont:'متابعة', paused:'إيقاف مؤقت', resume:'متابعة', restart:'إعادة المرحلة', menu:'القائمة الرئيسية', shop:'المتجر',
-      lose:'خسرت', stage:n=>`مرحلة ${n}`, hint:'كيبورد: ← → للحركة، Space/W للقفز، F للإطلاق، Esc للإيقاف',
-      drops:'التعزيزات: ❤ قلب | 🛡 درع | ⇥ سرعة | ⤊ قفز',
-      shop_title:'متجر التحسينات',
-      shop_desc:'أنفق العملات 💰 لزيادة قوتك بشكل دائم!'},
-  en:{title:'Pro Platforms',desc:'Professional platformer with a Sprite graphics system, advanced physics, 10 built-in levels, and bonus levels. Collect coins 💰 to buy permanent upgrades from the Shop 🛒.',
-      start:'Start New', cont:'Continue', paused:'Paused', resume:'Resume', restart:'Restart', menu:'Main Menu', shop:'Shop',
-      lose:'You Lost', stage:n=>`Level ${n}`, hint:'Keyboard: ← → move, Space/W jump, F shoot, Esc pause',
-      drops:'Boosts: ❤ Heart | 🛡 Shield | ⇥ Speed | ⤊ Jump',
-      shop_title:'Upgrades Shop',
-      shop_desc:'Spend Coins 💰 to permanently increase your power!'}
-};
-let lang='ar'; const T=(k,...a)=> typeof I18N[lang][k]==='function'?I18N[lang][k](...a):I18N[lang][k];
+    const CANVAS = document.getElementById('ludo-board');
+    const CTX = CANVAS.getContext('2d');
+    const BASE_SIZE = 600; // حجم أساسي للوحة (ستتم مقايسته)
 
-/* ================ CONFIG & RUNTIME ================ */
-const CFG={
-  viewW:960, viewH:540, tile:32,
-  gravity:0.7, moveAcc:1.3, maxDX:7.0, maxDY:20, friction:0.85, jumpV:15.5, 
-  coyoteTime:0.12, jumpBuffer:0.18, variableJumpCut:0.5, cameraLerp:0.12,
-  springV:16,
-  enemy:{walkerSpeed:1.1,turtleSpeed:0.95,flierSpeed:1.25,shooterSpeed:0.75,bulletSpeed:3.2,fireRate:2.6},
-  player:{maxHearts:6,shootCooldown:0.28,bulletSpeed:6.6},
-  scaling:{bandSize:5, enemySpeedMul:1.07, enemyFireRateMul:0.96, enemyBulletSpeedMul:1.06, playerSpeedMul:1.05, playerJumpMul:1.04, playerBulletSpeedMul:1.04},
-  vibration:true,
-  basicLevelCount: 10,
-  // ملفات JSON وهمية لتجنب الخطأ، يمكنك استبدالها بمسارات حقيقية للمراحل الإضافية
-  jsonFiles: ['sentences1.json', 'sentences2.json', 'sentences3.json', 'sentences4.json'] 
-};
+    const PLAYER_COLORS = {
+        0: { name: 'الأحمر', color: '#E53935', light: '#FFCDD2' },
+        1: { name: 'الأزرق', color: '#1E88E5', light: '#BBDEFB' },
+        2: { name: 'الأخضر', color: '#43A047', light: '#C8E6C9' },
+        3: { name: 'الأصفر', color: '#FFB300', light: '#FFECB3' }
+    };
 
-const SHOP_ITEMS = [
-    { id: 'bulletDmg', cost: 10, max: 5, stat: 'playerBulletSpeed', initial: 1, inc: 0.2, title_ar: 'قوة الإطلاق', title_en: 'Bullet Power', desc_ar: 'يزيد سرعة وتأثير الرصاص.', desc_en: 'Increases bullet speed and impact.' },
-    { id: 'maxHp', cost: 20, max: 2, stat: 'maxHearts', initial: CFG.player.maxHearts, inc: 1, title_ar: 'الحد الأقصى للقلوب', title_en: 'Max Hearts', desc_ar: 'يزيد عدد قلوبك القصوى بقلب واحد.', desc_en: 'Increases your maximum health by one heart.' },
-    { id: 'shieldCapacity', cost: 15, max: 3, stat: 'maxShields', initial: 0, inc: 1, title_ar: 'سعة الدرع', title_en: 'Shield Capacity', desc_ar: 'يزيد الحد الأقصى للدروع المحمولة.', desc_en: 'Increases maximum carried shields.' },
-];
-const SHOP_MAP = SHOP_ITEMS.reduce((map, item) => (map[item.id] = item, map), {});
-const runtime={enemy:{...CFG.enemy}, player:{maxDX:CFG.maxDX,jumpV:CFG.jumpV,bulletSpeed:CFG.player.bulletSpeed}};
+    const ARABIC_TEXT = {
+        ROLL_DICE: 'رمي النرد',
+        CURRENT_TURN: 'الدور الحالي: ',
+        ROLLED: 'لقد رميت ',
+        EXTRA_TURN: 'دور إضافي! 🎲',
+        NO_MOVES: 'لا توجد حركات متاحة، ينتقل الدور.',
+        HUMAN: 'بشري',
+        AI: 'ذكاء اصطناعي',
+        EASY: 'سهل',
+        MEDIUM: 'متوسط',
+        HARD: 'صعب',
+        WINNER_IS: 'الفائز هو ',
+        GAME_SAVED: 'تم الحفظ التلقائي.',
+        PLAYER: 'اللاعب ',
+        START_NEW: 'بدء لعبة جديدة',
+        RESUME: 'استئناف اللعبة',
+    };
 
-/* ================ DOM & HUD ================ */
-const canvas=document.getElementById('game'), ctx=canvas.getContext('2d');
-const tplOverlay=document.getElementById('tplOverlay');
-const HUD={
-  hearts:document.getElementById('hearts'), shield:document.getElementById('shield'), stage:document.getElementById('stage'),
-  coins:document.getElementById('coins'), 
-  btnPause:document.getElementById('btnPause'), btnLang:document.getElementById('btnLang'), btnMusic:document.getElementById('btnMusic'),
-  btnShop:document.getElementById('btnShop') 
-};
-const TOUCH={ left:document.getElementById('btnLeft'), right:document.getElementById('btnRight'), jump:document.getElementById('btnJump'), shoot:document.getElementById('btnShoot') };
+    const SAFE_SPOTS = [1, 9, 14, 22, 27, 35, 40, 48]; // مواضع آمنة (لا يحدث فيها اصطدام)
+    const START_SPOTS = [0, 13, 26, 39]; // مواضع البداية الفعلية لكل لاعب (في المسار المشترك)
 
-/* ================ UTILS ================ */
-const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
-const lerp=(a,b,t)=>a+(b-a)*t;
-const rects=(a,b)=>a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y;
-const vibrate=ms=>{ if(CFG.vibration&&navigator.vibrate) navigator.vibrate(ms); };
-const nowSec=()=>performance.now()/1000;
-function rnd(seed){ return (Math.sin(seed*12.9898)*43758.5453)%1; }
+    // مسار اللوحة (تحديد الإحداثيات بالنسبة لحجم BASE_SIZE)
+    const BOARD_CONFIG = {
+        // المسار الخارجي المشترك (52 خانة)
+        PATH: [
+            // player 0 (red) start path (R1-R6)
+            {x: 6.5, y: 12.5}, {x: 6.5, y: 11.5}, {x: 6.5, y: 10.5}, {x: 6.5, y: 9.5}, {x: 6.5, y: 8.5},
+            {x: 5.5, y: 8.5}, {x: 4.5, y: 8.5}, {x: 3.5, y: 8.5}, {x: 2.5, y: 8.5}, {x: 1.5, y: 8.5}, {x: 0.5, y: 8.5},
+            // Left turn (R12-R14)
+            {x: 0.5, y: 7.5},
+            {x: 0.5, y: 6.5},
+            // player 1 (blue) path (B1-B6)
+            {x: 1.5, y: 6.5}, {x: 2.5, y: 6.5}, {x: 3.5, y: 6.5}, {x: 4.5, y: 6.5}, {x: 5.5, y: 6.5},
+            {x: 6.5, y: 5.5}, {x: 6.5, y: 4.5}, {x: 6.5, y: 3.5}, {x: 6.5, y: 2.5}, {x: 6.5, y: 1.5}, {x: 6.5, y: 0.5},
+            // Top turn (B12-B14)
+            {x: 7.5, y: 0.5},
+            {x: 8.5, y: 0.5},
+            // player 2 (green) path (G1-G6)
+            {x: 8.5, y: 1.5}, {x: 8.5, y: 2.5}, {x: 8.5, y: 3.5}, {x: 8.5, y: 4.5}, {x: 8.5, y: 5.5},
+            {x: 9.5, y: 6.5}, {x: 10.5, y: 6.5}, {x: 11.5, y: 6.5}, {x: 12.5, y: 6.5}, {x: 13.5, y: 6.5}, {x: 14.5, y: 6.5},
+            // Right turn (G12-G14)
+            {x: 14.5, y: 7.5},
+            {x: 14.5, y: 8.5},
+            // player 3 (yellow) path (Y1-Y6)
+            {x: 13.5, y: 8.5}, {x: 12.5, y: 8.5}, {x: 11.5, y: 8.5}, {x: 10.5, y: 8.5}, {x: 9.5, y: 8.5},
+            {x: 8.5, y: 9.5}, {x: 8.5, y: 10.5}, {x: 8.5, y: 11.5}, {x: 8.5, y: 12.5}, {x: 8.5, y: 13.5}, {x: 8.5, y: 14.5},
+            // Bottom turn (Y12-Y14)
+            {x: 7.5, y: 14.5},
+            {x: 6.5, y: 14.5}, // 51
+        ],
+        // مواضع البيت (4 لكل لاعب) **تم تصحيح موضع الأصفر**
+        HOME: [
+            [{x: 1.5, y: 10.5}, {x: 1.5, y: 12.5}, {x: 3.5, y: 10.5}, {x: 3.5, y: 12.5}], // Red (0)
+            [{x: 1.5, y: 1.5}, {x: 1.5, y: 3.5}, {x: 3.5, y: 1.5}, {x: 3.5, y: 3.5}],   // Blue (1)
+            [{x: 10.5, y: 1.5}, {x: 10.5, y: 3.5}, {x: 12.5, y: 1.5}, {x: 12.5, y: 3.5}], // Green (2)
+            [{x: 10.5, y: 10.5}, {x: 10.5, y: 12.5}, {x: 12.5, y: 10.5}, {x: 12.5, y: 12.5}], // Yellow (3) **مصصح**
+        ],
+        // مسارات الأمان النهائية (6 خانات لكل لاعب)
+        FINAL_PATH: [
+            [{x: 7.5, y: 13.5}, {x: 7.5, y: 12.5}, {x: 7.5, y: 11.5}, {x: 7.5, y: 10.5}, {x: 7.5, y: 9.5}, {x: 7.5, y: 8.5}], // Red (0)
+            [{x: 1.5, y: 7.5}, {x: 2.5, y: 7.5}, {x: 3.5, y: 7.5}, {x: 4.5, y: 7.5}, {x: 5.5, y: 7.5}, {x: 6.5, y: 7.5}], // Blue (1)
+            [{x: 7.5, y: 1.5}, {x: 7.5, y: 2.5}, {x: 7.5, y: 3.5}, {x: 7.5, y: 4.5}, {x: 7.5, y: 5.5}, {x: 7.5, y: 6.5}], // Green (2)
+            [{x: 13.5, y: 7.5}, {x: 12.5, y: 7.5}, {x: 11.5, y: 7.5}, {x: 10.5, y: 7.5}, {x: 9.5, y: 7.5}, {x: 8.5, y: 7.5}], // Yellow (3)
+        ],
+        // الهدف المركزي
+        GOAL: {x: 7.5, y: 7.5}
+    };
 
-const COLORS = {};
-function cacheColors(){
-  const root = getComputedStyle(document.documentElement);
-  ['sky','ground','ground-top','ground-edge','player','enemy','turtle','flier','shooter',
-   'spike','goal','spring','water','coin','ui','text'].forEach(k => {
-    try{ COLORS[k] = root.getPropertyValue(`--${k}`).trim(); } 
-    catch(e) { console.warn(`Failed to cache CSS color: --${k}`); COLORS[k] = '#ff00ff'; }
-  });
-}
-
-/* ================ AUDIO (Simplified for SFX Only) ================ */
-let audioCtx=null, muted=true; 
-function ensureAudio(){ if(!audioCtx){ try{ audioCtx=new (window.AudioContext||window.webkitAudioContext)(); }catch{} } }
-function sfx(type='sine',f=440,dur=0.08,g=0.07){ if(muted) return; ensureAudio(); if(!audioCtx) return;
-  const t0=audioCtx.currentTime,o=audioCtx.createOscillator(),ga=audioCtx.createGain();
-  o.type=type; o.frequency.value=f; ga.gain.value=g; ga.gain.exponentialRampToValueAtTime(0.0001,t0+dur);
-  o.connect(ga).connect(audioCtx.destination); o.start(t0); o.stop(t0+dur);
-}
-const SFX={ jump:()=>sfx('square',520,0.09,0.08), pick:()=>sfx('triangle',900,0.08,0.06), hit:()=>sfx('sawtooth',180,0.12,0.07),
-  win:()=>{ sfx('square',660,0.16,0.08); setTimeout(()=>sfx('square',880,0.13,0.06),120); }, spring:()=>sfx('triangle',720,0.1,0.07), shoot:()=>sfx('square',720,0.06,0.06),
-  coin:()=>sfx('triangle',1200,0.04,0.05), 
-  purchase:()=>sfx('square',1500,0.08,0.08) 
-};
-
-/* ======================================================= */
-/* ✨ التطوير رقم 3: نظام الرسوميات والأصول (Sprite System) */
-/* ======================================================= */
-
-// 1. مدير الأصول (Asset Manager)
-const Assets = {
-    sprites: null,
-    isLoaded: false,
-    
-    // هذا هو ملف الـ spritesheet مدمج كـ Base64
-    // يحتوي على: لاعب، أعداء، عملات، مؤثرات...
-    spritesheet_src: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAAA8CAYAAADLENTZAAAFp0lEQVR4nO2dW67bySAGEfufDP+l5gZkE9SbwE3gJsE9geMEnCdAngDxBJKdIPMEkpsgNxvYgANGQejYq0yNSu/o7Mzwv+qZmvL/38zOzMwusE0E/g4BiEgkEiUSiUQSiUQSiUQSiUQSiUQSiUTyQGL/A/7tBMD2gG2B2wB2AOwG2B5wWj/gK8A9gL0AWwN+AvgCYJz4bQ/4N+CvI8/eBZwEeAjgq8D7yKOKiKDAfwB8G/AO4EmAlQBPRRzJ4e7A5wF/B9jB+1cBHwF8B/BnZJ/a/RrwV2S/tRsI/AHgPYC7AI8BPj3ifHwS8Ndkb9oNAp8A/BPg+4D/jHznzwD/P/K7bgeBbwA+AfgJ4F2Afw/kM/9dwK+R/+pGAn8H+G8D/gH4N8DqgI+rfwH8E5J/yT4VeCvwZ2R3XwP+m/w3/hTwg/wX/jrwV+TvXE4CfBzwE8BvAf8A+Cvgc+GvhD8P/C3g58BvA74L+J/Ib7qYBH4E+A7gn8ifvpQEfALwR2R/2T4U+CPkX7iEBH4D+Jeg/9iXAj8F/BX5G4oJ4GeA/wH8FvB/kT9vKwL+G8i/cDEI/AXg78A/AXgL4C+AXgJ+A/gf+e/6IuDvgX8C/APwf+R/+RICfgb4H+D/gF8D/g74V8C/AX4F/CfkX7iEBH4I+GPgvwM+Bvgh4JeAXwA+Q/4Ndyzwd+A/AX4J+Cvgt4CvAv4B+A/kv3KJBX4S+G/I/3wLgX+s/A+N/z8N/wP/WfmfWq5Jq9vtbr/fX49HA/49gJ8AvgP4NWBtwH8XvP+sNBl0uVxuNpuVZrNZbzabJRKJRCKRSP7W/g3/lqL/L0pEIpFIJBKJRCKRSCQSiUQikUj+gGLwK4F/DPg/gJcAvgz4F8A/Ad8AfBnwi8B/ZlqM/j+XgG8B/gb4e8BvAI8D/hTwR8D/AfwU8DvAHwM+Avg/gN+f+1t9A/gJ4E8Cf/6H1F+I1n0eA3wG8Ndk3+9/AvgH4B8C/yP/+9tC4E/Jvvt5EfgI4G/JHrrvBP4I+DvgR4A/IP9e/wz4W8BfkX/j0yPwP4BfBfwX5K/dGgF+CvgD8A8B/wT8N+SvXUsCfgb4b2TftQsE/hzwR2QfXRsB/gP4IeCfAT8B/APwb8g/vSsE/gf4O8Cfg/8L+Afgf4J/AfwE+TcuJYEfAr4N+B3gM4BfA/4E+CfgV4D/If8uVwL/Afhfkv8Wfw/4E8DfkX9rUwJ/Afgv5F+1JwL/WfmbGv/1b/n/A/x/w/9g/H9f+W+LgN8F/A/5V+1EAv8V+VftTgL/P8G/aScI/H8h/6qNIvA3kH/pEhF4BfB7+RftRAP/Ofhf+pIE/g34A+TfuIQEfgj4Y+G/Az4G+CHgl4BfAD5D/g13LPB34D8Bfglu/9v35V+5xAI/Cfz/AP8Q/D+XgH+M/A+R/3X7B+D38v9Tkv/M/N+T/9L/50i+J/7fBfw/5H/5EgL+Gcg/fDEI/AXg78A/AXgL4C+AXgJ+A/if+W/y74a/R/4Ndyzwd+A/Af4p+Tck/5P8D+A/kf/KJRb4SeC/If/zLQT+sXL+t+f8W/+F//8G/F34/z/w/1n4v1o9IpfLpd1uR4vFosVi0cVisVwuR/36KcB/G/APwL8BVAfc1/8T8E9I/iX7VOD/A34G+Cvg/8C/Bfwl5J/5NOCngC+Qf3P3QeC/AD8m9aH/2b8/91e//yH4d/3PAn4G+G/Jfrp2EPCPAv/4fSPwf2Tf3TsI/A7gJ4B3Af49kNv8X8Bfkf/qRgL/DuC/DfgH4N8AKwN+Xf8L4J+Q/Ev2qcFfkb1j+zPgP+Z/+1eA/w38O8BfAX4L+E/I/4S/Afwn5P8kZ4DfA34A+HPkP/MvwB8Bv0P+5y4nwB8Dfgn4A+S/vTcC/AfwR8D/AH4K+B3gDwOfB/zzvP+Sfg34S8g/8y7gvzH/5m8C/hvzN38nAv8Y+G/M//k3gH8C/gb4e8BvAI8D/hTwl5A/53wR+CPkX7iEBH4D+Jeg/9iXAj8F/BX5G4oJ4GeA/wH8FvB/kT9vKwL+G8i/cDEI/AXg78A/AXgL4C+AXgJ+A/if+W8N/y3wX+Q/cpEIfALwR2T/sp0o8Pdkf9cGEPg/BP4J/BPwT0h+6v+nJN/S/Rbw/wD/H/M/9Wcg/xP/1PAj8F/J/sW7QOD/T/BP2g0C/5/h37UbBP4Pwl+7hAT+B4F/1S4R+B/wvwD/n+AftA8E/gf/p+2HgH+C/6btQuDvAf8D+D/4t+2DgH+C/4/fTQL/n+G/thEE/r/g37UbBP4/w79pNwj8f4R/7RIC/i/Cv3IpCfxfhf/KRgL/V+Nf/B/+/5S/v6lIJBKJRCKRSCQSiUQikUgkEonko8T+ByuH7/cT3G9uAAAAAElFTkSuQmCC",
-    
-    // دالة لتحميل الصورة
-    load: function(callback) {
-        Assets.sprites = new Image();
-        Assets.sprites.src = Assets.spritesheet_src;
-        Assets.sprites.onload = () => {
-            Assets.isLoaded = true;
-            console.log('Assets Loaded!');
-            if (callback) callback();
-        };
-        Assets.sprites.onerror = () => {
-            console.error('Failed to load assets!');
-        };
+    // تحويل إحداثيات (0-15) إلى إحداثيات بكسل
+    function toPixel(unit) {
+        return unit * (CANVAS.width / 15);
     }
-};
 
-// 2. تعريفات الـ Sprites (أطلس الرسوم)
-// [x, y, w, h] من ملف الصورة
-const SPRITES = {
-    // اللاعب
-    player_idle: [[0,0,16,15], [16,0,16,15]], // إطارين
-    player_run:  [[32,0,16,15], [48,0,16,15], [64,0,16,15], [80,0,16,15]], // 4 إطارات
-    player_jump: [[96,0,16,15]], // إطار واحد
-    // الأعداء
-    walker: [[0,16,16,16], [16,16,16,16]],
-    turtle: [[32,16,16,16], [48,16,16,16]],
-    flier:  [[64,16,16,12], [80,16,16,12]],
-    shooter:[[96,16,16,16]],
-    // العملات والتعزيزات
-    coin:   [[0,32,10,10], [10,32,10,10], [20,32,10,10], [30,32,10,10]],
-    heart:  [[40,32,14,13]],
-    shield: [[54,32,14,13]],
-    boost_speed: [[68, 32, 14, 13]],
-    boost_jump:  [[82, 32, 14, 13]],
-    // الرصاص والمؤثرات
-    bullet_player: [[0,48,8,4]],
-    bullet_enemy:  [[8,48,6,6]],
-    poof:          [[16,48,16,16]], // مؤثر عند قتل العدو
-};
+    // إحداثيات البداية في المسار المشترك لكل لاعب
+    const START_POSITIONS = [0, 13, 26, 39]; // 0: Red, 13: Blue, 26: Green, 39: Yellow
 
-// 3. دالة لرسم الـ Sprite
-// scalew, scaleh لتكبير حجم الـ sprite
-function drawSprite(name, frame, dx, dy, scalew=CFG.tile, scaleh=CFG.tile, flipH=false) {
-    if (!Assets.isLoaded || !SPRITES[name]) return;
-    
-    const anim = SPRITES[name];
-    frame = frame % anim.length; // ضمان عدم الخروج عن الإطارات
-    const [sx, sy, sw, sh] = anim[frame];
-    
-    ctx.save();
-    if (flipH) {
-        ctx.scale(-1, 1);
-        ctx.translate(-dx - scalew, dy);
-    } else {
-        ctx.translate(dx, dy);
-    }
-    
-    // رسم الـ sprite من الأطلس
-    ctx.drawImage(Assets.sprites, sx, sy, sw, sh, 0, 0, scalew, scaleh);
-    
-    ctx.restore();
-}
+    //================================================================================
+    // 2. فئة الصوت (Base64 Audio Generation)
+    //================================================================================
 
-// 4. دالة لتحديث الأنيميشن (الحركة)
-function updateAnimation(ent, dt) {
-    if (!ent.anim) return;
-    
-    const def = SPRITES[ent.anim.name];
-    if (!def) return;
-    
-    ent.anim.timer += dt;
-    const frameDuration = ent.anim.fps ? 1.0 / ent.anim.fps : 0.1;
-    
-    if (ent.anim.timer > frameDuration) {
-        ent.anim.frame++;
-        ent.anim.timer = 0;
-        if (ent.anim.frame >= def.length) {
-            ent.anim.frame = 0; // عودة للإطار الأول
+    class SoundManager {
+        constructor() {
+            this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            this.muted = localStorage.getItem('ludoMuted') === 'true';
+            this.buffers = {};
+            this.loadSounds();
+            document.getElementById('mute-button').textContent = this.muted ? '🔇' : '🔊';
         }
-    }
-}
-/* ======================================================= */
-/* نهاية نظام الرسوميات الاحترافي                 */
-/* ======================================================= */
 
+        async loadSounds() {
+            // بيانات PCM بسيطة لتمثيل الأصوات (نغمات قصيرة)
+            const sounds = {
+                DICE: [0.1, 800, 0.05, 1000, 0.05, 600, 0.05, 1200], // متذبذب وقصير
+                MOVE: [0.15, 600], // نغمة قصيرة
+                CAPTURE: [0.1, 1500, 0.1, 300], // نغمتان حادتان
+                WIN: [0.2, 1200, 0.1, 1500, 0.3, 1800], // تتابع نغمات احتفالية
+            };
 
-/* ================ INPUT ================ */
-const keys={left:false,right:false,jump:false,shoot:false};
-function wantFocus(){ ensureAudio(); canvas.focus(); }
-addEventListener('keydown',e=>{
-  if(['ArrowLeft','KeyA'].includes(e.code)) keys.left=true;
-  if(['ArrowRight','KeyD'].includes(e.code)) keys.right=true;
-  if(['Space','KeyW'].includes(e.code)){ keys.jump=true; wantFocus(); }
-  if(e.code==='KeyF'){ keys.shoot=true; wantFocus(); }
-  if(e.code==='Escape') togglePause();
-});
-addEventListener('keyup',e=>{
-  if(['ArrowLeft','KeyA'].includes(e.code)) keys.left=false;
-  if(['ArrowRight','KeyD'].includes(e.code)) keys.right=false;
-  if(['Space','KeyW'].includes(e.code)) keys.jump=false;
-  if(e.code==='KeyF') keys.shoot=false;
-});
-['left','right','jump','shoot'].forEach(k=>{
-  const b=TOUCH[k];
-  b.addEventListener('pointerdown',e=>{ e.preventDefault(); keys[k]=true; vibrate(15); wantFocus(); });
-  ['pointerup','pointerleave','pointercancel'].forEach(ev=> b.addEventListener(ev,e=>{ e.preventDefault(); keys[k]=false; }));
-});
-HUD.btnMusic.textContent='🔇';
-HUD.btnMusic.addEventListener('click',()=>{ muted=!muted; HUD.btnMusic.textContent=muted?'🔇':'🔊'; });
-HUD.btnLang.addEventListener('click',()=>{ 
-    lang=(lang==='ar'?'en':'ar'); 
-    document.documentElement.lang=lang; 
-    document.documentElement.dir=(lang==='ar'?'rtl':'ltr'); 
-    HUD.btnLang.textContent=(lang==='ar'?'العربية':'English'); 
-    updateHUD(); 
-    if(state.scene==='menu') startMenu(); 
-    if(state.scene==='pause'){ hideOverlay(); togglePause(); } 
-    if(state.scene==='shop'){ hideOverlay(); showShop(); }
-});
-HUD.btnPause.addEventListener('click',()=>togglePause());
-HUD.btnShop.addEventListener('click',()=>showShop()); 
-addEventListener('pointerdown',onceKick,{once:true}); addEventListener('keydown',onceKick,{once:true});
-function onceKick(){ wantFocus(); }
-
-/* ================ WORLD & STATE ================ */
-const TILE={EMPTY:0,SOLID:1,SPIKE:2,SPRING:3,GOAL:4,WATER:5,MOVING:6, COIN:7}; 
-const ENEMY={WALKER:0,TURTLE:1,FLIER:2,SHOOTER:3};
-const SAVEKEY='retro_pro_v6_sprites'; // تم تغيير اسم الحفظ
-
-const state={
-    // =====================================
-    // ✨ إصلاح رقم 1: حالة 'dead' لإصلاح خطأ الموت
-    // =====================================
-    scene:'menu', // الحالات الممكنة: 'menu', 'playing', 'pause', 'dead', 'shop', 'loading'
-    level:0, band:0, camX:0, camY:0, 
-    hearts:3, shield:0, coins:0, 
-    hasGun:true, overlayEl:null, lastShotAt:-999, 
-    boosts:{speed:0,jump:0},
-    upgrades: SHOP_ITEMS.reduce((acc, item) => (acc[item.id] = 0, acc), {}) 
-};
-
-// إضافة بيانات الأنيميشن للاعب
-const player={x:0,y:0,w:24,h:30,dx:0,dy:0,on:false,coyote:0,jumpBuf:0,inv:0,facing:1,
-    anim: { name: 'player_idle', frame: 0, timer: 0, fps: 10 }
-};
-let enemies=[], eBullets=[], pBullets=[], movingPlatforms=[], drops=[], currentLevelData=null;
-
-/* ================ SAVE/LOAD ================ */
-function saveProgress(){ try{
-  localStorage.setItem(SAVEKEY, JSON.stringify({
-    level: state.level, hearts: state.hearts, shield: state.shield,
-    boosts: state.boosts, lang, coins: state.coins, upgrades: state.upgrades 
-  }));
-}catch{}}
-function loadProgress(){ try{
-  const s=JSON.parse(localStorage.getItem(SAVEKEY)||'null'); if(!s) return false;
-  state.level=Number.isFinite(s.level)?s.level:0; state.hearts=s.hearts||3; state.shield=s.shield||0; state.boosts=s.boosts||{speed:0,jump:0};
-  state.coins=s.coins||0; 
-  state.upgrades=s.upgrades||SHOP_ITEMS.reduce((acc, item) => (acc[item.id] = 0, acc), {}); 
-  lang=s.lang||lang; document.documentElement.lang=lang; document.documentElement.dir=(lang==='ar'?'rtl':'ltr'); HUD.btnLang.textContent=(lang==='ar'?'العربية':'English');
-  applyUpgrades(); 
-  return true;
-}catch{ return false; }}
-
-/* ================ UPGRADES & SHOP ================ */
-function applyUpgrades(){
-    CFG.player.maxHearts = 6 + (state.upgrades.maxHp * SHOP_MAP.maxHp.inc);
-    const bulletInc = state.upgrades.bulletDmg * SHOP_MAP.bulletDmg.inc;
-    runtime.player.bulletSpeed = CFG.player.bulletSpeed * (1 + bulletInc);
-    runtime.player.maxDX = CFG.maxDX;
-    runtime.player.jumpV = CFG.jumpV;
-    applyScaling(state.level); 
-    const maxShields = SHOP_MAP.shieldCapacity.initial + (state.upgrades.shieldCapacity * SHOP_MAP.shieldCapacity.inc);
-    state.shield = Math.min(state.shield, maxShields); 
-}
-function buyUpgrade(itemId){
-    const item = SHOP_MAP[itemId];
-    if (state.upgrades[itemId] >= item.max) return false; 
-    const currentCost = item.cost + state.upgrades[itemId] * 5; 
-    if (state.coins < currentCost) return false; 
-    state.coins -= currentCost;
-    state.upgrades[itemId]++;
-    SFX.purchase();
-    applyUpgrades(); 
-    saveProgress();
-    updateHUD();
-    showShop(); 
-    return true;
-}
-function showShop(){
-    if (state.scene !== 'playing' && state.scene !== 'pause') return;
-    state.scene = 'shop';
-    let shopHTML = `<p>${T('shop_desc')}</p><div class="shop-grid">`;
-    SHOP_ITEMS.forEach(item => {
-        const level = state.upgrades[item.id];
-        const maxed = level >= item.max;
-        const currentCost = item.cost + level * 5;
-        const title = lang === 'ar' ? item.title_ar : item.title_en;
-        const desc = lang === 'ar' ? item.desc_ar : item.title_en; 
-        shopHTML += `
-            <div class="shop-item">
-                <h4>${title} (${lang==='ar'?'المرتبة':'Level'} ${level}/${item.max})</h4>
-                <p>${desc}</p>
-                <span class="shop-cost">${maxed ? (lang==='ar'?'الأقصى':'Maxed') : `💰 ${currentCost}`}</span>
-                <button class="btn ${maxed ? 'ghost' : 'primary'}" 
-                        ${maxed || state.coins < currentCost ? 'disabled' : ''}
-                        onclick="buyUpgrade('${item.id}')">
-                    ${maxed ? (lang==='ar'?'الأقصى':'Max') : (lang==='ar'?'شراء':'Buy')}
-                </button>
-            </div>`;
-    });
-    shopHTML += '</div>';
-    showOverlay(T('shop_title'), shopHTML, [
-        {label: T('resume') + ' ▶', primary: true, on: ()=>{ hideOverlay(); state.scene='playing'; }}
-    ]);
-}
-
-/* ================ LEVEL GENERATION: 10 BASIC LEVELS ================= */
-function makeBasicLevel(levelIndex) {
-    const H=20, W=120 + levelIndex*10; 
-    const map=Array.from({length:H},()=>Array(W).fill(TILE.EMPTY));
-    const baseY=H-3;
-    const moving = [];
-    const enemies = [];
-    const coins = []; 
-    
-    for(let x=0;x<W;x++){
-        let y = baseY;
-        if(levelIndex >= 2 && x>20 && x<W-20) {
-            y += Math.floor(Math.sin(x*0.5/(6+(levelIndex%4)))*2);
-        }
-        if(levelIndex >= 4 && x>60 && x<W-60 && (x%30)===0){
-            for(let k=0;k<(levelIndex<7?2:3);k++) {
-                if(x+k < W) map[baseY-1][x+k] = TILE.EMPTY; 
+            for (const key in sounds) {
+                this.buffers[key] = this.createBuffer(sounds[key]);
             }
         }
-        for(let py=y;py<H;py++) map[py][x]=TILE.SOLID;
-    }
-    
-    const mpCount = Math.floor(levelIndex/3) + 1;
-    for(let m=0;m<mpCount;m++){
-        const mx= 30 + m*Math.floor(W/(mpCount+1));
-        const yTop= Math.max(5, baseY - 5 - (m%3));
-        moving.push({x:mx*CFG.tile,y:yTop*CFG.tile,w:CFG.tile*2,h:CFG.tile/2,t:0,dir:(m%2?1:-1),range:CFG.tile*2});
-    }
-    
-    for(let x=40;x<W-40;x+=20){
-        let groundY = map.length;
-        for(let py=0;py<H;py++) if(map[py][x]===TILE.SOLID){ groundY=py; break; }
-        
-        if(levelIndex >= 3 && groundY < H-1){
-            if(Math.random()<0.3) map[groundY][x]=TILE.SPIKE; 
-        }
-        if(levelIndex >= 5 && Math.random()<0.2){
-            map[groundY-1][x] = TILE.SPRING; 
-        }
-    }
-    
-    for (let x = 10; x < W - 10; x += 6) {
-        if(Math.random() < 0.4 || (levelIndex >= 7 && (x%15)===0)){
-            let groundY = map.length;
-            for(let py=0;py<H;py++) if(map[py][x]===TILE.SOLID){ groundY=py; break; }
-            if (groundY < H - 2) {
-                coins.push({x: x*CFG.tile + CFG.tile/2, y: (groundY-2)*CFG.tile + CFG.tile/2});
+
+        // إنشاء AudioBuffer من بيانات PCM مبسطة (الزمن بالثواني، التردد بالهرتز)
+        createBuffer(sequence) {
+            const sampleRate = 44100;
+            let totalDuration = 0;
+            for (let i = 0; i < sequence.length; i += 2) {
+                totalDuration += sequence[i];
             }
+
+            const frameCount = sampleRate * totalDuration;
+            const buffer = this.audioCtx.createBuffer(1, frameCount, sampleRate);
+            const channel = buffer.getChannelData(0);
+
+            let offset = 0;
+            for (let i = 0; i < sequence.length; i += 2) {
+                const duration = sequence[i];
+                const frequency = sequence[i + 1];
+                const segmentFrames = Math.floor(sampleRate * duration);
+
+                for (let j = 0; j < segmentFrames; j++) {
+                    const time = j / sampleRate;
+                    // موجة جيبية بسيطة
+                    channel[offset + j] = Math.sin(2 * Math.PI * frequency * time) * 0.5;
+                }
+                offset += segmentFrames;
+            }
+            return buffer;
+        }
+
+        play(key) {
+            if (this.muted || !this.buffers[key]) return;
+
+            const source = this.audioCtx.createBufferSource();
+            source.buffer = this.buffers[key];
+            source.connect(this.audioCtx.destination);
+            source.start();
+        }
+
+        toggleMute() {
+            this.muted = !this.muted;
+            localStorage.setItem('ludoMuted', this.muted);
+            document.getElementById('mute-button').textContent = this.muted ? '🔇' : '🔊';
         }
     }
 
-    const enemyTypes = [ENEMY.WALKER, ENEMY.TURTLE, ENEMY.FLIER, ENEMY.SHOOTER];
-    const maxType = Math.min(3, Math.floor(levelIndex/2)); 
-    const enemyCount = 2 + Math.floor(levelIndex*0.8);
-    
-    for(let i=0;i<enemyCount;i++){
-        const bx=30+i*Math.floor((W-60)/enemyCount);
-        const ex=Math.min(W-8,bx+10+(levelIndex%10));
-        let yTop = map.length;
-        for(let y=0;y<H;y++) if(map[y][bx]===TILE.SOLID){ yTop=y; break; }
-        
-        const type = enemyTypes[Math.min(maxType, Math.floor(Math.random()*(maxType+1)))];
-        let animName = 'walker';
-        if (type === ENEMY.TURTLE) animName = 'turtle';
-        if (type === ENEMY.FLIER) animName = 'flier';
-        if (type === ENEMY.SHOOTER) animName = 'shooter';
 
-        const base={x:bx*CFG.tile,y:(yTop-1)*CFG.tile,w:28,h:28,minX:bx*CFG.tile,maxX:ex*CFG.tile,dir:(i%2?1:-1),
-            anim: { name: animName, frame: 0, timer: 0, fps: 8 } // إضافة أنيميشن للعدو
-        };
-        
-        if(type===ENEMY.WALKER) enemies.push({...base,type:ENEMY.WALKER});
-        else if(type===ENEMY.TURTLE) enemies.push({...base,type:ENEMY.TURTLE});
-        else if(type===ENEMY.FLIER) enemies.push({...base,type:ENEMY.FLIER,y:(Math.max(3,yTop-6))*CFG.tile,w:28,h:22});
-        else if(type===ENEMY.SHOOTER) enemies.push({...base,type:ENEMY.SHOOTER,cool:Math.random()*CFG.enemy.fireRate});
-    }
+    //================================================================================
+    // 3. فئات اللعبة (Token, Player, GameState)
+    //================================================================================
 
-    const sx=3, sy=baseY-4;
-    const gx=W-4, gyEnd=baseY;
-    for(let y=gyEnd-4;y<=gyEnd-1;y++) if(y>=0) map[y][gx]=TILE.GOAL;
+    class Token {
+        constructor(id, playerId) {
+            this.id = id;
+            this.playerId = playerId;
+            // 0-3: Home, 4-55: Path (4-55), 56-61: Final Path (56-61), 62: Goal
+            this.position = this.id; // يبدأ في البيت (0, 1, 2, 3)
+            this.targetX = 0; // للتحريك السلس
+            this.targetY = 0;
+            this.isMoving = false;
+        }
 
-    return {W,H,map,start:{x:sx*CFG.tile,y:Math.max(0,sy)*CFG.tile},enemies,moving, coins};
-}
+        // تحديد موقع الخلية بالبكسل
+        getCoords() {
+            const playerIdx = this.playerId;
+            let coords;
 
-/* ================ LEVEL GENERATION: JSON LEVELS ================= */
-const JSON_LEVEL_CACHE = {};
-let JSON_LOAD_PROMISE = null;
-function fetchJsonLevel(index) {
-    const jsonIndex = (index - CFG.basicLevelCount) % CFG.jsonFiles.length; 
-    const fileName = CFG.jsonFiles[jsonIndex];
-    if (JSON_LEVEL_CACHE[fileName]) return Promise.resolve(JSON_LEVEL_CACHE[fileName]);
-    if (JSON_LOAD_PROMISE) return JSON_LOAD_PROMISE;
-    
-    // محاكاة تحميل ملف JSON إذا لم يتم توفيره لتجنب الأخطاء
-    if (!fileName.includes('.json')) {
-        console.warn(`Missing level file definition for index ${index}. Falling back to basic level.`);
-        return Promise.resolve(makeBasicLevel(CFG.basicLevelCount - 1));
-    }
-    
-    JSON_LOAD_PROMISE = fetch(fileName)
-        .then(response => { 
-            // إذا لم يتم العثور على ملف، نستخدم مستوى أساسي
-            if (!response.ok) {
-                console.warn(`Failed to fetch ${fileName}. Falling back to basic level.`);
-                throw new Error('Fallback');
+            if (this.position < 4) { // في البيت
+                coords = BOARD_CONFIG.HOME[playerIdx][this.position];
+            } else if (this.position < 56) { // في المسار المشترك (المواضع 4 إلى 55)
+                // 4 هي نقطة الخروج من البيت (بداية حساب الخطوات)
+                const playerStartIdx = START_POSITIONS[playerIdx]; // 0, 13, 26, 39
+                const stepsFromStart = this.position - 4;
+                const pathIndex = (playerStartIdx + stepsFromStart) % 52; // المسار المشترك (0-51)
+                coords = BOARD_CONFIG.PATH[pathIndex];
+            } else if (this.position < 62) { // في مسار الأمان الداخلي (56 إلى 61)
+                const finalPathIndex = this.position - 56;
+                coords = BOARD_CONFIG.FINAL_PATH[playerIdx][finalPathIndex];
+            } else { // في الهدف (62)
+                coords = BOARD_CONFIG.GOAL;
             }
-            return response.json(); 
-        })
-        .then(data => {
-            data.W = data.map[0].length; data.H = data.map.length; if(!data.coins) data.coins = []; 
-            // إضافة بيانات الأنيميشن للأعداء المحملين من JSON
-            (data.enemies || []).forEach(e => {
-                let animName = 'walker';
-                if (e.type === ENEMY.TURTLE) animName = 'turtle';
-                if (e.type === ENEMY.FLIER) animName = 'flier';
-                if (e.type === ENEMY.SHOOTER) animName = 'shooter';
-                e.anim = { name: animName, frame: 0, timer: 0, fps: 8 };
+
+            return { x: toPixel(coords.x), y: toPixel(coords.y) };
+        }
+    }
+
+    class Player {
+        constructor(id, type, aiLevel = 'EASY') {
+            this.id = id;
+            this.color = PLAYER_COLORS[id].color;
+            this.name = ARABIC_TEXT.PLAYER + (id + 1) + ' (' + PLAYER_COLORS[id].name + ')';
+            this.type = type; // 'HUMAN' or 'AI'
+            this.aiLevel = aiLevel; // 'EASY', 'MEDIUM', 'HARD'
+            this.tokens = [new Token(0, id), new Token(1, id), new Token(2, id), new Token(3, id)];
+        }
+    }
+
+    class LudoGame {
+        constructor() {
+            this.players = [];
+            this.currentPlayerIdx = 0;
+            this.diceValue = 0;
+            this.hasExtraTurn = false;
+            this.sixStreak = 0;
+            this.isRolling = false;
+            this.isAnimating = false;
+            this.winner = null;
+            this.activePlayers = []; // اللاعبون المشاركون
+            this.validMoves = {}; // {tokenId: targetPosition}
+            this.selectedToken = null;
+            this.sm = new SoundManager();
+        }
+
+        // تهيئة اللعبة باللاعبين المختارين
+        setupGame(playerConfigs) {
+            this.players = [];
+            this.activePlayers = [];
+            this.currentPlayerIdx = 0;
+            this.sixStreak = 0;
+            this.winner = null;
+
+            playerConfigs.forEach((config, id) => {
+                const player = new Player(id, config.type, config.aiLevel);
+                this.players.push(player);
+                this.activePlayers.push(id);
+                // إعادة القطع إلى البيت
+                player.tokens.forEach((token, i) => token.position = i);
             });
-            JSON_LEVEL_CACHE[fileName] = data;
-            JSON_LOAD_PROMISE = null;
-            return data;
-        })
-        .catch(error => { 
-            console.error(error); 
-            JSON_LOAD_PROMISE = null; 
-            // العودة إلى مستوى أساسي إذا فشل التحميل
-            return makeBasicLevel(CFG.basicLevelCount - 1); 
-        });
-    return JSON_LOAD_PROMISE;
-}
-const LEVELS = new Proxy({ store: {} }, {
-    get(t, k) {
-        const i = Number(k); if (Number.isNaN(i) || i < 0) return undefined;
-        if (i < CFG.basicLevelCount) { if (!t.store[i]) t.store[i] = makeBasicLevel(i); return t.store[i]; }
-        if (!t.store[i]) {
-            t.store[i] = {W: 960/CFG.tile, H: 540/CFG.tile, map:[], enemies:[], moving:[], coins:[], isAsync: true}; 
-            fetchJsonLevel(i)
-                .then(data => { t.store[i] = data; })
-                .catch(err => { t.store[i] = makeBasicLevel(CFG.basicLevelCount - 1); });
+            this.updateStatus(ARABIC_TEXT.START_NEW);
+            this.diceValue = 0; // تأكد من أن النرد مصفر للبدء
+            this.nextTurn();
+            this.saveGame();
         }
-        return t.store[i];
-    }
-});
 
+        // تحميل حالة اللعبة من localStorage
+        loadGame(state) {
+            this.activePlayers = state.activePlayers;
+            this.players = state.players.map(pState => {
+                const player = new Player(pState.id, pState.type, pState.aiLevel);
+                player.tokens = pState.tokens.map(tState => {
+                    const token = new Token(tState.id, tState.playerId);
+                    token.position = tState.position;
+                    return token;
+                });
+                return player;
+            });
+            this.currentPlayerIdx = state.currentPlayerIdx;
+            this.diceValue = state.diceValue;
+            this.sixStreak = state.sixStreak || 0;
+            this.winner = state.winner;
+            this.hasExtraTurn = state.hasExtraTurn || false;
+            this.updateStatus(ARABIC_TEXT.GAME_SAVED);
 
-/* ================ OVERLAYS ================ */
-function showOverlay(title, bodyHTML, buttons){
-  hideOverlay();
-  const frag=tplOverlay.content.cloneNode(true);
-  frag.querySelector('#ovTitle').textContent=title;
-  frag.querySelector('#ovBody').innerHTML=bodyHTML;
-  frag.querySelector('#ovHint').textContent=T('hint');
-  const box=frag.querySelector('#ovButtons');
-  (buttons||[]).forEach(b=>{ const el=document.createElement('button'); el.className='btn '+(b.primary?'primary':'ghost'); el.textContent=b.label; el.addEventListener('click',b.on); box.appendChild(el); });
-  document.body.appendChild(frag); state.overlayEl=document.getElementById('overlay');
-}
-function hideOverlay(){ if(state.overlayEl){ state.overlayEl.remove(); state.overlayEl=null; } }
-function splashHTML(){ return `
-  <div class="splash">
-    <div class="splash-head"><canvas class="splash-canvas" id="splashCanvas"></canvas><div class="splash-title">${I18N[lang].title}</div></div>
-    <div class="splash-body">${I18N[lang].desc}<div class="hint" style="margin-top:8px">${I18N[lang].drops}</div></div>
-  </div>`;}
-function renderSplash(){ const c=document.getElementById('splashCanvas'); if(!c) return;
-  const r=c.parentElement.getBoundingClientRect(); c.width=r.width|0; c.height=r.height|0; const x=c.getContext('2d');
-  x.fillStyle='#0e1422'; x.fillRect(0,0,c.width,c.height);
-  x.fillStyle='#ffffffaa'; for(let i=0;i<100;i++) x.fillRect(Math.random()*c.width, Math.random()*c.height*0.6, 2, 2);
-  const hill=(y,col)=>{ x.fillStyle=col; for(let i=-1;i<6;i++){ const bx=i*240; x.beginPath(); x.moveTo(bx,y+200); x.lineTo(bx+120,y+40); x.lineTo(bx+240,y+200); x.closePath(); x.fill(); } };
-  hill(c.height*0.45,'#17304a'); hill(c.height*0.55,'#1c3a5a'); hill(c.height*0.65,'#204568');
-  if(state.scene === 'menu') requestAnimationFrame(renderSplash); // الاستمرار فقط إذا كنا في القائمة
-}
-
-/* ================ SCALING & FLOW ================ */
-function applyScaling(levelIndex){
-  const b=Math.floor(levelIndex/CFG.scaling.bandSize); state.band=b;
-  const eMul=Math.pow(CFG.scaling.enemySpeedMul,b), eFire=Math.pow(CFG.scaling.enemyFireRateMul,b), eBullet=Math.pow(CFG.scaling.enemyBulletSpeedMul,b);
-  const pSpd=Math.pow(CFG.scaling.playerSpeedMul,b), pJmp=Math.pow(CFG.scaling.playerJumpMul,b), pBul=Math.pow(CFG.scaling.playerBulletSpeedMul,b);
-  const upgradeMul = 1 + (state.upgrades.bulletDmg * SHOP_MAP.bulletDmg.inc);
-  runtime.enemy.walkerSpeed=CFG.enemy.walkerSpeed*eMul;
-  runtime.enemy.turtleSpeed=CFG.enemy.turtleSpeed*eMul;
-  runtime.enemy.flierSpeed =CFG.enemy.flierSpeed *eMul;
-  runtime.enemy.shooterSpeed=CFG.enemy.shooterSpeed*eMul;
-  runtime.enemy.fireRate   =CFG.enemy.fireRate   *eFire;
-  runtime.enemy.bulletSpeed=CFG.enemy.bulletSpeed*eBullet;
-  runtime.player.maxDX=CFG.maxDX*pSpd;
-  runtime.player.jumpV=CFG.jumpV*pJmp;
-  runtime.player.bulletSpeed=(CFG.player.bulletSpeed*pBul) * upgradeMul;
-}
-function resetRun(){ 
-  state.hearts=3; state.shield=0; state.coins=0; state.boosts={speed:0,jump:0}; 
-  state.upgrades=SHOP_ITEMS.reduce((acc, item) => (acc[item.id] = 0, acc), {}); 
-  applyUpgrades(); saveProgress(); 
-}
-function startMenu(){
-  state.scene='menu'; 
-  updateHUD();
-  const hasSave=loadProgress();
-  showOverlay(I18N[lang].title, splashHTML(), [
-    {label:I18N[lang].start, primary:true, on:()=>{ startLevel(0,true); }},
-   ...(hasSave?[{label:I18N[lang].cont, on:()=>{ startLevel(state.level,true); }}]:[])
-  ]);
-  setTimeout(renderSplash,0);
-}
-
-function startLevel(i,reset=true){
-  state.level=Math.max(0, i|0); 
-  applyScaling(state.level);
-  
-  const L=LEVELS[state.level];
-  if (L.isAsync) {
-    state.scene='loading';
-    updateHUD();
-    showOverlay(T('stage',state.level+1), lang==='ar'?'جار تحميل المرحلة...':'Loading Stage...', []);
-    // محاولة التحميل مرة أخرى بعد فترة قصيرة
-    setTimeout(() => { if (state.scene === 'loading') startLevel(i, reset); }, 100); 
-    return;
-  }
-  
-  hideOverlay();
-  currentLevelData = L;
-  enemies=JSON.parse(JSON.stringify(L.enemies)); 
-  enemies.forEach(e=>e._dead=false);
-  movingPlatforms=JSON.parse(JSON.stringify(L.moving));
-  drops=L.coins.map(c => ({...c, w:16, h:16, type:'coin', ttl:9999, anim: { name: 'coin', frame: 0, timer: 0, fps: 12 }})); 
-  
-  eBullets.length=0; pBullets.length=0;
-  if(reset) Object.assign(player,{x:L.start.x,y:L.start.y,dx:0,dy:0,on:false,coyote:0,jumpBuf:0,inv:0,facing:1});
-  player.anim.name = 'player_idle'; // إعادة الأنيميشن
-  state.camX=player.x+player.w/2 - canvas.width/2;
-  state.camY=player.y+player.h/2 - canvas.height/2;
-  state.scene='playing'; 
-  updateHUD(); 
-  saveProgress(); 
-  wantFocus();
-}
-function finishLevel(){
-  if (state.scene !== 'playing') return; // منع التشغيل المتعدد
-  state.scene = 'loading'; // منع الحركة أثناء الانتقال
-  SFX.win(); 
-  saveProgress();
-  // =====================================
-  // ✨ إصلاح: انتقال سلس للمرحلة التالية
-  // =====================================
-  state.level++; 
-  setTimeout(()=>{ startLevel(state.level, true); }, 1000); 
-}
-
-function gameOver(){
-  // =====================================
-  // ✨ إصلاح رقم 1: استخدام حالة 'dead'
-  // =====================================
-  if (state.scene === 'dead') return; // منع التشغيل المتعدد
-  SFX.hit();
-  state.scene = 'dead'; 
-  const lvl=state.level;
-  showOverlay(T('lose'), '', [
-    {label:T('restart')+' ↺', primary:true, on:()=>{ startLevel(lvl,true); }}, // startLevel ستقوم بـ hideOverlay وتغيير الحالة
-    {label:T('menu')+' ⌂', on:()=>{ startMenu(); }} // startMenu ستقوم بـ hideOverlay وتغيير الحالة
-  ]);
-}
-function togglePause(){
-  if(state.scene==='playing'){
-    state.scene='pause';
-    showOverlay(T('paused'),'',[
-      {label:T('resume')+' ▶', primary:true, on:()=>{ hideOverlay(); state.scene='playing'; }},
-      {label:T('shop')+' 🛒', on:()=>{ showShop(); }}, // showShop ستتعامل مع الحالة
-      {label:T('restart')+' ↺', on:()=>{ startLevel(state.level,true); }},
-      {label:T('menu')+' ⌂', on:()=>{ startMenu(); }},
-      {label: muted?'🔊 Music':'🔇 Music', on:()=>{ muted=!muted; HUD.btnMusic.textContent=muted?'🔇':'🔊'; hideOverlay(); togglePause(); }},
-      {label:(lang==='ar'?'English':'العربية'), on:()=>{ lang=(lang==='ar'?'en':'ar'); document.documentElement.lang=lang; document.documentElement.dir=(lang==='ar'?'rtl':'ltr'); HUD.btnLang.textContent=(lang==='ar'?'العربية':'English'); updateHUD(); hideOverlay(); togglePause(); }}
-    ]);
-  }else if(state.scene==='pause'){ 
-    hideOverlay(); 
-    state.scene='playing'; 
-  }
-}
-
-/* ================ DROPS ================= */
-function spawnDrop(x,y){
-  const r=Math.random(); 
-  const type=r<0.25?'heart': r<0.5?'shield': r<0.75?'speed':'jump';
-  let animName = 'heart';
-  if (type === 'shield') animName = 'shield';
-  if (type === 'speed') animName = 'boost_speed';
-  if (type === 'jump') animName = 'boost_jump';
-  
-  drops.push({x:x-9,y:y-6,w:18,h:18,type,ttl:5, anim: { name: animName, frame: 0, timer: 0, fps: 1 }});
-}
-function updateDrops(dt){
-  const maxShields = SHOP_MAP.shieldCapacity.initial + (state.upgrades.shieldCapacity * SHOP_MAP.shieldCapacity.inc);
-  for(let i=drops.length-1;i>=0;i--){
-    const d=drops[i]; 
-    d.ttl-=dt;
-    if (d.anim) updateAnimation(d, dt); // تحديث أنيميشن العملات
-
-    if(rects(player,d)){
-      if(d.type==='coin'){ state.coins++; SFX.coin(); }
-      else if(d.type==='heart' && state.hearts<CFG.player.maxHearts) state.hearts++;
-      else if(d.type==='shield') state.shield=Math.min(maxShields,state.shield+1);
-      else if(d.type==='speed') state.boosts.speed=Math.min(5,state.boosts.speed+1);
-      else if(d.type==='jump') state.boosts.jump=Math.min(5,state.boosts.jump+1);
-      else if(d.type!=='coin') SFX.pick(); 
-      vibrate(20); updateHUD(); drops.splice(i,1); saveProgress();
-    }else if(d.ttl<=0 && d.type!=='coin') drops.splice(i,1); 
-  }
-}
-function drawDrops(){
-  drops.forEach(d=>{
-    const x=d.x-state.camX,y=d.y-state.camY;
-    
-    // رسم هالة بسيطة
-    ctx.globalAlpha = 0.3; ctx.fillStyle = '#fff';
-    ctx.beginPath(); ctx.arc(x+d.w/2,y+d.h/2,18,0,Math.PI*2); ctx.fill();
-    ctx.globalAlpha = 1.0;
-    
-    // رسم الـ sprite الخاص بالـ drop
-    if (d.anim) {
-        drawSprite(d.anim.name, d.anim.frame, x, y, d.w, d.h);
-    }
-  });
-}
-
-/* ================ MECHANICS ================ */
-function shoot(){
-  const t=nowSec(); 
-  if(t-state.lastShotAt<CFG.player.shootCooldown) return; 
-  state.lastShotAt=t; 
-  SFX.shoot();
-  const dir=player.facing; 
-  pBullets.push({
-    x: player.x + player.w / 2 + (dir * player.w / 2),
-    y: player.y + 10, // تعديل لتخرج من منتصف اللاعب
-    w: 16, h: 8, // حجم الـ sprite
-    dx: dir * runtime.player.bulletSpeed, dy: 0,
-    anim: { name: 'bullet_player', frame: 0, timer: 0, fps: 1 }
-  });
-}
-function defeatEnemy(e){
-  if(e._dead) return;
-  // إضافة مؤثر بصري عند موت العدو
-  drops.push({x:e.x+e.w/2-8, y:e.y+e.h/2-8, w:24, h:24, type:'poof', ttl:0.5, anim: { name: 'poof', frame: 0, timer: 0, fps: 1 }});
-
-  if(Math.random() < 0.6) drops.push({x:e.x+e.w/2, y:e.y, w:16, h:16, type:'coin', ttl:9999, anim: { name: 'coin', frame: 0, timer: 0, fps: 12 }}); 
-  else spawnDrop(e.x+e.w/2, e.y);
-  
-  const proto={minX:e.minX,maxX:e.maxX,y:e.y,w:e.w,h:e.h,type:e.type, anim: e.anim};
-  e._dead=true;
-  setTimeout(()=>{ Object.assign(e,{...proto,x:proto.minX,dir:1,_dead:false,cool:Math.random()*runtime.enemy.fireRate}); },3000);
-}
-function hurtPlayer(){
-  if(player.inv>0) return;
-  const maxShields = SHOP_MAP.shieldCapacity.initial + (state.upgrades.shieldCapacity * SHOP_MAP.shieldCapacity.inc);
-  if(state.shield>0){ 
-    state.shield=Math.min(maxShields,state.shield-1); 
-    player.inv=1.0; SFX.hit(); vibrate(40); updateHUD(); saveProgress(); return; 
-  }
-  state.hearts--; 
-  player.inv=1.0; SFX.hit(); vibrate(60); updateHUD(); saveProgress();
-  if(state.hearts<=0){ gameOver(); return; }
-  // عند الموت (وليس الخسارة)، العودة لنقطة البداية
-  const L=currentLevelData; 
-  Object.assign(player,{x:L.start.x,y:L.start.y,dx:0,dy:0,on:false});
-}
-
-/* ================ PHYSICS ================= */
-function tileAt(px,py){
-  const L=currentLevelData; if (!L || L.isAsync) return TILE.SOLID; 
-  const tx=(px/CFG.tile)|0, ty=(py/CFG.tile)|0;
-  if(tx<0||ty<0||tx>=L.W||ty>=L.H) return TILE.SOLID;
-  return L.map[ty][tx];
-}
-function moveAndCollide(ent){
-  ent.x+=ent.dx;
-  if(ent.dx!==0){
-    const s=Math.sign(ent.dx), cx=ent.x+(s>0?ent.w:0);
-    const pts=[{x:cx,y:ent.y+2},{x:cx,y:ent.y+ent.h-2}];
-    for(const p of pts){
-      const t=tileAt(p.x,p.y);
-      if(t===TILE.SOLID){ const tx=(p.x/CFG.tile)|0; ent.x=tx*CFG.tile - (s>0?ent.w:-CFG.tile); ent.dx=0; break; }
-    }
-  }
-  ent.y+=ent.dy; ent.on=false;
-  const vy=ent.y+(ent.dy>0?ent.h:0), pts2=[{x:ent.x+2,y:vy},{x:ent.x+ent.w-2,y:vy}];
-  for(const p of pts2){
-    const t=tileAt(p.x,p.y);
-    if(t===TILE.SOLID||t===TILE.MOVING){
-      const ty=(p.y/CFG.tile)|0; ent.y=ty*CFG.tile - (ent.dy>0?ent.h:-CFG.tile);
-      if(ent.dy>0) ent.on=true;
-      ent.dy=0; break;
-    }
-  }
-  for(const mp of movingPlatforms){
-    const r={x:mp.x,y:mp.y,w:mp.w,h:mp.h}, feet={x:ent.x+2,y:ent.y+ent.h,w:ent.w-4,h:2};
-    if(rects(feet,r)){ ent.y=mp.y-ent.h; ent.on=true; ent.x+=(mp.x-(mp._px||mp.x)); }
-    mp._px=mp.x;
-  }
-}
-function interactTiles(){
-  const L=currentLevelData; if (!L || L.isAsync) return;
-  const feet={x:player.x+player.w/2,y:player.y+player.h-2};
-  const t=tileAt(feet.x,feet.y);
-  if(t===TILE.SPIKE){ hurtPlayer(); }
-  if(t===TILE.SPRING){ player.dy=-CFG.springV*(1+state.boosts.jump*0.1); player.on=false; SFX.spring(); }
-  if(t===TILE.WATER){ state.hearts=0; updateHUD(); saveProgress(); gameOver(); return; }
-  const gx=(L.W-4)*CFG.tile, gyTop = groundTopAt(L.map,L.W-4);
-  const goalBox={x:gx,y:(gyTop-4)*CFG.tile,w:CFG.tile,h:CFG.tile*4};
-  if(rects(player,goalBox)) finishLevel();
-}
-function groundTopAt(map,x){
-  for(let y=0;y<map.length;y++) if(map[y][x]===TILE.SOLID) return y;
-  return map.length-2;
-}
-
-/* ================ UPDATE (Refactored) ================ */
-function updatePlatforms(dt) {
-    movingPlatforms.forEach(mp=>{
-        mp.t+=dt*mp.dir; const off=Math.sin(mp.t)*mp.range;
-        mp.x+=(off-(mp._p||0)); mp._p=off;
-    });
-}
-function updatePlayer(dt, L) {
-    let acc=CFG.moveAcc*(1+state.boosts.speed*0.1), maxDX=runtime.player.maxDX, jumpV=runtime.player.jumpV; 
-    let ax=0;
-    if(keys.left){ ax-=acc; player.facing=-1; }
-    if(keys.right){ ax+=acc; player.facing=1; }
-    player.dx=clamp(player.dx+ax, -maxDX, maxDX);
-    if(player.on && ax===0) player.dx*=CFG.friction;
-    player.dy=clamp(player.dy+CFG.gravity, -CFG.maxDY, CFG.maxDY);
-    if(keys.jump) player.jumpBuf=CFG.jumpBuffer; else player.jumpBuf=Math.max(0,player.jumpBuf-dt);
-    player.coyote = player.on? CFG.coyoteTime : Math.max(0,player.coyote-dt);
-    if(player.jumpBuf>0 && player.coyote>0){
-        player.dy=-jumpV; player.on=false; player.coyote=0; player.jumpBuf=0;
-        SFX.jump(); vibrate(20);
-    }
-    if(!keys.jump && player.dy<-2) player.dy*=CFG.variableJumpCut;
-
-    moveAndCollide(player);
-
-    // تحديث الأنيميشن الخاص باللاعب
-    if (!player.on) { player.anim.name = 'player_jump'; }
-    else if (keys.left || keys.right) { player.anim.name = 'player_run'; }
-    else { player.anim.name = 'player_idle'; }
-    updateAnimation(player, dt);
-
-    const worldFloor=(L.H-2)*CFG.tile;
-    if(player.y > worldFloor+8){ state.hearts=0; updateHUD(); saveProgress(); gameOver(); return; }
-    interactTiles();
-    if(state.hasGun && keys.shoot) shoot();
-    if(player.inv>0) player.inv=Math.max(0,player.inv-dt);
-}
-function updateEnemiesAndBullets(dt, L) {
-    enemies.forEach(e=>{
-        if(e._dead) return;
-        const sp = e.type===ENEMY.FLIER?runtime.enemy.flierSpeed : e.type===ENEMY.SHOOTER?runtime.enemy.shooterSpeed : e.type===ENEMY.TURTLE?runtime.enemy.turtleSpeed : runtime.enemy.walkerSpeed;
-        e.x += e.dir * sp * dt * 60;
-        if(e.x<e.minX){ e.x=e.minX; e.dir=1; }
-        if(e.x+e.w>e.maxX){ e.x=e.maxX-e.w; e.dir=-1; }
-        if(e.type===ENEMY.SHOOTER){
-            e.cool=(e.cool||0)-dt;
-            if(e.cool<=0){
-                e.cool=runtime.enemy.fireRate;
-                const dir=(player.x<e.x?-1:1);
-                eBullets.push({x:e.x+(dir>0?e.w:0),y:e.y+10,w:12,h:12,dx:dir*runtime.enemy.bulletSpeed,dy:0, anim: { name: 'bullet_enemy', frame: 0, timer: 0, fps: 1 }});
+            // استئناف الحركة إذا كان دور AI
+            if (this.isAIPlayer(this.currentPlayerIdx) && !this.winner) {
+                this.handleAI();
+            } else if (!this.winner) {
+                // إذا كان هناك قيمة نرد محفوظة، قم بتحديث الحركات الممكنة
+                if (this.diceValue !== 0) {
+                     this.validMoves = this.getValidMoves(this.diceValue);
+                }
+                this.updateRollButton();
+                this.renderer.highlightValidMoves(this.validMoves);
             }
         }
-        if(player.inv<=0 && rects(player,e)){
-            const stomp = player.dy>0 && (player.y+player.h-e.y)<14;
-            if(stomp && (e.type===ENEMY.WALKER||e.type===ENEMY.TURTLE)){
-                player.dy=-(runtime.player.jumpV*0.8); SFX.hit(); defeatEnemy(e);
-            } else { hurtPlayer(); }
-        }
-        updateAnimation(e, dt); // تحديث أنيميشن العدو
-    });
-    eBullets.forEach(b=>{ b.x+=b.dx; b.y+=b.dy; });
-    eBullets=eBullets.filter(b=>{ if(rects(player,b)){ hurtPlayer(); return false; } return onScreen(b,L); });
-    pBullets.forEach(b=>{ b.x+=b.dx; b.y+=b.dy; });
-    pBullets=pBullets.filter(b=>{
-        let alive=true;
-        for(const e of enemies){
-            if(e._dead) continue;
-            if(rects(b,{x:e.x,y:e.y,w:e.w,h:e.h})){ SFX.hit(); defeatEnemy(e); alive=false; break; }
-        }
-        return alive && onScreen(b,L);
-    });
-}
-function updateCamera(dt, L) {
-    const targetX=clamp(player.x+player.w/2 - canvas.width/2, 0, L.W*CFG.tile - canvas.width);
-    const targetY=clamp(player.y+player.h/2 - canvas.height*0.6, 0, L.H*CFG.tile-canvas.height);
-    state.camX=lerp(state.camX,targetX,CFG.cameraLerp);
-    state.camY=lerp(state.camY,targetY,CFG.cameraLerp);
-}
-let last=performance.now();
-function update(dt){
-  if(state.scene!=='playing') return;
-  const L = currentLevelData; if (!L || L.isAsync) return; 
-  updatePlatforms(dt);
-  updatePlayer(dt, L);
-  if(state.scene!=='playing') return; // التحقق إذا مات اللاعب
-  updateEnemiesAndBullets(dt, L);
-  updateDrops(dt);
-  updateCamera(dt, L);
-}
-function onScreen(b,L){ return b.x>-64 && b.x<L.W*CFG.tile+64 && b.y>-64 && b.y<L.H*CFG.tile+64; }
 
-/* ================ DRAW (With Sprites) ================ */
-function getCSS(v){ return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
-function drawParallax(offset, baseY, color){
-  ctx.fillStyle=color; for(let i=-1;i<6;i++){ const x=((i*240-(offset%240))|0);
-    ctx.beginPath(); ctx.moveTo(x,baseY+120); ctx.lineTo(x+120,baseY+40); ctx.lineTo(x+240,baseY+200); ctx.closePath(); ctx.fill();
-  }
-}
-// =====================================
-// ✨ التطوير رقم 4: دالة رسم بلاط محسنة
-// =====================================
-function drawTiles(L) {
-    const T=CFG.tile, sx=(state.camX/T)|0, ex=Math.ceil((state.camX+canvas.width)/T);
-    const edge = 4; // سُمك الحافة
-    for(let y=0;y<L.H;y++){
-      for(let x=sx;x<Math.min(ex,L.W);x++){
-        const t=L.map[y][x], px=Math.floor(x*T-state.camX), py=Math.floor(y*T-state.camY);
+        saveGame() {
+            const state = {
+                players: this.players.map(p => ({
+                    id: p.id,
+                    type: p.type,
+                    aiLevel: p.aiLevel,
+                    tokens: p.tokens.map(t => ({
+                        id: t.id,
+                        playerId: t.playerId,
+                        position: t.position
+                    }))
+                })),
+                currentPlayerIdx: this.currentPlayerIdx,
+                diceValue: this.diceValue,
+                sixStreak: this.sixStreak,
+                hasExtraTurn: this.hasExtraTurn,
+                activePlayers: this.activePlayers,
+                winner: this.winner
+            };
+            localStorage.setItem('ludoState', JSON.stringify(state));
+            document.getElementById('resume-game').style.display = localStorage.getItem('ludoState') ? 'inline-block' : 'none';
+        }
+
+        // الانتقال إلى اللاعب التالي
+        nextPlayer() {
+            let nextIndex = (this.activePlayers.indexOf(this.currentPlayerIdx) + 1) % this.activePlayers.length;
+            this.currentPlayerIdx = this.activePlayers[nextIndex];
+            this.sixStreak = 0;
+            this.hasExtraTurn = false;
+        }
+
+        // بدء الدور التالي
+        nextTurn() {
+            if (this.winner) {
+                this.showWinModal(this.winner);
+                return;
+            }
+
+            // لا ننتقل للاعب التالي إذا كان لديه دور إضافي (6)
+            if (!this.hasExtraTurn || this.diceValue === 0) {
+                this.nextPlayer();
+            }
+
+            this.diceValue = 0;
+            this.renderer.highlightValidMoves({});
+            this.selectedToken = null;
+            this.updateRollButton();
+
+            if (this.isAIPlayer(this.currentPlayerIdx)) {
+                this.updateStatus(ARABIC_TEXT.CURRENT_TURN + this.players[this.currentPlayerIdx].name);
+                setTimeout(() => this.rollDice(), 1000);
+            } else {
+                this.updateStatus(ARABIC_TEXT.CURRENT_TURN + this.players[this.currentPlayerIdx].name + ' - ' + ARABIC_TEXT.ROLL_DICE);
+            }
+        }
+
+        isAIPlayer(id) {
+            return this.players[id].type === 'AI';
+        }
+
+        // رمي النرد
+        rollDice() {
+            if (this.isRolling || this.isAnimating) return;
+
+            this.sm.play('DICE');
+            this.isRolling = true;
+            document.getElementById('roll-dice-button').disabled = true;
+
+            let rollCount = 0;
+            const maxRolls = 15;
+            const rollInterval = setInterval(() => {
+                rollCount++;
+                this.diceValue = Math.floor(Math.random() * 6) + 1;
+                document.getElementById('dice-display').textContent = this.diceValue;
+
+                if (rollCount >= maxRolls) {
+                    clearInterval(rollInterval);
+                    this.isRolling = false;
+                    this.afterDiceRoll();
+                }
+            }, 80);
+        }
+
+        // ما بعد رمي النرد
+        afterDiceRoll() {
+            this.updateStatus(ARABIC_TEXT.CURRENT_TURN + this.players[this.currentPlayerIdx].name + ' - ' + ARABIC_TEXT.ROLLED + this.diceValue);
+
+            const isSix = this.diceValue === 6;
+
+            if (isSix) {
+                this.sixStreak++;
+                if (this.sixStreak === 3) {
+                    this.updateStatus(ARABIC_TEXT.CURRENT_TURN + this.players[this.currentPlayerIdx].name + ' - 3 ستات متتالية، فقدان الدور!');
+                    setTimeout(() => {
+                        this.sixStreak = 0;
+                        this.hasExtraTurn = false; 
+                        this.diceValue = 0; // مهم لتصفير النرد بعد انتهاء الدور
+                        this.nextTurn();
+                    }, 1500);
+                    return;
+                } else {
+                    this.hasExtraTurn = true;
+                    this.updateStatus(ARABIC_TEXT.CURRENT_TURN + this.players[this.currentPlayerIdx].name + ' - ' + ARABIC_TEXT.ROLLED + this.diceValue + ' - ' + ARABIC_TEXT.EXTRA_TURN);
+                }
+            } else {
+                this.hasExtraTurn = false;
+                this.sixStreak = 0;
+            }
+
+            this.validMoves = this.getValidMoves(this.diceValue);
+            this.renderer.highlightValidMoves(this.validMoves);
+
+            if (Object.keys(this.validMoves).length === 0) {
+                // لا توجد حركات صالحة
+                this.updateStatus(ARABIC_TEXT.NO_MOVES);
+                setTimeout(() => this.nextTurn(), 1500);
+            } else if (this.isAIPlayer(this.currentPlayerIdx)) {
+                this.handleAI();
+            } else {
+                this.updateRollButton();
+            }
+        }
+
+        // معالجة دور الذكاء الاصطناعي
+        handleAI() {
+            const ai = new AI(this);
+            const player = this.players[this.currentPlayerIdx];
+            const bestMove = ai.chooseBestMove(player.aiLevel, this.diceValue, this.validMoves);
+
+            if (bestMove) {
+                const token = player.tokens.find(t => t.id === bestMove.tokenId);
+                setTimeout(() => this.moveToken(token, bestMove.targetPosition), 1500);
+            } else {
+                setTimeout(() => this.nextTurn(), 1500);
+            }
+        }
+
+        // جلب الحركات الصالحة لجميع القطع
+        getValidMoves(dice) {
+            const validMoves = {};
+            const player = this.players[this.currentPlayerIdx];
+
+            if (dice === 0) return {};
+
+            player.tokens.forEach(token => {
+                let targetPos = -1;
+
+                if (token.position < 4) { // في البيت (0, 1, 2, 3)
+                    if (dice === 6) {
+                        targetPos = 4; // الخانة 4 تمثل خانة البداية في مسار اللاعب
+                    }
+                } else if (token.position < 56) { // في المسار المشترك (4 إلى 55)
+                    targetPos = token.position + dice;
+
+                    // تجاوز الهدف في المسار المشترك، يجب الدخول إلى مسار الأمان (56)
+                    if (targetPos > 56 + 6) { // 62
+                        targetPos = -1; // لا يمكن تجاوز الهدف
+                    } else if (targetPos === 56) {
+                        // دخول مسار الأمان (الخانة 56)
+                    }
+                } else if (token.position >= 56 && token.position < 62) { // في مسار الأمان الداخلي (56 إلى 61)
+                    targetPos = token.position + dice;
+
+                    if (targetPos > 62) {
+                         targetPos = -1; // لا يمكن تجاوز الهدف (62)
+                    }
+                }
+
+                if (targetPos !== -1) {
+                    validMoves[token.id] = targetPos;
+                }
+            });
+            return validMoves;
+        }
+
+        // تنفيذ حركة القطعة
+        moveToken(token, targetPosition) {
+            if (this.isAnimating) return;
+
+            // بدء الحركة السلسة
+            this.isAnimating = true;
+            this.renderer.startTokenAnimation(token, targetPosition, () => {
+                this.isAnimating = false;
+                this.sm.play('MOVE');
+
+                // تحقق من الاصطدام بعد وصول القطعة (فقط في المسار المشترك 4-55)
+                if (targetPosition >= 4 && targetPosition < 56) {
+                    this.checkCapture(token, targetPosition);
+                }
+
+                token.position = targetPosition;
+                this.saveGame();
+
+                // تحقق من الفوز
+                this.checkWin(token.playerId);
+
+                // الانتقال إلى الدور التالي (مع مراعاة الدور الإضافي)
+                // يجب تصفير النرد بعد استخدامه
+                this.diceValue = 0;
+                this.nextTurn();
+            });
+        }
+
+        // التحقق من الاصطدام
+        checkCapture(movingToken, targetPosition) {
+            const pathIndex = this.convertToGlobalPathIndex(movingToken.playerId, targetPosition);
+            const isSafeSpot = this.isGlobalSafeSpot(pathIndex);
+
+            if (isSafeSpot) return;
+
+            this.players.forEach(player => {
+                if (player.id !== movingToken.playerId) {
+                    player.tokens.forEach(opponentToken => {
+                        // حساب موضع الخصم في المسار المشترك
+                        let opponentPathPos = -1;
+                        if (opponentToken.position >= 4 && opponentToken.position < 56) {
+                             opponentPathPos = this.convertToGlobalPathIndex(opponentToken.playerId, opponentToken.position);
+                        }
+
+                        if (pathIndex === opponentPathPos) {
+                            // اصطدام! إعادة القطعة إلى البيت (الموضع 0-3)
+                            opponentToken.position = opponentToken.id;
+                            this.sm.play('CAPTURE');
+                            this.updateStatus(this.players[movingToken.playerId].name + ' ضرب قطعة لـ ' + player.name);
+                        }
+                    });
+                }
+            });
+        }
+
+        // دالة مساعدة لتحويل موضع القطعة (4-55) إلى مؤشر المسار المشترك (0-51)
+        convertToGlobalPathIndex(playerId, position) {
+             const playerStartIdx = START_POSITIONS[playerId];
+             const stepsFromStart = position - 4;
+             return (playerStartIdx + stepsFromStart) % 52;
+        }
+
+        // دالة مساعدة لمعرفة هل الخانة آمنة
+        isGlobalSafeSpot(pathIndex) {
+            return SAFE_SPOTS.includes(pathIndex) || START_SPOTS.includes(pathIndex);
+        }
+
+        // التحقق من الفوز
+        checkWin(playerId) {
+            const player = this.players[playerId];
+            const allTokensInGoal = player.tokens.every(token => token.position === 62);
+            if (allTokensInGoal) {
+                this.winner = playerId;
+                this.showWinModal(playerId);
+                localStorage.removeItem('ludoState'); // مسح حالة الحفظ
+            }
+        }
+
+        // تحديث حالة العرض (النصوص)
+        updateStatus(message) {
+            document.getElementById('status-display').textContent = message;
+        }
+
+        // تحديث حالة زر رمي النرد
+        updateRollButton() {
+            const rollButton = document.getElementById('roll-dice-button');
+            const currentPlayer = this.players[this.currentPlayerIdx];
+
+            if (this.winner) {
+                rollButton.disabled = true;
+                rollButton.textContent = 'انتهت اللعبة';
+            } else if (currentPlayer.type === 'AI') {
+                rollButton.disabled = true;
+                rollButton.textContent = 'دور الذكاء الاصطناعي...';
+            } else if (this.diceValue === 0) {
+                rollButton.disabled = false;
+                rollButton.textContent = ARABIC_TEXT.ROLL_DICE;
+            } else {
+                // بعد الرمي ووجود حركات صالحة، يجب اختيار قطعة
+                rollButton.disabled = true;
+                rollButton.textContent = 'اختر قطعة';
+            }
+        }
+
+        showWinModal(winnerId) {
+            const winnerName = this.players[winnerId].name;
+            document.getElementById('winner-message').textContent = ARABIC_TEXT.WINNER_IS + winnerName;
+            document.getElementById('win-modal').classList.add('active');
+            this.sm.play('WIN');
+            this.renderer.render(); // إعادة الرسم الأخيرة
+        }
+
+        // تحديد القطعة للنقل
+        selectToken(token) {
+            if (this.isAIPlayer(this.currentPlayerIdx) || this.isRolling || this.isAnimating || this.diceValue === 0 || this.winner) return;
+            if (token.playerId !== this.currentPlayerIdx) return; // قطعة لاعب آخر
+
+            const targetPos = this.validMoves[token.id];
+
+            if (targetPos !== undefined) {
+                this.selectedToken = token;
+                this.moveToken(token, targetPos);
+                this.renderer.highlightValidMoves({}); // إزالة التظليل بعد الحركة
+            }
+        }
+    }
+
+
+    //================================================================================
+    // 4. فئة الذكاء الاصطناعي (AI)
+    //================================================================================
+
+    class AI {
+        constructor(game) {
+            this.game = game;
+            this.playerId = game.currentPlayerIdx;
+            this.player = game.players[this.playerId];
+            this.opponentTokens = this.getOpponentTokens();
+        }
+
+        getOpponentTokens() {
+            return this.game.players
+                .filter(p => p.id !== this.playerId)
+                .flatMap(p => p.tokens)
+                .filter(t => t.position >= 4 && t.position < 56);
+        }
+
+        // اختيار أفضل حركة بناءً على المستوى
+        chooseBestMove(level, diceValue, validMoves) {
+            const moves = Object.entries(validMoves).map(([tokenId, targetPosition]) => ({
+                tokenId: parseInt(tokenId),
+                targetPosition: targetPosition
+            }));
+
+            if (moves.length === 0) return null;
+
+            if (level === 'EASY') {
+                return this.easyMove(moves, diceValue);
+            } else if (level === 'MEDIUM') {
+                return this.mediumMove(moves, diceValue);
+            } else { // HARD
+                return this.hardMove(moves, diceValue);
+            }
+        }
+
+        // سهل: يدخل بالـ 6، يحرك أول قطعة متاحة (الأقل ID)
+        easyMove(moves, diceValue) {
+            // الأولوية لرمي 6 للدخول
+            if (diceValue === 6) {
+                const homeMove = moves.find(m => this.player.tokens.find(t => t.id === m.tokenId).position < 4);
+                if (homeMove) return homeMove;
+            }
+            // اختيار أول حركة متاحة
+            return moves[0];
+        }
+
+        // متوسط: يفضّل الضرب، يتجنب الخطر، يوزع التقدم
+        mediumMove(moves, diceValue) {
+            let bestMove = null;
+            let maxScore = -Infinity;
+
+            for (const move of moves) {
+                const score = this.evaluateMove(move.tokenId, move.targetPosition, diceValue, 'MEDIUM');
+                if (score > maxScore) {
+                    maxScore = score;
+                    bestMove = move;
+                }
+            }
+            return bestMove;
+        }
+
+        // صعب: تقييم نقاط متوازن (الأولوية للضرب، التقدم الآمن، القطع الأقرب للهدف)
+        hardMove(moves, diceValue) {
+            let bestMove = null;
+            let maxScore = -Infinity;
+
+            for (const move of moves) {
+                const score = this.evaluateMove(move.tokenId, move.targetPosition, diceValue, 'HARD');
+                if (score > maxScore) {
+                    maxScore = score;
+                    bestMove = move;
+                }
+            }
+            return bestMove;
+        }
+
+        // دالة تقييم الحركة
+        evaluateMove(tokenId, targetPosition, diceValue, level) {
+            let score = 0;
+            const token = this.player.tokens.find(t => t.id === tokenId);
+
+            // 1. تقييم الضرب/الاصطدام (Capture)
+            const capturedToken = this.isCaptureMove(targetPosition, token.playerId);
+            if (capturedToken) {
+                score += 100; // قيمة عالية للضرب
+            }
+
+            // 2. تقييم الوصول إلى الهدف (Goal)
+            if (targetPosition === 62) {
+                score += 500; // قيمة عالية للفوز/الوصول
+            }
+
+            // 3. تقييم الخروج من البيت
+            if (token.position < 4 && targetPosition === 4) {
+                score += 50;
+            }
+
+            // 4. تقييم التقدم على اللوحة (أقل قيمة إجمالية = أقرب للهدف)
+            // مسافة الهدف (62 - targetPosition)
+            score += (62 - targetPosition) * -2;
+
+            // 5. تقييم الأمان (Threat Avoidance)
+            if (targetPosition >= 4 && targetPosition < 56) {
+                const pathIndex = this.convertToGlobalPathIndex(token.playerId, targetPosition);
+                const isSafe = this.isGlobalSafeSpot(pathIndex);
+
+                if (!isSafe) {
+                    // تحقق من التهديدات القريبة (Threat)
+                    const threats = this.getThreats(pathIndex);
+                    if (threats.length > 0) {
+                        score -= 80; // عقوبة للوقوف في مكان غير آمن مهدد
+                    }
+                }
+            }
+
+            // 6. مكافأة الدخول إلى مسار الأمان الداخلي
+            if (targetPosition >= 56 && token.position < 56) {
+                 score += 70;
+            }
+
+            // 7. تقييم الخطر (فقط للمستوى الصعب)
+            if (level === 'HARD') {
+                if (targetPosition >= 4 && targetPosition < 56) {
+                    const isSafe = this.isGlobalSafeSpot(this.convertToGlobalPathIndex(token.playerId, targetPosition));
+                    if (!isSafe) {
+                        // هل القطعة معرضة للضرب في الدور التالي للخصم؟ (التحقق من 1-6 خطوات)
+                        const nextTurnThreats = this.getFutureThreats(targetPosition);
+                        if (nextTurnThreats.length > 0) {
+                            score -= 150; // عقوبة أكبر لتجنب التعريض للخطر
+                        }
+                    }
+                }
+            }
+
+            return score;
+        }
+
+        // تحويل موضع القطعة (4-55) إلى مؤشر المسار المشترك (0-51)
+        convertToGlobalPathIndex(playerId, position) {
+            const playerStartIdx = START_POSITIONS[playerId];
+            const stepsFromStart = position - 4;
+            return (playerStartIdx + stepsFromStart) % 52;
+        }
+
+        // هل هذه الخانة آمنة؟
+        isGlobalSafeSpot(pathIndex) {
+            return SAFE_SPOTS.includes(pathIndex) || START_SPOTS.includes(pathIndex);
+        }
+
+        // هل هناك قطعة خصم يمكن ضربها في targetPosition؟
+        isCaptureMove(targetPosition, movingPlayerId) {
+            if (targetPosition < 4 || targetPosition >= 56) return null; // لا يوجد ضرب في البيت أو مسار الأمان
+
+            const pathIndex = this.convertToGlobalPathIndex(movingPlayerId, targetPosition);
+            if (this.isGlobalSafeSpot(pathIndex)) return null; // لا يوجد ضرب في الخانات الآمنة
+
+            return this.opponentTokens.find(t => {
+                const opponentPathIndex = this.convertToGlobalPathIndex(t.playerId, t.position);
+                return pathIndex === opponentPathIndex;
+            });
+        }
+
+        // جلب التهديدات الحالية (قطع الخصم الواقفة على الخانة)
+        getThreats(pathIndex) {
+            return this.opponentTokens.filter(t => {
+                const opponentPathIndex = this.convertToGlobalPathIndex(t.playerId, t.position);
+                return pathIndex === opponentPathIndex;
+            });
+        }
+
+        // جلب التهديدات المستقبلية: هل يمكن للخصم الوصول إلى targetPosition في دور قادم؟
+        getFutureThreats(targetPosition) {
+            const targetPathIndex = this.convertToGlobalPathIndex(this.playerId, targetPosition);
+            let threats = [];
+
+            for (const opponentToken of this.opponentTokens) {
+                const opponentPlayerId = opponentToken.playerId;
+                const opponentGlobalPos = this.convertToGlobalPathIndex(opponentPlayerId, opponentToken.position);
+
+                const distance = (targetPathIndex - opponentGlobalPos + 52) % 52; // مسافة الخصم إلى الخانة الهدف
+
+                if (distance >= 1 && distance <= 6) {
+                    threats.push(opponentToken);
+                }
+            }
+            return threats;
+        }
+    }
+
+
+    //================================================================================
+    // 5. فئة الرسام (Renderer)
+    //================================================================================
+
+    class Renderer {
+        constructor(game) {
+            this.game = game;
+            this.cellSize = 0;
+            this.tokenRadius = 0;
+            this.highlightedMoves = {};
+            this.activeAnimation = null;
+            this.resizeCanvas();
+            window.addEventListener('resize', this.resizeCanvas.bind(this));
+            CANVAS.addEventListener('click', this.handleCanvasClick.bind(this));
+            CANVAS.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                const touch = e.touches[0];
+                const rect = CANVAS.getBoundingClientRect();
+                const x = touch.clientX - rect.left;
+                const y = touch.clientY - rect.top;
+                this.handleClick(x, y);
+            });
+        }
+
+        resizeCanvas() {
+            const containerWidth = document.getElementById('game-container').clientWidth - 30; // 30 = padding
+            CANVAS.width = containerWidth;
+            CANVAS.height = containerWidth;
+            this.cellSize = CANVAS.width / 15;
+            this.tokenRadius = this.cellSize * 0.4;
+            this.game.renderer = this; // تحديث مرجع اللعبة للوصول لـ this.cellSize
+            this.render();
+        }
+
+        // رسم اللوحة كاملة
+        render() {
+            if (!this.game.players.length) return; // لا ترسم بدون تهيئة
+
+            CTX.clearRect(0, 0, CANVAS.width, CANVAS.height);
+            this.drawBoardStructure();
+            this.drawTokens();
+            this.drawDiceValue(this.game.diceValue);
+        }
+
+        drawBoardStructure() {
+            const cs = this.cellSize;
+
+            // 1. رسم مناطق البيوت (Corners)
+            for (let i = 0; i < 4; i++) {
+                CTX.fillStyle = PLAYER_COLORS[i].light;
+                
+                // تحديد موقع منطقة البيت 6x6
+                const x = (i === 0 || i === 3) ? 0 : 9 * cs;
+                const y = (i === 0 || i === 1) ? 9 * cs : 0; 
+                
+                CTX.fillRect(
+                    x, y,
+                    6 * cs, 6 * cs
+                );
+
+                // رسم الحدود الخارجية (البيضاء)
+                CTX.strokeStyle = '#fff';
+                CTX.lineWidth = 2;
+                CTX.strokeRect(x, y, 6 * cs, 6 * cs);
+
+                // رسم مواضع البيت الداخلية (4 دوائر)
+                const homeCoords = BOARD_CONFIG.HOME[i];
+                CTX.fillStyle = PLAYER_COLORS[i].color;
+                homeCoords.forEach(c => {
+                    CTX.beginPath();
+                    CTX.arc(toPixel(c.x), toPixel(c.y), this.tokenRadius * 1.1, 0, 2 * Math.PI);
+                    CTX.fill();
+                    CTX.strokeStyle = '#333';
+                    CTX.lineWidth = 1;
+                    CTX.stroke();
+                });
+
+                // رسم مناطق البداية (الخلية الخامسة من كل جهة)
+                CTX.fillStyle = PLAYER_COLORS[i].color;
+                let startX, startY;
+                if (i === 0) { startX = 6, startY = 12; } // Red
+                if (i === 1) { startX = 1, startY = 8; } // Blue
+                if (i === 2) { startX = 8, startY = 1; } // Green
+                if (i === 3) { startX = 12, startY = 8; } // Yellow
+
+                CTX.fillRect(startX * cs, startY * cs, cs, cs);
+                CTX.strokeStyle = '#333';
+                CTX.strokeRect(startX * cs, startY * cs, cs, cs);
+            }
+
+            // 2. رسم المسار المشترك (الخلايا البيضاء)
+            for (let i = 0; i < 15; i++) {
+                for (let j = 0; j < 15; j++) {
+                    const isTrack = (j >= 6 && j <= 8) || (i >= 6 && i <= 8);
+                    const isCenter = (i >= 6 && i <= 8) && (j >= 6 && j <= 8);
+                    
+                    if (isTrack && !isCenter) {
+                        CTX.strokeStyle = '#333';
+                        CTX.lineWidth = 1;
+                        CTX.strokeRect(i * cs, j * cs, cs, cs);
+
+                        // مسار الأمان الداخلي (7.5)
+                        if ((i === 7 && j >= 1 && j <= 13) || (j === 7 && i >= 1 && i <= 13)) {
+                            // سيتم تلوينه لاحقاً
+                        } else {
+                            CTX.fillStyle = '#fff';
+                            CTX.fillRect(i * cs, j * cs, cs, cs);
+                        }
+                    }
+                }
+            }
+
+            // 3. رسم مسار الأمان الداخلي (بالألوان) و الهدف
+            for (let i = 0; i < 4; i++) {
+                CTX.fillStyle = PLAYER_COLORS[i].color;
+                BOARD_CONFIG.FINAL_PATH[i].forEach(c => {
+                    CTX.fillRect(c.x * cs - cs / 2, c.y * cs - cs / 2, cs, cs);
+                    CTX.strokeStyle = '#333';
+                    CTX.lineWidth = 1;
+                    CTX.strokeRect(c.x * cs - cs / 2, c.y * cs - cs / 2, cs, cs);
+                });
+            }
+
+            // 4. رسم الهدف المركزي (Goal)
+            CTX.fillStyle = '#f0f0f0';
+            CTX.beginPath();
+            CTX.moveTo(7.5 * cs, 7.5 * cs);
+            CTX.lineTo(6 * cs, 6 * cs);
+            CTX.lineTo(9 * cs, 6 * cs);
+            CTX.lineTo(9 * cs, 9 * cs);
+            CTX.lineTo(6 * cs, 9 * cs);
+            CTX.closePath();
+            CTX.fill();
+
+            // رسم خنجر الهدف باللون الأبيض (Goal Arrow)
+            CTX.fillStyle = 'white';
+            CTX.beginPath();
+            CTX.moveTo(toPixel(BOARD_CONFIG.GOAL.x), toPixel(BOARD_CONFIG.GOAL.y));
+            CTX.lineTo(toPixel(BOARD_CONFIG.GOAL.x - 0.5), toPixel(BOARD_CONFIG.GOAL.y + 0.5));
+            CTX.lineTo(toPixel(BOARD_CONFIG.GOAL.x + 0.5), toPixel(BOARD_CONFIG.GOAL.y + 0.5));
+            CTX.closePath();
+            CTX.fill();
+
+
+            // 5. تظليل الخانات الآمنة (بالنجمة)
+            CTX.fillStyle = 'white';
+            CTX.font = `${cs * 0.7}px Arial`;
+            CTX.textAlign = 'center';
+            CTX.textBaseline = 'middle';
+
+            SAFE_SPOTS.concat(START_SPOTS).forEach(index => {
+                const isStart = START_SPOTS.includes(index);
+                const coords = BOARD_CONFIG.PATH[index];
+                
+                // تحديد لون الخلفية للخانة الآمنة
+                let cellColor = '#fff'; 
+                if (isStart) {
+                    const playerIdx = START_SPOTS.indexOf(index);
+                    cellColor = PLAYER_COLORS[playerIdx].color;
+                } else if (index === 1 || index === 14 || index === 27 || index === 40) {
+                    // لون حسب اللاعب الذي يملك هذه الخانة الآمنة
+                    const playerIdx = index === 1 ? 0 : index === 14 ? 1 : index === 27 ? 2 : 3;
+                    cellColor = PLAYER_COLORS[playerIdx].color;
+                }
+
+                CTX.fillStyle = cellColor;
+                CTX.fillRect(coords.x * cs - cs / 2, coords.y * cs - cs / 2, cs, cs);
+                CTX.strokeStyle = '#333';
+                CTX.lineWidth = 1;
+                CTX.strokeRect(coords.x * cs - cs / 2, coords.y * cs - cs / 2, cs, cs);
+
+
+                // رسم علامة الأمان (نجمة)
+                CTX.fillStyle = '#fff';
+                CTX.fillText('★', toPixel(coords.x), toPixel(coords.y) + 2);
+            });
+
+            // 6. تظليل الحركات الممكنة
+            this.highlightValidMoves(this.highlightedMoves);
+        }
+
+        highlightValidMoves(moves) {
+            this.highlightedMoves = moves;
+
+            // إزالة أي تظليل قديم قبل الرسم
+            this.render();
+
+            if (Object.keys(moves).length === 0) return;
+
+            const targetPositions = Object.values(moves);
+            const cs = this.cellSize;
+
+            targetPositions.forEach(pos => {
+                let coords;
+                const tokenAtTarget = new Token(0, this.game.currentPlayerIdx);
+                tokenAtTarget.position = pos;
+                coords = tokenAtTarget.getCoords();
+
+                // رسم دائرة تظليل حول الخانة
+                CTX.strokeStyle = 'gold';
+                CTX.lineWidth = 4;
+                CTX.beginPath();
+                CTX.arc(coords.x, coords.y, cs * 0.45, 0, 2 * Math.PI);
+                CTX.stroke();
+            });
+        }
+
+        // رسم القطع
+        drawTokens() {
+            this.game.players.forEach(player => {
+                player.tokens.forEach(token => {
+                    let { x, y } = token.getCoords();
+
+                    if (token.isMoving) {
+                        x = token.currentX;
+                        y = token.currentY;
+                    }
+
+                    CTX.fillStyle = player.color;
+                    CTX.strokeStyle = '#333';
+                    CTX.lineWidth = 2;
+
+                    // الظل
+                    CTX.shadowColor = 'rgba(0,0,0,0.4)';
+                    CTX.shadowBlur = 4;
+                    CTX.shadowOffsetX = 2;
+                    CTX.shadowOffsetY = 2;
+
+                    // جسم القطعة
+                    CTX.beginPath();
+                    CTX.arc(x, y, this.tokenRadius, 0, 2 * Math.PI);
+                    CTX.fill();
+                    CTX.stroke();
+
+                    // إزالة الظل للرسم التالي
+                    CTX.shadowBlur = 0;
+                    CTX.shadowOffsetX = 0;
+                    CTX.shadowOffsetY = 0;
+
+                    // رقم القطعة
+                    CTX.fillStyle = '#fff';
+                    CTX.font = `${this.tokenRadius * 0.9}px Cairo, sans-serif`;
+                    CTX.fillText((token.id + 1), x, y + 2);
+                });
+            });
+        }
+
+        // رسم قيمة النرد
+        drawDiceValue(value) {
+            document.getElementById('dice-display').textContent = value === 0 ? '🎲' : value;
+        }
+
+        // بدء حركة القطعة السلسة (Tweening)
+        startTokenAnimation(token, targetPosition, callback) {
+            token.isMoving = true;
+            token.currentX = token.getCoords().x;
+            token.currentY = token.getCoords().y;
+
+            const startPos = token.position;
+            const path = this.getAnimationPath(token.playerId, startPos, targetPosition);
+
+            if (path.length === 0) {
+                token.isMoving = false;
+                callback();
+                return;
+            }
+
+            let pathIndex = 0;
+            const animationDuration = 100; // مدة الحركة بين خانتين (بالمللي ثانية)
+            let startTime = null;
+            let currentPathStep = path[0];
+
+            const step = (timestamp) => {
+                if (!startTime) startTime = timestamp;
+                const elapsed = timestamp - startTime;
+
+                if (elapsed < animationDuration) {
+                    // حركة سلسة (Tween)
+                    const progress = elapsed / animationDuration;
+                    token.currentX = currentPathStep.startX + (currentPathStep.endX - currentPathStep.startX) * progress;
+                    token.currentY = currentPathStep.startY + (currentPathStep.endY - currentPathStep.startY) * progress;
+                } else {
+                    // الانتقال إلى الخانة التالية في المسار
+                    token.currentX = currentPathStep.endX;
+                    token.currentY = currentPathStep.endY;
+                    pathIndex++;
+                    startTime = timestamp; // إعادة تعيين وقت البدء للحركة التالية
+
+                    if (pathIndex >= path.length) {
+                        // نهاية الحركة
+                        token.isMoving = false;
+                        this.game.isAnimating = false;
+                        callback();
+                        return;
+                    }
+
+                    // البدء في الخطوة التالية
+                    currentPathStep = path[pathIndex];
+                }
+
+                this.render();
+                requestAnimationFrame(step);
+            };
+
+            this.game.isAnimating = true;
+            requestAnimationFrame(step);
+        }
+
+        // حساب مسار الحركة خطوة بخطوة للرسوم المتحركة
+        getAnimationPath(playerId, startPos, targetPos) {
+            const path = [];
+            let currentPos = startPos;
+
+            while (currentPos !== targetPos) {
+                let nextPos = currentPos + 1;
+                
+                // يجب أن تكون القطعة في هذا الموضع لحظياً للحصول على الإحداثيات
+                const tokenAtCurrent = new Token(0, playerId);
+                tokenAtCurrent.position = currentPos;
+                const startCoords = tokenAtCurrent.getCoords();
+
+                const tokenAtNext = new Token(0, playerId);
+                tokenAtNext.position = nextPos;
+                const endCoords = tokenAtNext.getCoords();
+
+                path.push({
+                    startX: startCoords.x,
+                    startY: startCoords.y,
+                    endX: endCoords.x,
+                    endY: endCoords.y,
+                });
+
+                currentPos = nextPos;
+            }
+            return path;
+        }
+
+        // معالجة النقر على اللوحة
+        handleClick(x, y) {
+            if (this.game.isRolling || this.game.isAnimating || this.game.winner || this.game.isAIPlayer(this.game.currentPlayerIdx) || this.game.diceValue === 0) return;
+
+            for (const player of this.game.players) {
+                for (const token of player.tokens) {
+                    const { x: tx, y: ty } = token.getCoords();
+                    // استخدام نصف قطر القطعة للتحقق من النقر
+                    const distSq = (x - tx) ** 2 + (y - ty) ** 2;
+
+                    if (distSq < this.tokenRadius ** 2) {
+                        // تم النقر على هذه القطعة
+                        this.game.selectToken(token);
+                        return;
+                    }
+                }
+            }
+        }
+
+        handleCanvasClick(event) {
+            const rect = CANVAS.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+            this.handleClick(x, y);
+        }
+    }
+
+
+    //================================================================================
+    // 6. تهيئة اللعبة وإدارة الأحداث
+    //================================================================================
+
+    let game = new LudoGame();
+    let renderer = new Renderer(game);
+    game.renderer = renderer;
+
+    // تهيئة شاشة الإعدادات
+    const playerCountSelect = document.getElementById('player-count');
+    const playerConfigDiv = document.getElementById('player-config');
+
+    function updatePlayerConfig() {
+        const count = parseInt(playerCountSelect.value);
+        playerConfigDiv.innerHTML = '<p style="font-weight: bold; margin-bottom: 10px;">نوع اللاعبين:</p>';
+
+        for (let i = 0; i < 4; i++) {
+            const colorName = PLAYER_COLORS[i].name;
+            const colorCode = PLAYER_COLORS[i].color;
+            const isVisible = i < count;
+
+            const row = document.createElement('div');
+            row.className = 'player-setup-row';
+            row.style.display = isVisible ? 'flex' : 'none';
+
+            // مؤشر اللون
+            const colorIndicator = document.createElement('div');
+            colorIndicator.className = 'color-indicator';
+            colorIndicator.style.backgroundColor = colorCode;
+
+            // اسم اللاعب
+            const label = document.createElement('label');
+            label.textContent = colorName;
+
+            // اختيار النوع (بشري/ذكاء اصطناعي)
+            const typeSelect = document.createElement('select');
+            typeSelect.id = `player-type-${i}`;
+            typeSelect.innerHTML = `<option value="HUMAN">${ARABIC_TEXT.HUMAN}</option><option value="AI">${ARABIC_TEXT.AI}</option>`;
+            typeSelect.value = i === 0 ? 'HUMAN' : 'AI';
+
+            // اختيار المستوى (يظهر فقط إذا كان AI)
+            const levelSelect = document.createElement('select');
+            levelSelect.id = `ai-level-${i}`;
+            levelSelect.innerHTML = `<option value="EASY">${ARABIC_TEXT.EASY}</option><option value="MEDIUM" selected>${ARABIC_TEXT.MEDIUM}</option><option value="HARD">${ARABIC_TEXT.HARD}</option>`;
+            levelSelect.style.display = typeSelect.value === 'AI' ? 'block' : 'none';
+
+            typeSelect.addEventListener('change', () => {
+                levelSelect.style.display = typeSelect.value === 'AI' ? 'block' : 'none';
+            });
+
+            row.appendChild(colorIndicator);
+            row.appendChild(label);
+            row.appendChild(typeSelect);
+            row.appendChild(levelSelect);
+            playerConfigDiv.appendChild(row);
+        }
+    }
+
+    playerCountSelect.addEventListener('change', updatePlayerConfig);
+
+    // التحقق من حالة الحفظ التلقائي عند التحميل
+    window.onload = function() {
+        updatePlayerConfig();
+
+        if (localStorage.getItem('ludoState')) {
+            document.getElementById('resume-game').style.display = 'inline-block';
+            document.getElementById('start-new-game').textContent = ARABIC_TEXT.START_NEW;
+        } else {
+             document.getElementById('resume-game').style.display = 'none';
+             document.getElementById('start-new-game').textContent = ARABIC_TEXT.START_NEW;
+        }
         
-        if(t===TILE.SOLID){
-            // رسم الحافة (لإعطاء عمق)
-            ctx.fillStyle=COLORS['ground-edge']; 
-            ctx.fillRect(px,py,T,T);
-            // رسم السطح العلوي
-            ctx.fillStyle=COLORS['ground-top']; 
-            ctx.fillRect(px,py,T,T-edge);
-            // رسم العشب
-            ctx.fillStyle=COLORS.goal; // استخدام لون أخضر
-            ctx.fillRect(px,py,T,4);
+        // رسم اللوحة حتى لو كانت شاشة الإعدادات مفتوحة
+        renderer.render();
+    }
 
-        } else if(t===TILE.SPIKE){ 
-            ctx.fillStyle=COLORS.spike; 
-            ctx.beginPath(); ctx.moveTo(px,py+T); ctx.lineTo(px+T/2,py); ctx.lineTo(px+T,py+T); ctx.closePath(); ctx.fill(); 
-        } else if(t===TILE.SPRING){ 
-            ctx.fillStyle=COLORS.spring; ctx.fillRect(px+6,py+T-10,T-12,10); 
-            ctx.fillStyle='#85c1e9'; ctx.fillRect(px+6,py+T-16,T-12,6); 
-        } else if(t===TILE.WATER){ 
-            ctx.fillStyle=COLORS.water; ctx.fillRect(px,py,T,T); 
-            ctx.fillStyle='#ffffff22'; ctx.fillRect(px,py+T-6,T,6); 
-        } else if(t===TILE.GOAL){ 
-            ctx.fillStyle='#fff'; ctx.fillRect(px+T/2-2,py,4,T*4); 
-            ctx.fillStyle=COLORS.goal; ctx.beginPath(); 
-            ctx.moveTo(px+T/2+2,py+6); ctx.lineTo(px+T/2+22,py+16); ctx.lineTo(px+T/2+2,py+26); 
-            ctx.closePath(); ctx.fill(); 
+    // وظيفة بدء لعبة جديدة (من الإعدادات أو الفوز)
+    function startNewGame(resume = false) {
+        document.getElementById('setup-modal').classList.remove('active');
+        document.getElementById('win-modal').classList.remove('active');
+        document.getElementById('tooltip-modal').classList.remove('active'); // إغلاق التلميح
+
+        if (resume) {
+            try {
+                const state = JSON.parse(localStorage.getItem('ludoState'));
+                if (state) {
+                    // يجب إعادة إنشاء إعدادات اللاعبين لـ setupGame بشكل صحيح
+                    const playerConfigs = state.players.map(p => ({
+                        type: p.type,
+                        aiLevel: p.aiLevel
+                    }));
+                    game.setupGame(playerConfigs); // تهيئة اللاعبين (لإعادة إنشاء كائنات Token)
+                    game.loadGame(state); // تحميل الحالة
+                    renderer.render();
+                    return;
+                }
+            } catch(e) {
+                console.error("Failed to load game state:", e);
+                localStorage.removeItem('ludoState');
+            }
         }
-      }
-    }
-}
-function draw(){
-  ctx.fillStyle=COLORS.sky; ctx.fillRect(0,0,canvas.width,canvas.height);
-  drawParallax(state.camX*0.5, 90-state.camY*0.5, '#b3e5fc');
-  drawParallax(state.camX*0.8, 50-state.camY*0.8, '#d0f0ff');
-  
-  const L = currentLevelData;
-  if ((state.scene === 'playing' || state.scene === 'pause' || state.scene === 'dead') && L && !L.isAsync) {
-    
-    // 1. رسم البلاط
-    drawTiles(L);
 
-    // 2. رسم المنصات المتحركة
-    movingPlatforms.forEach(mp=>{ 
-        const x=mp.x-state.camX,y=mp.y-state.camY; 
-        ctx.fillStyle='#bdc3c7'; ctx.fillRect(x,y,mp.w,mp.h); 
-        ctx.fillStyle='#95a5a6'; ctx.fillRect(x,y,mp.w,4); 
+        // بدء جديد
+        const count = parseInt(playerCountSelect.value);
+        const playerConfigs = [];
+        for (let i = 0; i < count; i++) {
+            const type = document.getElementById(`player-type-${i}`).value;
+            const level = document.getElementById(`ai-level-${i}`).value;
+            playerConfigs.push({ type, aiLevel: level });
+        }
+
+        game.setupGame(playerConfigs);
+        renderer.render();
+        game.updateRollButton();
+    }
+
+    // ربط الأحداث
+    document.getElementById('start-new-game').addEventListener('click', () => startNewGame(false));
+    document.getElementById('resume-game').addEventListener('click', () => startNewGame(true));
+    document.getElementById('roll-dice-button').addEventListener('click', () => game.rollDice());
+    document.getElementById('setting-button').addEventListener('click', () => {
+        document.getElementById('setup-modal').classList.add('active');
+    });
+    document.getElementById('mute-button').addEventListener('click', () => game.sm.toggleMute());
+    document.getElementById('new-game-from-win').addEventListener('click', () => {
+        document.getElementById('win-modal').classList.remove('active');
+        document.getElementById('setup-modal').classList.add('active');
+    });
+    document.getElementById('share-screenshot').addEventListener('click', () => {
+        const dataURL = CANVAS.toDataURL('image/png');
+        const w = window.open('about:blank', '_blank');
+        w.document.write('<img src="' + dataURL + '" style="max-width:100%; height:auto;">');
     });
 
-    // 3. رسم الأعداء (باستخدام Sprites)
-    enemies.forEach(e=>{
-        if(e._dead) return; 
-        const x=e.x-state.camX, y=e.y-state.camY;
-        drawSprite(e.anim.name, e.anim.frame, x, y, e.w, e.h, e.dir > 0);
-    });
+    // إزالة التلميح بعد بضع ثوانٍ
+    setTimeout(() => {
+        document.getElementById('tooltip-modal').classList.remove('active');
+    }, 5000);
 
-    // 4. رسم الرصاص
-    eBullets.forEach(b=> drawSprite(b.anim.name, b.anim.frame, b.x-state.camX, b.y-state.camY, b.w, b.h));
-    pBullets.forEach(b=> drawSprite(b.anim.name, b.anim.frame, b.x-state.camX, b.y-state.camY, b.w, b.h, b.dx < 0));
-    
-    // 5. رسم العملات والتعزيزات
-    drawDrops();
-  
-    // 6. رسم اللاعب (باستخدام Sprites)
-    if (state.scene !== 'dead') {
-        ctx.globalAlpha = player.inv>0? 0.5 + 0.5*Math.sin(performance.now()/40) : 1;
-        const px=player.x-state.camX, py=player.y-state.camY;
-        drawSprite(player.anim.name, player.anim.frame, px, py, player.w*1.2, player.h*1.1, player.facing < 0);
-        ctx.globalAlpha=1;
-    }
-  }
-}
-
-/* ================ HUD, LOOP, FIT ================ */
-function updateHUD(){
-  const heart=(lang==='ar'?'❤':'♥'); HUD.hearts.textContent=heart.repeat(state.hearts);
-  HUD.shield.textContent='🛡 '+state.shield;
-  HUD.coins.textContent='💰 '+state.coins; 
-  HUD.stage.textContent=T('stage',state.level+1);
-}
-let lastT=performance.now();
-function loop(t){ 
-    const dt=Math.min(0.05,(t-lastT)/1000); 
-    lastT=t; 
-    if(state.scene==='playing') update(dt); 
-    draw(); 
-    requestAnimationFrame(loop); 
-}
-function fit(){ const s=Math.min(innerWidth/CFG.viewW, innerHeight/CFG.viewH); canvas.style.width=Math.max(320,(CFG.viewW*s)|0)+'px'; canvas.style.height=Math.max(240,(CFG.viewH*s)|0)+'px'; }
-addEventListener('resize',fit);
-
-/* ================ INIT ================ */
-function init(){
-  cacheColors();
-  
-  // =====================================
-  // ✨ التطوير رقم 3: تحميل الأصول قبل بدء اللعبة
-  // =====================================
-  Assets.load(() => {
-      // لن تبدأ اللعبة إلا بعد تحميل الصور
-      const has=loadProgress();
-      applyUpgrades(); 
-      document.documentElement.lang=lang; 
-      document.documentElement.dir=(lang==='ar'?'rtl':'ltr'); 
-      HUD.btnLang.textContent=(lang==='ar'?'العربية':'English'); 
-    
-      startMenu(); // إظهار القائمة الرئيسية بعد تحميل الأصول
-      
-      // بدء حلقة اللعبة
-      requestAnimationFrame(t=>{ lastT=t; loop(t); });
-  });
-
-  fit();
-}
-
-window.buyUpgrade = buyUpgrade;
-init(); // بدء عملية التحميل والإعداد
-
-})();
 </script>
 </body>
 </html>
