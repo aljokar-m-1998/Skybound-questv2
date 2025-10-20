@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ليدو - Ludo</title>
+    <title>ليدو - Ludo الاحترافية</title>
     <style>
         /* الخط الرئيسي للواجهة باللغة العربية */
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
@@ -12,13 +12,13 @@
             font-family: 'Cairo', sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f4f4f9;
+            background-color: #2c3e50; /* خلفية داكنة احترافية */
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             min-height: 100vh;
-            color: #333;
+            color: #ecf0f1;
             overflow-x: hidden;
         }
 
@@ -29,108 +29,109 @@
             width: 100%;
             max-width: 500px;
             margin: 10px;
-            border-radius: 12px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-            background-color: #fff;
-            padding: 15px;
+            border-radius: 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            background-color: #34495e;
+            padding: 20px;
         }
 
         /* واجهة اللوحة القماشية */
         #ludo-board {
             touch-action: none; /* لمنع السحب عند اللعب */
-            border-radius: 8px;
+            border-radius: 12px;
             background-color: #ddd;
-            margin-bottom: 15px;
-            width: 100%; /* اجعل اللوحة مرنة */
-            aspect-ratio: 1 / 1; /* حافظ على نسبة 1:1 */
-            border: 5px solid #333; /* إضافة حد مرئي */
+            margin-bottom: 20px;
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            border: 8px solid #2c3e50; /* حد سميك وداكن */
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
         }
 
         /* منطقة التحكم والحالة */
         #controls-status {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 15px;
             padding: 0 10px;
         }
 
         #status-display {
-            background-color: #eef;
-            padding: 10px;
-            border-radius: 8px;
+            background-color: #e67e22; /* لون برتقالي حيوي للحالة */
+            color: white;
+            padding: 12px;
+            border-radius: 10px;
             text-align: center;
-            font-size: 1.1em;
+            font-size: 1.2em;
             font-weight: bold;
             min-height: 40px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
 
         #dice-area {
             display: flex;
             align-items: center;
-            justify-content: space-around;
-            gap: 10px;
+            justify-content: center;
         }
 
+        /* النرد القابل للضغط (المحسن) */
         #dice-display {
-            width: 60px;
-            height: 60px;
-            border: 3px solid #333;
-            border-radius: 12px;
+            width: 80px;
+            height: 80px;
+            border: 4px solid #333;
+            border-radius: 18px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2.2em;
+            font-size: 3em;
             font-weight: bold;
-            background-color: #fff;
-            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
-            transition: transform 0.1s ease;
-        }
-
-        /* زر رمي النرد */
-        .dice-button {
-            background-color: #4CAF50; /* أخضر جذاب */
-            color: white;
-            padding: 15px 25px;
-            font-size: 1.2em;
-            font-weight: bold;
-            border: none;
-            border-radius: 10px;
+            background-color: #f0f0f0;
+            color: #333;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3), inset 0 0 15px rgba(255, 255, 255, 0.6);
+            transition: all 0.15s ease;
             cursor: pointer;
-            box-shadow: 0 5px #388e3c;
-            transition: all 0.2s;
-            flex-grow: 1;
+            line-height: 1;
+            user-select: none;
         }
 
-        .dice-button:hover {
-            background-color: #5cb85c;
-        }
-
-        .dice-button:active {
-            background-color: #388e3c;
-            box-shadow: 0 2px #388e3c;
-            transform: translateY(3px);
-        }
-
-        .dice-button:disabled {
-            background-color: #ccc;
-            box-shadow: none;
+        #dice-display.disabled {
             cursor: not-allowed;
+            opacity: 0.6;
+            box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
             transform: none;
+            background-color: #ccc;
+        }
+
+        #dice-display:not(.disabled):active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        /* انيميشن اهتزاز النرد (لرمي النرد) */
+        @keyframes dice-roll-shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            25% { transform: translate(-1px, -2px) rotate(-1deg); }
+            50% { transform: translate(-3px, 0px) rotate(1deg); }
+            75% { transform: translate(3px, 2px) rotate(0deg); }
+            100% { transform: translate(1px, -1px) rotate(-1deg); }
+        }
+
+        #dice-display.rolling {
+            animation: dice-roll-shake 0.1s infinite;
         }
 
         /* أزرار الإعدادات/الصوت */
         .setting-button, #mute-button {
             background: none;
             border: none;
-            font-size: 1.5em;
+            font-size: 1.8em;
             cursor: pointer;
-            color: #333;
-            padding: 5px;
+            color: #ecf0f1;
+            padding: 8px;
             transition: color 0.2s;
         }
 
         .setting-button:hover, #mute-button:hover {
-            color: #4CAF50;
+            color: #3498db; /* أزرق جذاب */
         }
 
         /* الواجهات المنبثقة (Modals) */
@@ -140,7 +141,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
+            background-color: rgba(0, 0, 0, 0.85);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -162,86 +163,45 @@
             text-align: center;
             width: 90%;
             max-width: 400px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            color: #333;
         }
 
         .modal-content h2 {
-            color: #4CAF50;
+            color: #e74c3c; /* أحمر داكن */
             margin-top: 0;
-            font-size: 1.8em;
+            font-size: 2em;
         }
 
         .modal-content button {
             margin-top: 15px;
-            padding: 10px 20px;
-            font-size: 1em;
+            padding: 12px 25px;
+            font-size: 1.1em;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             cursor: pointer;
-            transition: background-color 0.2s;
+            transition: background-color 0.2s, transform 0.1s;
+            font-family: 'Cairo', sans-serif;
+            font-weight: bold;
         }
 
         .modal-content .primary-btn {
-            background-color: #4CAF50;
+            background-color: #3498db;
             color: white;
         }
 
         .modal-content .primary-btn:hover {
-            background-color: #388e3c;
+            background-color: #2980b9;
+        }
+        
+        .modal-content .primary-btn:active {
+            transform: translateY(1px);
         }
 
         .modal-content .secondary-btn {
-            background-color: #f0f0f0;
+            background-color: #ecf0f1;
             color: #333;
             margin-right: 10px;
-        }
-
-        /* شاشة الإعدادات */
-        #setup-screen {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .setup-group {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 8px;
-            padding: 10px;
-            border: 1px solid #eee;
-            border-radius: 8px;
-        }
-
-        .player-setup-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            width: 100%;
-            gap: 10px;
-        }
-
-        .player-setup-row label {
-            min-width: 50px;
-            font-weight: bold;
-        }
-
-        .player-setup-row select {
-            padding: 8px;
-            border-radius: 6px;
-            border: 1px solid #ccc;
-            flex-grow: 1;
-            font-family: 'Cairo', sans-serif;
-            text-align: right;
-            direction: rtl;
-        }
-
-        .player-setup-row .color-indicator {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            margin-left: 10px;
-            border: 1px solid #33333333;
         }
 
         /* شريط الأدوات العلوي */
@@ -254,27 +214,10 @@
             padding: 10px 20px;
         }
         
-        /* التلميحات */
-        #tooltip-modal {
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: auto;
-            max-width: 90%;
-            height: auto;
-            background: rgba(0, 0, 0, 0.8);
-            border-radius: 10px;
-            padding: 15px;
-            color: white;
-            font-size: 0.9em;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-            display: block; /* Overrides visibility: hidden */
-            position: absolute;
-            opacity: 0;
-            transition: opacity 0.5s;
-        }
-        #tooltip-modal.active {
-            opacity: 1;
+        /* تلوين حقول الإعدادات */
+        .player-setup-row select {
+            border: 1px solid #bdc3c7;
+            background-color: #f7f7f7;
         }
     </style>
 </head>
@@ -292,8 +235,7 @@
             <div id="status-display">... تهيئة اللعبة ...</div>
 
             <div id="dice-area">
-                <button class="dice-button" id="roll-dice-button" disabled>رمي النرد</button>
-                <div id="dice-display">🎲</div>
+                <div id="dice-display" class="dice-display-clickable">🎲</div>
             </div>
         </div>
     </div>
@@ -333,13 +275,7 @@
         </div>
     </div>
 
-    <div id="tooltip-modal" class="active">
-        اضغط على زر "رمي النرد" لبدء الدور، ثم اضغط على القطعة لتحريكها!
-        <button class="secondary-btn" onclick="document.getElementById('tooltip-modal').classList.remove('active');" style="margin-right: 10px; padding: 5px 10px;">إغلاق</button>
-    </div>
-
-
-<script>
+    <script>
     //================================================================================
     // 1. إعدادات الثوابت والألوان والترجمة العربية
     //================================================================================
@@ -349,10 +285,10 @@
     const BASE_SIZE = 600; // حجم أساسي للوحة (ستتم مقايسته)
 
     const PLAYER_COLORS = {
-        0: { name: 'الأحمر', color: '#E53935', light: '#FFCDD2' },
-        1: { name: 'الأزرق', color: '#1E88E5', light: '#BBDEFB' },
-        2: { name: 'الأخضر', color: '#43A047', light: '#C8E6C9' },
-        3: { name: 'الأصفر', color: '#FFB300', light: '#FFECB3' }
+        0: { name: 'الأحمر', color: '#E74C3C', light: '#FADBD8' }, // أحمر جذاب
+        1: { name: 'الأزرق', color: '#3498DB', light: '#D6EAF8' }, // أزرق جذاب
+        2: { name: 'الأخضر', color: '#2ECC71', light: '#D1F2EB' }, // أخضر جذاب
+        3: { name: 'الأصفر', color: '#F1C40F', light: '#FCF3CF' } // أصفر جذاب
     };
 
     const ARABIC_TEXT = {
@@ -376,6 +312,8 @@
     // تمت مراجعة هذه المواقع، لكن الأهم هي الإحداثيات في BOARD_CONFIG
     const SAFE_SPOTS = [1, 9, 14, 22, 27, 35, 40, 48]; // مواضع آمنة (لا يحدث فيها اصطدام)
     const START_SPOTS = [0, 13, 26, 39]; // مواضع البداية الفعلية لكل لاعب (في المسار المشترك)
+    const START_POSITIONS = [0, 13, 26, 39]; // 0: Red, 13: Blue, 26: Green, 39: Yellow
+
 
     // مسار اللوحة (تحديد الإحداثيات بالنسبة لحجم BASE_SIZE) - الإحداثيات من 0.5 إلى 14.5
     const BOARD_CONFIG = {
@@ -428,10 +366,7 @@
     function toPixel(unit) {
         return unit * (CANVAS.width / 15);
     }
-
-    // إحداثيات البداية في المسار المشترك لكل لاعب (مؤشر المسار العالمي 0-51)
-    const START_POSITIONS = [0, 13, 26, 39]; // 0: Red, 13: Blue, 26: Green, 39: Yellow
-
+    
     //================================================================================
     // 2. فئة الصوت (Base64 Audio Generation)
     //================================================================================
@@ -695,10 +630,13 @@
 
             this.sm.play('DICE');
             this.isRolling = true;
-            document.getElementById('roll-dice-button').disabled = true;
+            this.updateRollButton(); // تعطيل النرد أثناء الرمي
+            
+            const diceDisplay = document.getElementById('dice-display');
+            diceDisplay.classList.add('rolling');
 
             let rollCount = 0;
-            const maxRolls = 15;
+            const maxRolls = 20; // زيادة عدد مرات التدوير لإحساس أفضل بالتدحرج
             const rollInterval = setInterval(() => {
                 rollCount++;
                 this.diceValue = Math.floor(Math.random() * 6) + 1;
@@ -706,10 +644,11 @@
 
                 if (rollCount >= maxRolls) {
                     clearInterval(rollInterval);
+                    diceDisplay.classList.remove('rolling');
                     this.isRolling = false;
                     this.afterDiceRoll();
                 }
-            }, 80);
+            }, 50); // تسريع فترات التحديث
         }
 
         // ما بعد رمي النرد
@@ -885,7 +824,7 @@
 
         // دالة مساعدة لمعرفة هل الخانة آمنة
         isGlobalSafeSpot(pathIndex) {
-            return SAFE_SPOTS.includes(pathIndex) || START_SPOTS.includes(pathIndex);
+            return SAFE_SPOTS.includes(pathIndex);
         }
 
         // التحقق من الفوز
@@ -906,24 +845,20 @@
 
         // تحديث حالة زر رمي النرد
         updateRollButton() {
-            const rollButton = document.getElementById('roll-dice-button');
+            const diceDisplay = document.getElementById('dice-display');
             const currentPlayer = this.players[this.currentPlayerIdx];
 
-            if (this.winner) {
-                rollButton.disabled = true;
-                rollButton.textContent = 'انتهت اللعبة';
-            } else if (currentPlayer.type === 'AI' || this.isRolling || this.isAnimating) {
-                rollButton.disabled = true;
-                rollButton.textContent = 'دور الذكاء الاصطناعي...';
+            diceDisplay.classList.remove('disabled');
+
+            if (this.winner || currentPlayer.type === 'AI' || this.isRolling || this.isAnimating || this.diceValue !== 0) {
+                diceDisplay.classList.add('disabled');
             } else if (this.diceValue === 0) {
-                rollButton.disabled = false;
-                rollButton.textContent = ARABIC_TEXT.ROLL_DICE;
-            } else {
-                // بعد الرمي ووجود حركات صالحة، يجب اختيار قطعة
-                rollButton.disabled = true;
-                rollButton.textContent = 'اختر قطعة';
+                // يمكن الرمي
             }
+             
+            // يتم عرض حالة النرد فقط في diceDisplay
         }
+
 
         showWinModal(winnerId) {
             const winnerName = this.players[winnerId].name;
@@ -1096,7 +1031,7 @@
 
         // هل هذه الخانة آمنة؟
         isGlobalSafeSpot(pathIndex) {
-            return SAFE_SPOTS.includes(pathIndex) || START_SPOTS.includes(pathIndex);
+            return SAFE_SPOTS.includes(pathIndex);
         }
 
         // هل هناك قطعة خصم يمكن ضربها في targetPosition؟
@@ -1163,10 +1098,16 @@
                 const y = touch.clientY - rect.top;
                 this.handleClick(x, y);
             });
+            // ربط النرد بالنقر
+            document.getElementById('dice-display').addEventListener('click', () => {
+                if (!document.getElementById('dice-display').classList.contains('disabled')) {
+                    this.game.rollDice();
+                }
+            });
         }
 
         resizeCanvas() {
-            const containerWidth = document.getElementById('game-container').clientWidth - 30; // 30 = padding
+            const containerWidth = document.getElementById('game-container').clientWidth - 40; // 40 = padding
             CANVAS.width = containerWidth;
             CANVAS.height = containerWidth;
             this.cellSize = CANVAS.width / 15;
@@ -1188,12 +1129,7 @@
         drawBoardStructure() {
             const cs = this.cellSize;
 
-            // 1. رسم منطقة الوسط (التي تحتوي على المسارات والهدف)
-            CTX.fillStyle = '#f0f0f0';
-            CTX.fillRect(6 * cs, 0 * cs, 3 * cs, 15 * cs); // الشريط الأفقي
-            CTX.fillRect(0 * cs, 6 * cs, 15 * cs, 3 * cs); // الشريط العمودي
-
-            // 2. رسم مناطق البيوت (Corners)
+            // 1. رسم مناطق البيوت (Corners)
             for (let i = 0; i < 4; i++) {
                 CTX.fillStyle = PLAYER_COLORS[i].light;
                 
@@ -1208,26 +1144,21 @@
                 CTX.strokeRect(x, y, 6 * cs, 6 * cs); // حدود البيت الخارجية
             }
 
-            // 3. رسم خلايا المسار الخارجي (الحدود والتلوين)
-            // نحتاج لرسم كل خلية في المسار الخارجي والداخلي
+            // 2. رسم خلايا المسار الخارجي (الحدود والتلوين)
             for (let i = 0; i < 15; i++) {
                 for (let j = 0; j < 15; j++) {
-                    // خلايا المسار (خارج البيوت)
                     const isTrack = (j >= 6 && j <= 8) || (i >= 6 && i <= 8);
                     const isCorner = (i < 6 && j < 6) || (i >= 9 && j < 6) || (i < 6 && j >= 9) || (i >= 9 && j >= 9);
                     
                     if (isTrack && !isCorner) {
-                        CTX.strokeStyle = '#333';
-                        CTX.lineWidth = 1;
-                        CTX.strokeRect(i * cs, j * cs, cs, cs);
-                        
                         // تلوين مسارات الأمان بلون اللاعب
-                        if (i === 7 && j >= 9 && j <= 13) CTX.fillStyle = PLAYER_COLORS[0].color; // Red Final Path
-                        else if (j === 7 && i >= 1 && i <= 5) CTX.fillStyle = PLAYER_COLORS[1].color; // Blue Final Path
-                        else if (i === 7 && j >= 1 && j <= 5) CTX.fillStyle = PLAYER_COLORS[2].color; // Green Final Path
-                        else if (j === 7 && i >= 9 && i <= 13) CTX.fillStyle = PLAYER_COLORS[3].color; // Yellow Final Path
-                        else CTX.fillStyle = '#fff';
-
+                        let fillColor = '#fff';
+                        if (i === 7 && j >= 9 && j <= 13) fillColor = PLAYER_COLORS[0].color; // Red Final Path
+                        else if (j === 7 && i >= 1 && i <= 5) fillColor = PLAYER_COLORS[1].color; // Blue Final Path
+                        else if (i === 7 && j >= 1 && j <= 5) fillColor = PLAYER_COLORS[2].color; // Green Final Path
+                        else if (j === 7 && i >= 9 && i <= 13) fillColor = PLAYER_COLORS[3].color; // Yellow Final Path
+                        
+                        CTX.fillStyle = fillColor;
                         CTX.fillRect(i * cs, j * cs, cs, cs);
                         CTX.strokeStyle = '#333';
                         CTX.lineWidth = 1;
@@ -1236,24 +1167,32 @@
                 }
             }
 
-            // 4. رسم الهدف المركزي (Goal)
-            CTX.fillStyle = '#f0f0f0';
+            // 3. رسم الهدف المركزي (Goal - على شكل ماسة)
+            CTX.fillStyle = '#95a5a6'; // لون رمادي فاتح
+            CTX.strokeStyle = '#333';
+            CTX.lineWidth = 2;
             CTX.beginPath();
-            // رسم المركز الماسي
-            CTX.moveTo(7.5 * cs, 7.5 * cs);
-            CTX.lineTo(6 * cs, 6 * cs);
-            CTX.lineTo(9 * cs, 6 * cs);
-            CTX.lineTo(9 * cs, 9 * cs);
-            CTX.lineTo(6 * cs, 9 * cs);
+            CTX.moveTo(7.5 * cs, 6 * cs);
+            CTX.lineTo(6 * cs, 7.5 * cs);
+            CTX.lineTo(7.5 * cs, 9 * cs);
+            CTX.lineTo(9 * cs, 7.5 * cs);
             CTX.closePath();
             CTX.fill();
+            CTX.stroke();
+            
+            // تلوين أطراف الماسة بلون اللاعبين للدلالة على الاتجاه
+            this.drawGoalTriangle(7.5, 6, 9, 7.5, 7.5, 7.5, PLAYER_COLORS[2].color); // Green Top
+            this.drawGoalTriangle(7.5, 9, 6, 7.5, 7.5, 7.5, PLAYER_COLORS[0].color); // Red Bottom
+            this.drawGoalTriangle(6, 7.5, 7.5, 6, 7.5, 7.5, PLAYER_COLORS[1].color); // Blue Left
+            this.drawGoalTriangle(9, 7.5, 7.5, 9, 7.5, 7.5, PLAYER_COLORS[3].color); // Yellow Right
 
-            // 5. تظليل الخانات الآمنة (بالنجمة)
+
+            // 4. تظليل الخانات الآمنة (بالنجمة)
             CTX.textAlign = 'center';
             CTX.textBaseline = 'middle';
             CTX.font = `${cs * 0.7}px Arial`;
 
-            // مواضع البيوت الداخلية (لعبة الليدو الأصلية ترسم دائرة حول مكان قطعة البداية)
+            // مواضع البيوت الداخلية (دائرة مكان القطعة)
             for (let i = 0; i < 4; i++) {
                 const homeCoords = BOARD_CONFIG.HOME[i];
                 CTX.strokeStyle = '#333';
@@ -1266,21 +1205,21 @@
             }
 
             // رسم النجوم على الخانات الآمنة وخانات البداية
-            SAFE_SPOTS.concat(START_SPOTS).forEach(index => {
+            SAFE_SPOTS.forEach(index => {
                 const coords = BOARD_CONFIG.PATH[index];
                 
-                // تحديد لون خلفية النجمة
-                let starColor = '#fff';
+                // تلوين خانة البداية بلون اللاعب
                 if (START_SPOTS.includes(index)) {
                      const playerIdx = START_SPOTS.indexOf(index);
-                     starColor = PLAYER_COLORS[playerIdx].color;
+                     CTX.fillStyle = PLAYER_COLORS[playerIdx].color;
                 } else if (index === 1 || index === 14 || index === 27 || index === 40) {
                      const playerIdx = [1, 14, 27, 40].indexOf(index);
-                     starColor = PLAYER_COLORS[playerIdx].color;
+                     CTX.fillStyle = PLAYER_COLORS[playerIdx].color;
+                } else {
+                     CTX.fillStyle = '#fff';
                 }
                 
                 // إعادة رسم الخلفية للخانة لتكون ملونة بالكامل
-                CTX.fillStyle = starColor;
                 CTX.fillRect(coords.x * cs - cs / 2, coords.y * cs - cs / 2, cs, cs);
                 CTX.strokeStyle = '#333';
                 CTX.lineWidth = 1;
@@ -1294,6 +1233,18 @@
 
             // 6. تظليل الحركات الممكنة
             this.highlightValidMoves(this.highlightedMoves, false); // لا ترسم الهيكل مرة أخرى
+        }
+        
+        // دالة مساعدة لرسم مثلثات الهدف
+        drawGoalTriangle(x1, y1, x2, y2, x3, y3, color) {
+            const cs = this.cellSize;
+            CTX.fillStyle = color;
+            CTX.beginPath();
+            CTX.moveTo(x1 * cs, y1 * cs);
+            CTX.lineTo(x2 * cs, y2 * cs);
+            CTX.lineTo(x3 * cs, y3 * cs);
+            CTX.closePath();
+            CTX.fill();
         }
 
         highlightValidMoves(moves, redraw = true) {
@@ -1319,7 +1270,7 @@
                 coords = tokenAtTarget.getCoords();
 
                 // رسم دائرة تظليل حول الخانة
-                CTX.strokeStyle = 'gold';
+                CTX.strokeStyle = '#FFD700'; // لون ذهبي لافت
                 CTX.lineWidth = 4;
                 CTX.beginPath();
                 // يمكن تظليل الخانة نفسها أو القطعة، نختار الخانة
@@ -1351,20 +1302,23 @@
                         }
                     }
 
+                    // تطبيق الإزاحة
+                    x += offset;
+
 
                     CTX.fillStyle = player.color;
                     CTX.strokeStyle = '#333';
                     CTX.lineWidth = 2;
 
                     // الظل
-                    CTX.shadowColor = 'rgba(0,0,0,0.4)';
-                    CTX.shadowBlur = 4;
-                    CTX.shadowOffsetX = 2;
-                    CTX.shadowOffsetY = 2;
+                    CTX.shadowColor = 'rgba(0,0,0,0.6)'; // ظل أغمق
+                    CTX.shadowBlur = 6;
+                    CTX.shadowOffsetX = 3;
+                    CTX.shadowOffsetY = 3;
 
-                    // جسم القطعة
+                    // جسم القطعة (دائرة)
                     CTX.beginPath();
-                    CTX.arc(x + offset, y, this.tokenRadius, 0, 2 * Math.PI);
+                    CTX.arc(x, y, this.tokenRadius, 0, 2 * Math.PI);
                     CTX.fill();
                     CTX.stroke();
 
@@ -1373,10 +1327,17 @@
                     CTX.shadowOffsetX = 0;
                     CTX.shadowOffsetY = 0;
 
+                    // تأثير اللمعان
+                    CTX.fillStyle = 'rgba(255, 255, 255, 0.5)';
+                    CTX.beginPath();
+                    CTX.arc(x - this.tokenRadius * 0.3, y - this.tokenRadius * 0.3, this.tokenRadius * 0.3, 0, 2 * Math.PI);
+                    CTX.fill();
+
+
                     // رقم القطعة
                     CTX.fillStyle = '#fff';
                     CTX.font = `${this.tokenRadius * 0.9}px Cairo, sans-serif`;
-                    CTX.fillText((token.id + 1), x + offset, y + 2);
+                    CTX.fillText((token.id + 1), x, y + 2);
                 });
             });
         }
@@ -1402,7 +1363,7 @@
             }
 
             let pathIndex = 0;
-            const animationDuration = 100; // مدة الحركة بين خانتين (بالمللي ثانية)
+            const animationDuration = 150; // مدة الحركة بين خانتين (بالمللي ثانية) - أطول قليلاً لإحساس أفضل
             let startTime = null;
             let currentPathStep = path[0];
 
@@ -1411,17 +1372,18 @@
                 const elapsed = timestamp - startTime;
 
                 if (elapsed < animationDuration) {
-                    // حركة سلسة (Tween)
+                    // حركة سلسة (Ease-out)
                     const progress = elapsed / animationDuration;
-                    token.currentX = currentPathStep.startX + (currentPathStep.endX - currentPathStep.startX) * progress;
-                    token.currentY = currentPathStep.startY + (currentPathStep.endY - currentPathStep.startY) * progress;
+                    const easeOutProgress = 1 - Math.pow(1 - progress, 3); // دالة تخفيف (Easing function)
+                    
+                    token.currentX = currentPathStep.startX + (currentPathStep.endX - currentPathStep.startX) * easeOutProgress;
+                    token.currentY = currentPathStep.startY + (currentPathStep.endY - currentPathStep.startY) * easeOutProgress;
                 } else {
                     // الانتقال إلى الخانة التالية في المسار
                     token.currentX = currentPathStep.endX;
                     token.currentY = currentPathStep.endY;
                     pathIndex++;
-                    startTime = timestamp; // إعادة تعيين وقت البدء للحركة التالية
-
+                    
                     if (pathIndex >= path.length) {
                         // نهاية الحركة
                         token.isMoving = false;
@@ -1432,6 +1394,8 @@
 
                     // البدء في الخطوة التالية
                     currentPathStep = path[pathIndex];
+                    startTime = timestamp; // إعادة تعيين وقت البدء للحركة التالية
+                    this.game.sm.play('MOVE'); // صوت عند كل خطوة جديدة
                 }
 
                 this.render();
@@ -1451,10 +1415,18 @@
             while (currentPos !== targetPos) {
                 let nextPos = currentPos + 1;
                 
-                // إذا كانت القطعة ستدخل مسار الأمان، فإن النقلة التالية هي 56
-                if (currentPos < 56 && nextPos >= 56) nextPos = 56;
-                // إذا كانت القطعة وصلت للهدف، يجب أن تتوقف
+                // تحديد الخانة التي تلي الخروج من البيت (4)
+                if (currentPos < 4 && nextPos === 4) { 
+                    nextPos = 4;
+                }
+                
+                // تحديد النقلة التي تلي الدخول لمسار الأمان (56)
+                if (currentPos < 56 && nextPos > 55) { 
+                    nextPos = 56;
+                }
+
                 if (currentPos >= 62) break;
+
 
                 const tokenAtCurrent = new Token(0, playerId);
                 tokenAtCurrent.position = currentPos;
@@ -1584,7 +1556,6 @@
     function startNewGame(resume = false) {
         document.getElementById('setup-modal').classList.remove('active');
         document.getElementById('win-modal').classList.remove('active');
-        document.getElementById('tooltip-modal').classList.remove('active'); // إغلاق التلميح
 
         if (resume) {
             try {
@@ -1621,7 +1592,7 @@
     // ربط الأحداث
     document.getElementById('start-new-game').addEventListener('click', () => startNewGame(false));
     document.getElementById('resume-game').addEventListener('click', () => startNewGame(true));
-    document.getElementById('roll-dice-button').addEventListener('click', () => game.rollDice());
+    // تم ربط النرد مباشرة في الـ Renderer
     document.getElementById('setting-button').addEventListener('click', () => {
         document.getElementById('setup-modal').classList.add('active');
     });
@@ -1635,11 +1606,6 @@
         const w = window.open('about:blank', '_blank');
         w.document.write('<img src="' + dataURL + '" style="max-width:100%; height:auto;">');
     });
-
-    // إزالة التلميح بعد بضع ثوانٍ
-    setTimeout(() => {
-        document.getElementById('tooltip-modal').classList.remove('active');
-    }, 5000);
 
 </script>
 </body>
