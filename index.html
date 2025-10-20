@@ -43,6 +43,7 @@
             margin-bottom: 15px;
             width: 100%; /* اجعل اللوحة مرنة */
             aspect-ratio: 1 / 1; /* حافظ على نسبة 1:1 */
+            border: 5px solid #333; /* إضافة حد مرئي */
         }
 
         /* منطقة التحكم والحالة */
@@ -372,44 +373,45 @@
         RESUME: 'استئناف اللعبة',
     };
 
+    // تمت مراجعة هذه المواقع، لكن الأهم هي الإحداثيات في BOARD_CONFIG
     const SAFE_SPOTS = [1, 9, 14, 22, 27, 35, 40, 48]; // مواضع آمنة (لا يحدث فيها اصطدام)
     const START_SPOTS = [0, 13, 26, 39]; // مواضع البداية الفعلية لكل لاعب (في المسار المشترك)
 
-    // مسار اللوحة (تحديد الإحداثيات بالنسبة لحجم BASE_SIZE)
+    // مسار اللوحة (تحديد الإحداثيات بالنسبة لحجم BASE_SIZE) - الإحداثيات من 0.5 إلى 14.5
     const BOARD_CONFIG = {
         // المسار الخارجي المشترك (52 خانة)
         PATH: [
-            // player 0 (red) start path (R1-R6)
+            // player 0 (red) start path (R1-R6) - 0-5
             {x: 6.5, y: 12.5}, {x: 6.5, y: 11.5}, {x: 6.5, y: 10.5}, {x: 6.5, y: 9.5}, {x: 6.5, y: 8.5},
-            {x: 5.5, y: 8.5}, {x: 4.5, y: 8.5}, {x: 3.5, y: 8.5}, {x: 2.5, y: 8.5}, {x: 1.5, y: 8.5}, {x: 0.5, y: 8.5},
-            // Left turn (R12-R14)
+            {x: 5.5, y: 8.5}, {x: 4.5, y: 8.5}, {x: 3.5, y: 8.5}, {x: 2.5, y: 8.5}, {x: 1.5, y: 8.5}, {x: 0.5, y: 8.5}, // 6-11
+            // Left turn (R12-R14) - 12-13
             {x: 0.5, y: 7.5},
-            {x: 0.5, y: 6.5},
-            // player 1 (blue) path (B1-B6)
+            {x: 0.5, y: 6.5}, // 13 (Blue Start)
+            // player 1 (blue) path (B1-B6) - 14-19
             {x: 1.5, y: 6.5}, {x: 2.5, y: 6.5}, {x: 3.5, y: 6.5}, {x: 4.5, y: 6.5}, {x: 5.5, y: 6.5},
-            {x: 6.5, y: 5.5}, {x: 6.5, y: 4.5}, {x: 6.5, y: 3.5}, {x: 6.5, y: 2.5}, {x: 6.5, y: 1.5}, {x: 6.5, y: 0.5},
-            // Top turn (B12-B14)
+            {x: 6.5, y: 5.5}, {x: 6.5, y: 4.5}, {x: 6.5, y: 3.5}, {x: 6.5, y: 2.5}, {x: 6.5, y: 1.5}, {x: 6.5, y: 0.5}, // 20-25
+            // Top turn (B12-B14) - 26-27
             {x: 7.5, y: 0.5},
-            {x: 8.5, y: 0.5},
-            // player 2 (green) path (G1-G6)
+            {x: 8.5, y: 0.5}, // 27 (Green Start)
+            // player 2 (green) path (G1-G6) - 28-33
             {x: 8.5, y: 1.5}, {x: 8.5, y: 2.5}, {x: 8.5, y: 3.5}, {x: 8.5, y: 4.5}, {x: 8.5, y: 5.5},
-            {x: 9.5, y: 6.5}, {x: 10.5, y: 6.5}, {x: 11.5, y: 6.5}, {x: 12.5, y: 6.5}, {x: 13.5, y: 6.5}, {x: 14.5, y: 6.5},
-            // Right turn (G12-G14)
+            {x: 9.5, y: 6.5}, {x: 10.5, y: 6.5}, {x: 11.5, y: 6.5}, {x: 12.5, y: 6.5}, {x: 13.5, y: 6.5}, {x: 14.5, y: 6.5}, // 34-39
+            // Right turn (G12-G14) - 40-41
             {x: 14.5, y: 7.5},
-            {x: 14.5, y: 8.5},
-            // player 3 (yellow) path (Y1-Y6)
+            {x: 14.5, y: 8.5}, // 41 (Yellow Start)
+            // player 3 (yellow) path (Y1-Y6) - 42-47
             {x: 13.5, y: 8.5}, {x: 12.5, y: 8.5}, {x: 11.5, y: 8.5}, {x: 10.5, y: 8.5}, {x: 9.5, y: 8.5},
-            {x: 8.5, y: 9.5}, {x: 8.5, y: 10.5}, {x: 8.5, y: 11.5}, {x: 8.5, y: 12.5}, {x: 8.5, y: 13.5}, {x: 8.5, y: 14.5},
-            // Bottom turn (Y12-Y14)
+            {x: 8.5, y: 9.5}, {x: 8.5, y: 10.5}, {x: 8.5, y: 11.5}, {x: 8.5, y: 12.5}, {x: 8.5, y: 13.5}, {x: 8.5, y: 14.5}, // 48-51
+            // Bottom turn (Y12-Y14) - 52-53
             {x: 7.5, y: 14.5},
-            {x: 6.5, y: 14.5}, // 51
-        ],
-        // مواضع البيت (4 لكل لاعب) **تم تصحيح موضع الأصفر**
+            {x: 6.5, y: 14.5}, // 53 (End of path for coordinate calculation) - 52 cells total, index 0-51
+        ].slice(0, 52), // تأكد من أن المسار 52 خلية فقط (0-51)
+        // مواضع البيت (4 لكل لاعب)
         HOME: [
             [{x: 1.5, y: 10.5}, {x: 1.5, y: 12.5}, {x: 3.5, y: 10.5}, {x: 3.5, y: 12.5}], // Red (0)
             [{x: 1.5, y: 1.5}, {x: 1.5, y: 3.5}, {x: 3.5, y: 1.5}, {x: 3.5, y: 3.5}],   // Blue (1)
             [{x: 10.5, y: 1.5}, {x: 10.5, y: 3.5}, {x: 12.5, y: 1.5}, {x: 12.5, y: 3.5}], // Green (2)
-            [{x: 10.5, y: 10.5}, {x: 10.5, y: 12.5}, {x: 12.5, y: 10.5}, {x: 12.5, y: 12.5}], // Yellow (3) **مصصح**
+            [{x: 10.5, y: 10.5}, {x: 10.5, y: 12.5}, {x: 12.5, y: 10.5}, {x: 12.5, y: 12.5}], // Yellow (3) 
         ],
         // مسارات الأمان النهائية (6 خانات لكل لاعب)
         FINAL_PATH: [
@@ -427,7 +429,7 @@
         return unit * (CANVAS.width / 15);
     }
 
-    // إحداثيات البداية في المسار المشترك لكل لاعب
+    // إحداثيات البداية في المسار المشترك لكل لاعب (مؤشر المسار العالمي 0-51)
     const START_POSITIONS = [0, 13, 26, 39]; // 0: Red, 13: Blue, 26: Green, 39: Yellow
 
     //================================================================================
@@ -515,6 +517,8 @@
             this.targetX = 0; // للتحريك السلس
             this.targetY = 0;
             this.isMoving = false;
+            this.currentX = 0; // تم إضافته للحركة السلسة
+            this.currentY = 0;
         }
 
         // تحديد موقع الخلية بالبكسل
@@ -522,7 +526,7 @@
             const playerIdx = this.playerId;
             let coords;
 
-            if (this.position < 4) { // في البيت
+            if (this.position < 4) { // في البيت (0, 1, 2, 3)
                 coords = BOARD_CONFIG.HOME[playerIdx][this.position];
             } else if (this.position < 56) { // في المسار المشترك (المواضع 4 إلى 55)
                 // 4 هي نقطة الخروج من البيت (بداية حساب الخطوات)
@@ -584,9 +588,10 @@
                 player.tokens.forEach((token, i) => token.position = i);
             });
             this.updateStatus(ARABIC_TEXT.START_NEW);
-            this.diceValue = 0; // تأكد من أن النرد مصفر للبدء
+            this.diceValue = 0; 
             this.nextTurn();
             this.saveGame();
+            this.renderer.render(); // تأكد من الرسم بعد التهيئة
         }
 
         // تحميل حالة اللعبة من localStorage
@@ -663,11 +668,12 @@
             if (!this.hasExtraTurn || this.diceValue === 0) {
                 this.nextPlayer();
             }
-
+            
             this.diceValue = 0;
             this.renderer.highlightValidMoves({});
             this.selectedToken = null;
             this.updateRollButton();
+            this.renderer.drawDiceValue(this.diceValue); // تصفير النرد في الواجهة
 
             if (this.isAIPlayer(this.currentPlayerIdx)) {
                 this.updateStatus(ARABIC_TEXT.CURRENT_TURN + this.players[this.currentPlayerIdx].name);
@@ -678,12 +684,14 @@
         }
 
         isAIPlayer(id) {
+            // تحقق من وجود اللاعب في المصفوفة قبل الوصول إلى الخاصية
+            if (!this.players[id]) return false; 
             return this.players[id].type === 'AI';
         }
 
         // رمي النرد
         rollDice() {
-            if (this.isRolling || this.isAnimating) return;
+            if (this.isRolling || this.isAnimating || this.diceValue !== 0) return;
 
             this.sm.play('DICE');
             this.isRolling = true;
@@ -694,7 +702,7 @@
             const rollInterval = setInterval(() => {
                 rollCount++;
                 this.diceValue = Math.floor(Math.random() * 6) + 1;
-                document.getElementById('dice-display').textContent = this.diceValue;
+                this.renderer.drawDiceValue(this.diceValue); // تحديث عرض النرد
 
                 if (rollCount >= maxRolls) {
                     clearInterval(rollInterval);
@@ -717,7 +725,7 @@
                     setTimeout(() => {
                         this.sixStreak = 0;
                         this.hasExtraTurn = false; 
-                        this.diceValue = 0; // مهم لتصفير النرد بعد انتهاء الدور
+                        this.diceValue = 0; 
                         this.nextTurn();
                     }, 1500);
                     return;
@@ -736,6 +744,7 @@
             if (Object.keys(this.validMoves).length === 0) {
                 // لا توجد حركات صالحة
                 this.updateStatus(ARABIC_TEXT.NO_MOVES);
+                this.diceValue = 0; // تم استخدام النرد حتى لو لم يكن هناك حركة
                 setTimeout(() => this.nextTurn(), 1500);
             } else if (this.isAIPlayer(this.currentPlayerIdx)) {
                 this.handleAI();
@@ -754,6 +763,7 @@
                 const token = player.tokens.find(t => t.id === bestMove.tokenId);
                 setTimeout(() => this.moveToken(token, bestMove.targetPosition), 1500);
             } else {
+                // لا توجد حركات متاحة لـ AI (تم التعامل معها بالفعل في afterDiceRoll)
                 setTimeout(() => this.nextTurn(), 1500);
             }
         }
@@ -770,16 +780,20 @@
 
                 if (token.position < 4) { // في البيت (0, 1, 2, 3)
                     if (dice === 6) {
-                        targetPos = 4; // الخانة 4 تمثل خانة البداية في مسار اللاعب
+                        targetPos = 4; // الخانة 4 تمثل نقطة الخروج من البيت
                     }
                 } else if (token.position < 56) { // في المسار المشترك (4 إلى 55)
-                    targetPos = token.position + dice;
-
-                    // تجاوز الهدف في المسار المشترك، يجب الدخول إلى مسار الأمان (56)
-                    if (targetPos > 56 + 6) { // 62
-                        targetPos = -1; // لا يمكن تجاوز الهدف
-                    } else if (targetPos === 56) {
-                        // دخول مسار الأمان (الخانة 56)
+                    // 55 هي آخر خانة قبل الدخول إلى مسار الأمان (56)
+                    
+                    const stepsToFinalPath = 56 - token.position; // 56 هو أول خانة في مسار الأمان
+                    
+                    if (dice < stepsToFinalPath) {
+                        targetPos = token.position + dice;
+                    } else if (dice >= stepsToFinalPath) {
+                        const finalPathIndex = dice - stepsToFinalPath;
+                        if (finalPathIndex <= 6) { // 6 خانات في مسار الأمان + الهدف
+                            targetPos = 56 + finalPathIndex; // 56 إلى 62
+                        }
                     }
                 } else if (token.position >= 56 && token.position < 62) { // في مسار الأمان الداخلي (56 إلى 61)
                     targetPos = token.position + dice;
@@ -787,6 +801,11 @@
                     if (targetPos > 62) {
                          targetPos = -1; // لا يمكن تجاوز الهدف (62)
                     }
+                }
+                
+                // التأكد من أن الهدف ليس تجاوزاً (لا يمكن الحركة من الهدف)
+                if (token.position === 62) {
+                    targetPos = -1;
                 }
 
                 if (targetPos !== -1) {
@@ -802,24 +821,30 @@
 
             // بدء الحركة السلسة
             this.isAnimating = true;
+            this.renderer.highlightValidMoves({}); // إزالة التظليل عند بدء الحركة
+            
+            // تحديث حالة النرد للحظة الحركة لمنع النقر
+            this.updateRollButton(); 
+
             this.renderer.startTokenAnimation(token, targetPosition, () => {
                 this.isAnimating = false;
                 this.sm.play('MOVE');
 
                 // تحقق من الاصطدام بعد وصول القطعة (فقط في المسار المشترك 4-55)
+                const oldPosition = token.position;
+                token.position = targetPosition; // تحديث الموضع قبل التحقق من الاصطدام
+                
                 if (targetPosition >= 4 && targetPosition < 56) {
                     this.checkCapture(token, targetPosition);
                 }
 
-                token.position = targetPosition;
                 this.saveGame();
 
                 // تحقق من الفوز
                 this.checkWin(token.playerId);
 
                 // الانتقال إلى الدور التالي (مع مراعاة الدور الإضافي)
-                // يجب تصفير النرد بعد استخدامه
-                this.diceValue = 0;
+                this.diceValue = 0; // تم استخدام النرد
                 this.nextTurn();
             });
         }
@@ -834,11 +859,11 @@
             this.players.forEach(player => {
                 if (player.id !== movingToken.playerId) {
                     player.tokens.forEach(opponentToken => {
+                        // لا يمكن ضرب قطعة في البيت أو مسار الأمان
+                        if (opponentToken.position < 4 || opponentToken.position >= 56) return;
+                        
                         // حساب موضع الخصم في المسار المشترك
-                        let opponentPathPos = -1;
-                        if (opponentToken.position >= 4 && opponentToken.position < 56) {
-                             opponentPathPos = this.convertToGlobalPathIndex(opponentToken.playerId, opponentToken.position);
-                        }
+                        const opponentPathPos = this.convertToGlobalPathIndex(opponentToken.playerId, opponentToken.position);
 
                         if (pathIndex === opponentPathPos) {
                             // اصطدام! إعادة القطعة إلى البيت (الموضع 0-3)
@@ -887,7 +912,7 @@
             if (this.winner) {
                 rollButton.disabled = true;
                 rollButton.textContent = 'انتهت اللعبة';
-            } else if (currentPlayer.type === 'AI') {
+            } else if (currentPlayer.type === 'AI' || this.isRolling || this.isAnimating) {
                 rollButton.disabled = true;
                 rollButton.textContent = 'دور الذكاء الاصطناعي...';
             } else if (this.diceValue === 0) {
@@ -918,7 +943,6 @@
             if (targetPos !== undefined) {
                 this.selectedToken = token;
                 this.moveToken(token, targetPos);
-                this.renderer.highlightValidMoves({}); // إزالة التظليل بعد الحركة
             }
         }
     }
@@ -1105,7 +1129,8 @@
                 const opponentPlayerId = opponentToken.playerId;
                 const opponentGlobalPos = this.convertToGlobalPathIndex(opponentPlayerId, opponentToken.position);
 
-                const distance = (targetPathIndex - opponentGlobalPos + 52) % 52; // مسافة الخصم إلى الخانة الهدف
+                // المسافة التي يحتاجها الخصم للوصول إلى هدفك
+                const distance = (targetPathIndex - opponentGlobalPos + 52) % 52; 
 
                 if (distance >= 1 && distance <= 6) {
                     threats.push(opponentToken);
@@ -1152,96 +1177,69 @@
 
         // رسم اللوحة كاملة
         render() {
-            if (!this.game.players.length) return; // لا ترسم بدون تهيئة
-
+            // لا ترسم بدون تهيئة إلا الهيكل الأساسي
             CTX.clearRect(0, 0, CANVAS.width, CANVAS.height);
             this.drawBoardStructure();
-            this.drawTokens();
-            this.drawDiceValue(this.game.diceValue);
+            if (this.game.players.length) {
+                 this.drawTokens();
+            }
         }
 
         drawBoardStructure() {
             const cs = this.cellSize;
 
-            // 1. رسم مناطق البيوت (Corners)
+            // 1. رسم منطقة الوسط (التي تحتوي على المسارات والهدف)
+            CTX.fillStyle = '#f0f0f0';
+            CTX.fillRect(6 * cs, 0 * cs, 3 * cs, 15 * cs); // الشريط الأفقي
+            CTX.fillRect(0 * cs, 6 * cs, 15 * cs, 3 * cs); // الشريط العمودي
+
+            // 2. رسم مناطق البيوت (Corners)
             for (let i = 0; i < 4; i++) {
                 CTX.fillStyle = PLAYER_COLORS[i].light;
                 
                 // تحديد موقع منطقة البيت 6x6
-                const x = (i === 0 || i === 3) ? 0 : 9 * cs;
-                const y = (i === 0 || i === 1) ? 9 * cs : 0; 
+                const x = (i === 0 || i === 1) ? 0 : 9 * cs;
+                const y = (i === 0 || i === 3) ? 9 * cs : 0; 
                 
-                CTX.fillRect(
-                    x, y,
-                    6 * cs, 6 * cs
-                );
+                CTX.fillRect(x, y, 6 * cs, 6 * cs);
 
-                // رسم الحدود الخارجية (البيضاء)
-                CTX.strokeStyle = '#fff';
-                CTX.lineWidth = 2;
-                CTX.strokeRect(x, y, 6 * cs, 6 * cs);
-
-                // رسم مواضع البيت الداخلية (4 دوائر)
-                const homeCoords = BOARD_CONFIG.HOME[i];
-                CTX.fillStyle = PLAYER_COLORS[i].color;
-                homeCoords.forEach(c => {
-                    CTX.beginPath();
-                    CTX.arc(toPixel(c.x), toPixel(c.y), this.tokenRadius * 1.1, 0, 2 * Math.PI);
-                    CTX.fill();
-                    CTX.strokeStyle = '#333';
-                    CTX.lineWidth = 1;
-                    CTX.stroke();
-                });
-
-                // رسم مناطق البداية (الخلية الخامسة من كل جهة)
-                CTX.fillStyle = PLAYER_COLORS[i].color;
-                let startX, startY;
-                if (i === 0) { startX = 6, startY = 12; } // Red
-                if (i === 1) { startX = 1, startY = 8; } // Blue
-                if (i === 2) { startX = 8, startY = 1; } // Green
-                if (i === 3) { startX = 12, startY = 8; } // Yellow
-
-                CTX.fillRect(startX * cs, startY * cs, cs, cs);
                 CTX.strokeStyle = '#333';
-                CTX.strokeRect(startX * cs, startY * cs, cs, cs);
+                CTX.lineWidth = 2;
+                CTX.strokeRect(x, y, 6 * cs, 6 * cs); // حدود البيت الخارجية
             }
 
-            // 2. رسم المسار المشترك (الخلايا البيضاء)
+            // 3. رسم خلايا المسار الخارجي (الحدود والتلوين)
+            // نحتاج لرسم كل خلية في المسار الخارجي والداخلي
             for (let i = 0; i < 15; i++) {
                 for (let j = 0; j < 15; j++) {
+                    // خلايا المسار (خارج البيوت)
                     const isTrack = (j >= 6 && j <= 8) || (i >= 6 && i <= 8);
-                    const isCenter = (i >= 6 && i <= 8) && (j >= 6 && j <= 8);
+                    const isCorner = (i < 6 && j < 6) || (i >= 9 && j < 6) || (i < 6 && j >= 9) || (i >= 9 && j >= 9);
                     
-                    if (isTrack && !isCenter) {
+                    if (isTrack && !isCorner) {
                         CTX.strokeStyle = '#333';
                         CTX.lineWidth = 1;
                         CTX.strokeRect(i * cs, j * cs, cs, cs);
+                        
+                        // تلوين مسارات الأمان بلون اللاعب
+                        if (i === 7 && j >= 9 && j <= 13) CTX.fillStyle = PLAYER_COLORS[0].color; // Red Final Path
+                        else if (j === 7 && i >= 1 && i <= 5) CTX.fillStyle = PLAYER_COLORS[1].color; // Blue Final Path
+                        else if (i === 7 && j >= 1 && j <= 5) CTX.fillStyle = PLAYER_COLORS[2].color; // Green Final Path
+                        else if (j === 7 && i >= 9 && i <= 13) CTX.fillStyle = PLAYER_COLORS[3].color; // Yellow Final Path
+                        else CTX.fillStyle = '#fff';
 
-                        // مسار الأمان الداخلي (7.5)
-                        if ((i === 7 && j >= 1 && j <= 13) || (j === 7 && i >= 1 && i <= 13)) {
-                            // سيتم تلوينه لاحقاً
-                        } else {
-                            CTX.fillStyle = '#fff';
-                            CTX.fillRect(i * cs, j * cs, cs, cs);
-                        }
+                        CTX.fillRect(i * cs, j * cs, cs, cs);
+                        CTX.strokeStyle = '#333';
+                        CTX.lineWidth = 1;
+                        CTX.strokeRect(i * cs, j * cs, cs, cs);
                     }
                 }
-            }
-
-            // 3. رسم مسار الأمان الداخلي (بالألوان) و الهدف
-            for (let i = 0; i < 4; i++) {
-                CTX.fillStyle = PLAYER_COLORS[i].color;
-                BOARD_CONFIG.FINAL_PATH[i].forEach(c => {
-                    CTX.fillRect(c.x * cs - cs / 2, c.y * cs - cs / 2, cs, cs);
-                    CTX.strokeStyle = '#333';
-                    CTX.lineWidth = 1;
-                    CTX.strokeRect(c.x * cs - cs / 2, c.y * cs - cs / 2, cs, cs);
-                });
             }
 
             // 4. رسم الهدف المركزي (Goal)
             CTX.fillStyle = '#f0f0f0';
             CTX.beginPath();
+            // رسم المركز الماسي
             CTX.moveTo(7.5 * cs, 7.5 * cs);
             CTX.lineTo(6 * cs, 6 * cs);
             CTX.lineTo(9 * cs, 6 * cs);
@@ -1250,38 +1248,39 @@
             CTX.closePath();
             CTX.fill();
 
-            // رسم خنجر الهدف باللون الأبيض (Goal Arrow)
-            CTX.fillStyle = 'white';
-            CTX.beginPath();
-            CTX.moveTo(toPixel(BOARD_CONFIG.GOAL.x), toPixel(BOARD_CONFIG.GOAL.y));
-            CTX.lineTo(toPixel(BOARD_CONFIG.GOAL.x - 0.5), toPixel(BOARD_CONFIG.GOAL.y + 0.5));
-            CTX.lineTo(toPixel(BOARD_CONFIG.GOAL.x + 0.5), toPixel(BOARD_CONFIG.GOAL.y + 0.5));
-            CTX.closePath();
-            CTX.fill();
-
-
             // 5. تظليل الخانات الآمنة (بالنجمة)
-            CTX.fillStyle = 'white';
-            CTX.font = `${cs * 0.7}px Arial`;
             CTX.textAlign = 'center';
             CTX.textBaseline = 'middle';
+            CTX.font = `${cs * 0.7}px Arial`;
 
+            // مواضع البيوت الداخلية (لعبة الليدو الأصلية ترسم دائرة حول مكان قطعة البداية)
+            for (let i = 0; i < 4; i++) {
+                const homeCoords = BOARD_CONFIG.HOME[i];
+                CTX.strokeStyle = '#333';
+                CTX.lineWidth = 1.5;
+                homeCoords.forEach(c => {
+                    CTX.beginPath();
+                    CTX.arc(toPixel(c.x), toPixel(c.y), this.tokenRadius * 1.3, 0, 2 * Math.PI);
+                    CTX.stroke();
+                });
+            }
+
+            // رسم النجوم على الخانات الآمنة وخانات البداية
             SAFE_SPOTS.concat(START_SPOTS).forEach(index => {
-                const isStart = START_SPOTS.includes(index);
                 const coords = BOARD_CONFIG.PATH[index];
                 
-                // تحديد لون الخلفية للخانة الآمنة
-                let cellColor = '#fff'; 
-                if (isStart) {
-                    const playerIdx = START_SPOTS.indexOf(index);
-                    cellColor = PLAYER_COLORS[playerIdx].color;
+                // تحديد لون خلفية النجمة
+                let starColor = '#fff';
+                if (START_SPOTS.includes(index)) {
+                     const playerIdx = START_SPOTS.indexOf(index);
+                     starColor = PLAYER_COLORS[playerIdx].color;
                 } else if (index === 1 || index === 14 || index === 27 || index === 40) {
-                    // لون حسب اللاعب الذي يملك هذه الخانة الآمنة
-                    const playerIdx = index === 1 ? 0 : index === 14 ? 1 : index === 27 ? 2 : 3;
-                    cellColor = PLAYER_COLORS[playerIdx].color;
+                     const playerIdx = [1, 14, 27, 40].indexOf(index);
+                     starColor = PLAYER_COLORS[playerIdx].color;
                 }
-
-                CTX.fillStyle = cellColor;
+                
+                // إعادة رسم الخلفية للخانة لتكون ملونة بالكامل
+                CTX.fillStyle = starColor;
                 CTX.fillRect(coords.x * cs - cs / 2, coords.y * cs - cs / 2, cs, cs);
                 CTX.strokeStyle = '#333';
                 CTX.lineWidth = 1;
@@ -1289,27 +1288,32 @@
 
 
                 // رسم علامة الأمان (نجمة)
-                CTX.fillStyle = '#fff';
+                CTX.fillStyle = 'white';
                 CTX.fillText('★', toPixel(coords.x), toPixel(coords.y) + 2);
             });
 
             // 6. تظليل الحركات الممكنة
-            this.highlightValidMoves(this.highlightedMoves);
+            this.highlightValidMoves(this.highlightedMoves, false); // لا ترسم الهيكل مرة أخرى
         }
 
-        highlightValidMoves(moves) {
+        highlightValidMoves(moves, redraw = true) {
             this.highlightedMoves = moves;
 
-            // إزالة أي تظليل قديم قبل الرسم
-            this.render();
+            if (redraw) {
+                this.render();
+            }
 
             if (Object.keys(moves).length === 0) return;
 
             const targetPositions = Object.values(moves);
             const cs = this.cellSize;
 
-            targetPositions.forEach(pos => {
+            // استخدام مجموعة لضمان تظليل الخانة مرة واحدة فقط
+            const uniqueTargets = [...new Set(targetPositions)];
+
+            uniqueTargets.forEach(pos => {
                 let coords;
+                // إنشاء قطعة مؤقتة فقط للحصول على إحداثيات الهدف
                 const tokenAtTarget = new Token(0, this.game.currentPlayerIdx);
                 tokenAtTarget.position = pos;
                 coords = tokenAtTarget.getCoords();
@@ -1318,7 +1322,8 @@
                 CTX.strokeStyle = 'gold';
                 CTX.lineWidth = 4;
                 CTX.beginPath();
-                CTX.arc(coords.x, coords.y, cs * 0.45, 0, 2 * Math.PI);
+                // يمكن تظليل الخانة نفسها أو القطعة، نختار الخانة
+                CTX.arc(coords.x, coords.y, cs * 0.48, 0, 2 * Math.PI);
                 CTX.stroke();
             });
         }
@@ -1329,10 +1334,23 @@
                 player.tokens.forEach(token => {
                     let { x, y } = token.getCoords();
 
+                    // استخدام الإحداثيات المتحركة إذا كانت القطعة في حالة حركة
                     if (token.isMoving) {
                         x = token.currentX;
                         y = token.currentY;
                     }
+
+                    // تجميع القطع الواقفة في نفس الخانة لتجنب التداخل
+                    // منطق بسيط: إزاحة خفيفة للقطع المشتركة في نفس الموضع
+                    let offset = 0;
+                    if (token.position >= 4 && token.position < 62) {
+                        const tokensAtSameSpot = player.tokens.filter(t => t.position === token.position);
+                        if (tokensAtSameSpot.length > 1) {
+                            const index = tokensAtSameSpot.indexOf(token);
+                            offset = (index - (tokensAtSameSpot.length - 1) / 2) * (this.tokenRadius * 0.5); // إزاحة بسيطة
+                        }
+                    }
+
 
                     CTX.fillStyle = player.color;
                     CTX.strokeStyle = '#333';
@@ -1346,7 +1364,7 @@
 
                     // جسم القطعة
                     CTX.beginPath();
-                    CTX.arc(x, y, this.tokenRadius, 0, 2 * Math.PI);
+                    CTX.arc(x + offset, y, this.tokenRadius, 0, 2 * Math.PI);
                     CTX.fill();
                     CTX.stroke();
 
@@ -1358,7 +1376,7 @@
                     // رقم القطعة
                     CTX.fillStyle = '#fff';
                     CTX.font = `${this.tokenRadius * 0.9}px Cairo, sans-serif`;
-                    CTX.fillText((token.id + 1), x, y + 2);
+                    CTX.fillText((token.id + 1), x + offset, y + 2);
                 });
             });
         }
@@ -1429,10 +1447,15 @@
             const path = [];
             let currentPos = startPos;
 
+            // مسار الحركة هو خطوة خطوة، لذلك نحتاج إلى إحداثيات كل خانة على طول الطريق
             while (currentPos !== targetPos) {
                 let nextPos = currentPos + 1;
                 
-                // يجب أن تكون القطعة في هذا الموضع لحظياً للحصول على الإحداثيات
+                // إذا كانت القطعة ستدخل مسار الأمان، فإن النقلة التالية هي 56
+                if (currentPos < 56 && nextPos >= 56) nextPos = 56;
+                // إذا كانت القطعة وصلت للهدف، يجب أن تتوقف
+                if (currentPos >= 62) break;
+
                 const tokenAtCurrent = new Token(0, playerId);
                 tokenAtCurrent.position = currentPos;
                 const startCoords = tokenAtCurrent.getCoords();
@@ -1593,8 +1616,6 @@
         }
 
         game.setupGame(playerConfigs);
-        renderer.render();
-        game.updateRollButton();
     }
 
     // ربط الأحداث
