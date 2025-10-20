@@ -1,1053 +1,529 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
-<title>Retro Platforms — Enhanced & Hybrid</title>
-<style>
-:root{
-  --sky:#87ceeb; --ground:#6b4f2a; --ground-top:#8f6b3a;
-  --player:#3498db; --enemy:#e67e22; --turtle:#16a085; --flier:#9b59b6; --shooter:#e74c3c;
-  --spike:#c0392b; --goal:#2ecc71; --spring:#5dade2; --water:#3aa6ffcc;
-  --coin:#f1c40f; 
-  --ui:#000000cc; --text:#fff;
-  --btn-width: 70px; /* تحسين أبعاد أزرار اللمس */
-  --btn-spacing: 12px;
-}
-html,body{margin:0;background:#0d1117;color:var(--text);font-family:system-ui,Segoe UI,Roboto;overscroll-behavior: none;}
-#game{display:block;margin:0 auto;background:var(--sky);image-rendering:pixelated;outline:none}
-.topbar{position:fixed;top:8px;left:8px;right:8px;display:flex;gap:8px;align-items:center;z-index:5}
-.panel{background:var(--ui);padding:8px 12px;border-radius:12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-.grow{flex:1}
-.btn{appearance:none;border:0;border-radius:10px;padding:8px 12px;font-weight:800;cursor:pointer}
-.btn.primary{background:#2ecc71;color:#062}
-.btn.ghost{background:#ffffff10;color:#fff;border:1px solid #ffffff33}
-.centered{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(2px);background:#0008;z-index:10}
-.touch{position:fixed;bottom:var(--btn-spacing);left:var(--btn-spacing);right:var(--btn-spacing);display:flex;justify-content:space-between;gap:var(--btn-spacing);pointer-events:none;z-index:4}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المدينة الحية: محاكي الإدارة</title>
+    <style>
+        :root {
+            --color-bg: #f8f8f8;
+            --color-primary: #007bff;
+            --color-success: #28a745;
+            --color-warning: #ffc107;
+            --color-danger: #dc3545;
+            --color-card-bg: #ffffff;
+            --color-text: #333;
+            --color-border: #eee;
+            --font-family: 'Tahoma', 'Arial', sans-serif;
+        }
 
-/* تحسين تصميم أزرار اللمس ومواضعها */
-.pad{display:flex;gap:var(--btn-spacing);}
-.tbtn{
-  width:var(--btn-width); height:var(--btn-width); 
-  border-radius:50%; background:#ffffff22; border:2px solid #ffffff55;
-  pointer-events:auto; touch-action:none; user-select:none; backdrop-filter:blur(6px);
-  color:#fff; font-size:24px; font-weight:900;
-  display: flex; align-items: center; justify-content: center;
-}
-/* عكس اتجاه الأزرار: الحركة على اليسار، الأكشن على اليمين */
-.touch > .pad:first-child { 
-    order: 1; /* الحركة (يمين يسار) */
-    flex-basis: calc(2 * var(--btn-width) + var(--btn-spacing)); 
-    justify-content: flex-start;
-}
-.touch > .pad:last-child { 
-    order: 2; /* القفز والاطلاق */
-    flex-basis: calc(2 * var(--btn-width) + var(--btn-spacing)); 
-    justify-content: flex-end;
-}
-/* تصميم عصي التحكم (D-Pad style) للحركة */
-#btnLeft { border-radius: 50% 10% 10% 50%; }
-#btnRight { border-radius: 10% 50% 50% 10%; }
-/* ترتيب أزرار الحركة ليصبح اليسار ثم اليمين */
-#btnLeft{order: 1;}
-#btnRight{order: 2;}
-/* ترتيب أزرار الأكشن ليصبح الإطلاق ثم القفز */
-#btnShoot{order: 1;}
-#btnJump{order: 2;}
+        body {
+            font-family: var(--font-family);
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            margin: 0;
+            padding: 10px;
+            text-align: right;
+            line-height: 1.6;
+        }
 
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
 
-@media (min-width:900px){.touch{display:none}}
-.hearts{letter-spacing:2px}
-.hint{opacity:.8;font-size:12px;margin-top:6px}
-.badge{display:inline-block;padding:2px 8px;border-radius:999px;background:#ffffff22;border:1px solid #ffffff33}
-.splash{width:min(900px,92vw);max-width:92vw;border-radius:16px;overflow:hidden;box-shadow:0 20px 60px #000a}
-.splash-head{position:relative;height:min(340px,48vh);background:
-  radial-gradient(1000px 280px at 20% 0%, #6ec5ff33 0%, transparent 60%),
-  radial-gradient(800px 260px at 90% 10%, #e0a3ff33 0%, transparent 55%),
-  linear-gradient(180deg,#223 0%,#112 100%);display:flex;align-items:center;justify-content:center}
-.splash-canvas{position:absolute;inset:0}
-.splash-title{position:relative;z-index:2;font-size:clamp(24px,5.2vw,44px);font-weight:900;letter-spacing:1px;color:#e8f7ff;text-shadow:0 2px 0 #0008,0 0 24px #69d1ff77}
-.splash-body{background:#0b0f18;padding:14px}
+        .card {
+            background-color: var(--color-card-bg);
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--color-border);
+        }
 
-/* أنماط المتجر */
-.shop-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; margin-top: 15px; }
-.shop-item { background: #1a1e27; padding: 10px; border-radius: 8px; text-align: center; border: 1px solid #333; }
-.shop-item h4 { margin: 0 0 5px 0; color: var(--text); }
-.shop-item p { margin: 0 0 10px 0; font-size: 14px; color: #aaa; }
-.shop-cost { font-weight: bold; color: var(--coin); display: block; margin-bottom: 8px;}
-</style>
+        h1 {
+            text-align: center;
+            color: var(--color-primary);
+            margin-top: 0;
+            font-size: 1.8em;
+            padding-bottom: 5px;
+            border-bottom: 2px solid var(--color-primary);
+        }
+
+        /* Stats Box */
+        #stats-box {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            font-size: 1.1em;
+        }
+
+        .stat-item {
+            padding: 10px;
+            border-radius: 8px;
+            background-color: #f1f7fe;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stat-value {
+            font-weight: bold;
+            color: var(--color-primary);
+        }
+
+        /* City Speak & Notifications */
+        #city-speak {
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: var(--color-success);
+            padding: 10px;
+            background-color: #e6ffe6;
+            border-radius: 10px;
+            border: 1px solid var(--color-success);
+        }
+
+        #notification {
+            text-align: center;
+            font-size: 1em;
+            color: #fff;
+            background-color: var(--color-primary);
+            padding: 5px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: none; /* Hidden by default */
+        }
+        
+        /* Event Box */
+        #event-title {
+            font-weight: bold;
+            font-size: 1.3em;
+            margin-bottom: 10px;
+            color: var(--color-text);
+        }
+
+        #progress-bar {
+            height: 10px;
+            background-color: var(--color-border);
+            border-radius: 5px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        #progress-fill {
+            height: 100%;
+            width: 0%;
+            background-color: var(--color-success);
+            transition: width 0.5s ease-in-out;
+        }
+
+        #stage-info {
+            font-size: 0.9em;
+            margin-top: 5px;
+            color: #666;
+        }
+
+        /* Decisions/Choices Box */
+        #decision-box {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .decision-button {
+            background-color: var(--color-primary);
+            color: white;
+            border: none;
+            padding: 15px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: block;
+            font-size: 1.2em;
+            margin-top: 5px;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: background-color 0.2s;
+            touch-action: manipulation; /* Mobile performance */
+        }
+
+        .decision-button:hover, .decision-button:focus {
+            background-color: #0056b3;
+            outline: none;
+        }
+        
+        .disabled-button {
+            background-color: #ccc !important;
+            cursor: default !important;
+        }
+    </style>
 </head>
 <body>
-  <div class="topbar">
-    <div class="panel grow" id="hudLeft">
-      <span id="hearts" class="hearts">❤❤❤</span>
-      <span id="shield" class="hint">🛡 0</span>
-      <span id="coins" style="color:var(--coin); font-weight:bold;">💰 0</span> <span id="stage" class="badge">L1</span>
-    </div>
-    <div class="panel" id="hudRight">
-      <button class="btn ghost" id="btnShop" title="المتجر">🛒</button> <button class="btn ghost" id="btnLang">العربية</button>
-      <button class="btn ghost" id="btnMusic">🔇</button>
-      <button class="btn ghost" id="btnPause">⏸︎</button>
-    </div>
-  </div>
-
-  <canvas id="game" width="960" height="540" tabindex="0" aria-label="Game canvas"></canvas>
-
-  <div class="touch" id="touch">
-    <div class="pad">
-      <button class="tbtn" id="btnLeft">◀</button>
-      <button class="tbtn" id="btnRight">▶</button>
-    </div>
-    <div class="pad">
-      <button class="tbtn" id="btnShoot">✹</button>
-      <button class="tbtn" id="btnJump">⤊</button>
-    </div>
-  </div>
-
-  <template id="tplOverlay">
-    <div class="centered" id="overlay">
-      <div class="panel" style="min-width:min(720px,94vw);text-align:center;max-height:90vh;overflow:auto">
-        <div id="ovTitle" style="font-size:24px;font-weight:900;margin-bottom:8px">—</div>
-        <div id="ovBody" style="line-height:1.6;margin-bottom:12px">—</div>
-        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap" id="ovButtons"></div>
-        <div class="hint" id="ovHint">← → move, Space/W jump, F shoot, Esc pause</div>
-      </div>
-    </div>
-  </template>
-
-<script>
-(()=>{'use strict';
-
-/* ================= I18N ================= */
-const I18N={
-  ar:{title:'منصات متطورة - هجين',desc:'10 مراحل أساسية مبرمجة بتحديات متنوعة. اجمع العملات 💰 لشراء تحسينات دائمة من المتجر 🛒. الأداء والتحكم محسنان للهواتف. حفظ تلقائي وإعادة للمرحلة عند الخسارة.',
-      start:'ابدأ لعبة جديدة', cont:'متابعة', paused:'إيقاف مؤقت', resume:'متابعة', restart:'إعادة المرحلة', menu:'القائمة الرئيسية', shop:'المتجر',
-      lose:'خسرت', stage:n=>`مرحلة ${n}`, hint:'كيبورد: ← → للحركة، Space/W للقفز، F للإطلاق، Esc للإيقاف',
-      drops:'التعزيزات: ❤ قلب | 🛡 درع | ⇥ سرعة | ⤊ قفز',
-      shop_title:'متجر التحسينات',
-      shop_desc:'أنفق العملات 💰 لزيادة قوتك بشكل دائم!'},
-  en:{title:'Advanced Platforms - Hybrid',desc:'10 built-in levels with varied challenges. Collect coins 💰 to buy permanent upgrades from the Shop 🛒. Optimized performance and controls for mobile devices. Auto-save and level restart on death.',
-      start:'Start New', cont:'Continue', paused:'Paused', resume:'Resume', restart:'Restart', menu:'Main Menu', shop:'Shop',
-      lose:'You Lost', stage:n=>`Level ${n}`, hint:'Keyboard: ← → move, Space/W jump, F shoot, Esc pause',
-      drops:'Boosts: ❤ Heart | 🛡 Shield | ⇥ Speed | ⤊ Jump',
-      shop_title:'Upgrades Shop',
-      shop_desc:'Spend Coins 💰 to permanently increase your power!'}
-};
-let lang='ar'; const T=(k,...a)=> typeof I18N[lang][k]==='function'?I18N[lang][k](...a):I18N[lang][k];
-
-/* ================ CONFIG & RUNTIME ================ */
-const CFG={
-  viewW:960, viewH:540, tile:32,
-  // معاملات فيزيائية محسنة لحركة أكثر واقعية واستجابة
-  gravity:0.8, moveAcc:1.2, maxDX:6.0, maxDY:20, friction:0.88, jumpV:13.5, 
-  coyoteTime:0.12, jumpBuffer:0.18, variableJumpCut:0.4, cameraLerp:0.12,
-  springV:16,
-  enemy:{walkerSpeed:1.1,turtleSpeed:0.95,flierSpeed:1.25,shooterSpeed:0.75,bulletSpeed:3.2,fireRate:2.6},
-  player:{maxHearts:6,shootCooldown:0.28,bulletSpeed:6.6},
-  scaling:{bandSize:5, enemySpeedMul:1.07, enemyFireRateMul:0.96, enemyBulletSpeedMul:1.06, playerSpeedMul:1.05, playerJumpMul:1.04, playerBulletSpeedMul:1.04},
-  vibration:true,
-  // زيادة عدد المراحل الأساسية إلى 10
-  basicLevelCount: 10,
-  jsonFiles: ['sentences1.json', 'sentences2.json', 'sentences3.json', 'sentences4.json']
-};
-
-const SHOP_ITEMS = [
-    { id: 'bulletDmg', cost: 10, max: 5, stat: 'playerBulletSpeed', initial: 1, inc: 0.2, title_ar: 'قوة الإطلاق', title_en: 'Bullet Power', desc_ar: 'يزيد سرعة وتأثير الرصاص.', desc_en: 'Increases bullet speed and impact.' },
-    { id: 'maxHp', cost: 20, max: 2, stat: 'maxHearts', initial: CFG.player.maxHearts, inc: 1, title_ar: 'الحد الأقصى للقلوب', title_en: 'Max Hearts', desc_ar: 'يزيد عدد قلوبك القصوى بقلب واحد.', desc_en: 'Increases your maximum health by one heart.' },
-    { id: 'shieldCapacity', cost: 15, max: 3, stat: 'maxShields', initial: 0, inc: 1, title_ar: 'سعة الدرع', title_en: 'Shield Capacity', desc_ar: 'يزيد الحد الأقصى للدروع المحمولة.', desc_en: 'Increases maximum carried shields.' },
-];
-// تحويل المتجر إلى كائن للوصول السريع
-const SHOP_MAP = SHOP_ITEMS.reduce((map, item) => (map[item.id] = item, map), {});
-
-
-const runtime={enemy:{...CFG.enemy}, player:{maxDX:CFG.maxDX,jumpV:CFG.jumpV,bulletSpeed:CFG.player.bulletSpeed}};
-
-/* ================ DOM & HUD ================ */
-const canvas=document.getElementById('game'), ctx=canvas.getContext('2d');
-const tplOverlay=document.getElementById('tplOverlay');
-const HUD={
-  hearts:document.getElementById('hearts'), shield:document.getElementById('shield'), stage:document.getElementById('stage'),
-  coins:document.getElementById('coins'), 
-  btnPause:document.getElementById('btnPause'), btnLang:document.getElementById('btnLang'), btnMusic:document.getElementById('btnMusic'),
-  btnShop:document.getElementById('btnShop') 
-};
-const TOUCH={ left:document.getElementById('btnLeft'), right:document.getElementById('btnRight'), jump:document.getElementById('btnJump'), shoot:document.getElementById('btnShoot') };
-
-/* ================ UTILS ================ */
-const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
-const lerp=(a,b,t)=>a+(b-a)*t;
-const rects=(a,b)=>a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y;
-const vibrate=ms=>{ if(CFG.vibration&&navigator.vibrate) navigator.vibrate(ms); };
-const nowSec=()=>performance.now()/1000;
-function rnd(seed){ return (Math.sin(seed*12.9898)*43758.5453)%1; }
-
-/* ================ AUDIO (Simplified for SFX Only) ================ */
-let audioCtx=null, muted=true; 
-function ensureAudio(){ if(!audioCtx){ try{ audioCtx=new (window.AudioContext||window.webkitAudioContext)(); }catch{} } }
-function sfx(type='sine',f=440,dur=0.08,g=0.07){ if(muted) return; ensureAudio(); if(!audioCtx) return;
-  const t0=audioCtx.currentTime,o=audioCtx.createOscillator(),ga=audioCtx.createGain();
-  o.type=type; o.frequency.value=f; ga.gain.value=g; ga.gain.exponentialRampToValueAtTime(0.0001,t0+dur);
-  o.connect(ga).connect(audioCtx.destination); o.start(t0); o.stop(t0+dur);
-}
-const SFX={ jump:()=>sfx('square',520,0.09,0.08), pick:()=>sfx('triangle',900,0.08,0.06), hit:()=>sfx('sawtooth',180,0.12,0.07),
-  win:()=>{ sfx('square',660,0.16,0.08); setTimeout(()=>sfx('square',880,0.13,0.06),120); }, spring:()=>sfx('triangle',720,0.1,0.07), shoot:()=>sfx('square',720,0.06,0.06),
-  coin:()=>sfx('triangle',1200,0.04,0.05), 
-  purchase:()=>sfx('square',1500,0.08,0.08) 
-};
-
-/* ================ INPUT ================ */
-const keys={left:false,right:false,jump:false,shoot:false};
-function wantFocus(){ ensureAudio(); canvas.focus(); }
-addEventListener('keydown',e=>{
-  if(['ArrowLeft','KeyA'].includes(e.code)) keys.left=true;
-  if(['ArrowRight','KeyD'].includes(e.code)) keys.right=true;
-  if(['Space','KeyW'].includes(e.code)){ keys.jump=true; wantFocus(); }
-  if(e.code==='KeyF'){ keys.shoot=true; wantFocus(); }
-  if(e.code==='Escape') togglePause();
-});
-addEventListener('keyup',e=>{
-  if(['ArrowLeft','KeyA'].includes(e.code)) keys.left=false;
-  if(['ArrowRight','KeyD'].includes(e.code)) keys.right=false;
-  if(['Space','KeyW'].includes(e.code)) keys.jump=false;
-  if(e.code==='KeyF') keys.shoot=false;
-});
-['left','right','jump','shoot'].forEach(k=>{
-  const b=TOUCH[k];
-  b.addEventListener('pointerdown',e=>{ e.preventDefault(); keys[k]=true; vibrate(15); wantFocus(); });
-  ['pointerup','pointerleave','pointercancel'].forEach(ev=> b.addEventListener(ev,e=>{ e.preventDefault(); keys[k]=false; }));
-});
-HUD.btnMusic.textContent='🔇';
-HUD.btnMusic.addEventListener('click',()=>{ muted=!muted; HUD.btnMusic.textContent=muted?'🔇':'🔊'; });
-HUD.btnLang.addEventListener('click',()=>{ 
-    lang=(lang==='ar'?'en':'ar'); 
-    document.documentElement.lang=lang; 
-    document.documentElement.dir=(lang==='ar'?'rtl':'ltr'); 
-    HUD.btnLang.textContent=(lang==='ar'?'العربية':'English'); 
-    updateHUD(); 
-    if(state.scene==='menu') startMenu(); 
-    if(state.scene==='pause'){ hideOverlay(); togglePause(); } 
-    if(state.scene==='shop'){ hideOverlay(); showShop(); }
-});
-HUD.btnPause.addEventListener('click',()=>togglePause());
-HUD.btnShop.addEventListener('click',()=>showShop()); 
-addEventListener('pointerdown',onceKick,{once:true}); addEventListener('keydown',onceKick,{once:true});
-function onceKick(){ wantFocus(); }
-
-/* ================ WORLD & STATE ================ */
-const TILE={EMPTY:0,SOLID:1,SPIKE:2,SPRING:3,GOAL:4,WATER:5,MOVING:6, COIN:7}; 
-const ENEMY={WALKER:0,TURTLE:1,FLIER:2,SHOOTER:3};
-const SAVEKEY='retro_procedural_v5_final';
-
-const state={
-    scene:'menu', level:0, band:0, camX:0, camY:0, 
-    hearts:3, shield:0, coins:0, 
-    hasGun:true, overlayEl:null, lastShotAt:-999, 
-    boosts:{speed:0,jump:0},
-    upgrades: SHOP_ITEMS.reduce((acc, item) => (acc[item.id] = 0, acc), {}) 
-};
-
-const player={x:0,y:0,w:24,h:30,dx:0,dy:0,on:false,coyote:0,jumpBuf:0,inv:0,facing:1};
-let enemies=[], eBullets=[], pBullets=[], movingPlatforms=[], drops=[], currentLevelData=null;
-
-/* ================ SAVE/LOAD ================ */
-function saveProgress(){ try{
-  localStorage.setItem(SAVEKEY, JSON.stringify({
-    level: state.level, hearts: state.hearts, shield: state.shield,
-    boosts: state.boosts, lang, coins: state.coins, upgrades: state.upgrades 
-  }));
-}catch{}}
-function loadProgress(){ try{
-  const s=JSON.parse(localStorage.getItem(SAVEKEY)||'null'); if(!s) return false;
-  state.level=Number.isFinite(s.level)?s.level:0; state.hearts=s.hearts||3; state.shield=s.shield||0; state.boosts=s.boosts||{speed:0,jump:0};
-  state.coins=s.coins||0; 
-  state.upgrades=s.upgrades||SHOP_ITEMS.reduce((acc, item) => (acc[item.id] = 0, acc), {}); 
-  lang=s.lang||lang; document.documentElement.lang=lang; document.documentElement.dir=(lang==='ar'?'rtl':'ltr'); HUD.btnLang.textContent=(lang==='ar'?'العربية':'English');
-  applyUpgrades(); 
-  return true;
-}catch{ return false; }}
-
-/* ================ UPGRADES & SHOP ================ */
-function applyUpgrades(){
-    // الحد الأقصى للقلوب
-    CFG.player.maxHearts = 6 + (state.upgrades.maxHp * SHOP_MAP.maxHp.inc);
-    
-    // سرعة الرصاص
-    const bulletInc = state.upgrades.bulletDmg * SHOP_MAP.bulletDmg.inc;
-    // يتم ضرب القيمة الأساسية (CFG.player.bulletSpeed) في نسبة الزيادة من الترقية
-    runtime.player.bulletSpeed = CFG.player.bulletSpeed * (1 + bulletInc);
-    
-    // تطبيق القيم الافتراضية للفيزيائية التي قد تتأثر بالـ Band Scaling لاحقاً
-    runtime.player.maxDX = CFG.maxDX;
-    runtime.player.jumpV = CFG.jumpV;
-    
-    // إعادة تطبيق Scaling لدمجها مع الترقيات بشكل صحيح
-    applyScaling(state.level); 
-    
-    // الحد الأقصى للدروع
-    const maxShields = SHOP_MAP.shieldCapacity.initial + (state.upgrades.shieldCapacity * SHOP_MAP.shieldCapacity.inc);
-    state.shield = Math.min(state.shield, maxShields); // التأكد من عدم تجاوز الحد الأقصى للدروع المحمولة
-}
-
-function buyUpgrade(itemId){
-    const item = SHOP_MAP[itemId];
-    if (state.upgrades[itemId] >= item.max) return false; // وصلت للحد الأقصى
-    const currentCost = item.cost + state.upgrades[itemId] * 5; // زيادة التكلفة
-    if (state.coins < currentCost) return false; // لا يوجد عملات كافية
-
-    state.coins -= currentCost;
-    state.upgrades[itemId]++;
-    SFX.purchase();
-    applyUpgrades(); // تطبيق الترقية فوراً
-    saveProgress();
-    updateHUD();
-    showShop(); // إعادة فتح المتجر
-    return true;
-}
-
-function showShop(){
-    // إيقاف اللعبة وعرض المتجر
-    state.scene = 'shop';
-    
-    let shopHTML = `<p>${T('shop_desc')}</p><div class="shop-grid">`;
-    
-    SHOP_ITEMS.forEach(item => {
-        const level = state.upgrades[item.id];
-        const maxed = level >= item.max;
-        const currentCost = item.cost + level * 5;
-        const title = lang === 'ar' ? item.title_ar : item.title_en;
-        const desc = lang === 'ar' ? item.desc_ar : item.title_en; // استخدام desc_en للوصف إذا لم يكن هناك desc_ar
+    <div class="container">
+        <h1>المدينة الحية</h1>
         
-        shopHTML += `
-            <div class="shop-item">
-                <h4>${title} (${lang==='ar'?'المرتبة':'Level'} ${level}/${item.max})</h4>
-                <p>${desc}</p>
-                <span class="shop-cost">${maxed ? (lang==='ar'?'الأقصى':'Maxed') : `💰 ${currentCost}`}</span>
-                <button class="btn ${maxed ? 'ghost' : 'primary'}" 
-                        ${maxed || state.coins < currentCost ? 'disabled' : ''}
-                        onclick="buyUpgrade('${item.id}')">
-                    ${maxed ? (lang==='ar'?'الأقصى':'Max') : (lang==='ar'?'شراء':'Buy')}
-                </button>
+        <div id="city-speak" class="card">المدينة تتنفس...</div>
+        
+        <div id="stats-card" class="card">
+            <div id="stats-box">
+                </div>
+            <div id="stage-info"></div>
+            <div id="progress-bar"><div id="progress-fill"></div></div>
+        </div>
+
+        <div id="notification"></div>
+        
+        <div id="event-card" class="card">
+            <div id="event-title">لا يوجد أحداث حالياً...</div>
+            <div id="decision-box">
+                <button class="decision-button disabled-button" disabled>انتظر الحدث القادم</button>
             </div>
-        `;
-    });
-    
-    shopHTML += '</div>';
+        </div>
 
-    showOverlay(T('shop_title'), shopHTML, [
-        {label: T('resume') + ' ▶', primary: true, on: ()=>{ hideOverlay(); state.scene='playing'; }}
-    ]);
-}
+    </div>
 
+    <script>
+        // #1. CITY_DATA: البيانات الثابتة
+        const CITY_DATA = {
+            stats: {
+                population: 120, // 👥
+                happiness: 68, // 😀
+                health: 62, // ❤️
+                economy: 55, // 💰
+            },
+            
+            thresholds: [
+                { name: "قرية", pop_req: 100, eco_req: 50 },
+                { name: "بلدة", pop_req: 800, eco_req: 200 },
+                { name: "مدينة", pop_req: 3000, eco_req: 500 },
+                { name: "عاصمة", pop_req: 12000, eco_req: 1000 },
+                { name: "حضارة", pop_req: 50000, eco_req: 2500 },
+                { name: "إمبراطورية", pop_req: 100000, eco_req: 5000 }
+            ],
 
-/* ================ LEVEL GENERATION: 10 BASIC LEVELS ================= */
+            events: [
+                // Common Events (rarity: 1)
+                { id: 'FESTIVAL', title: "مهرجان الموسيقى السنوي", rarity: 1, choices: [
+                    { text: "ادعم المهرجان", effect: { happiness: 10, economy: 5, population: 10 }, feedback: "جلب السعادة والزوار!" },
+                    { text: "تجاهل", effect: { happiness: -3 }, feedback: "فُرصة ضائعة." }
+                ]},
+                { id: 'SANDSTORM', title: "عاصفة رملية مفاجئة", rarity: 1, choices: [
+                    { text: "جهّز الملاجئ", effect: { health: 5, economy: -10 }, feedback: "حميت السكان لكن بتكلفة." },
+                    { text: "انتظر انقشاعها", effect: { health: -15, economy: -5 }, feedback: "ضرر كبير على الصحة والتجارة!" }
+                ]},
+                { id: 'INVEST_GREEN', title: "مستثمر يطرح مشروعًا نظيفًا", rarity: 1, choices: [
+                    { text: "ابنِ مصنعاً نظيفاً (Eco+)", effect: { economy: 20, health: 5, happiness: -5, population: 20 }, feedback: "اقتصاد مزدهر وبيئة سليمة." },
+                    { text: "ارفض العرض", effect: { economy: 5 }, feedback: "فضلنا الحذر." }
+                ]},
+                { id: 'INVEST_POLLUTION', title: "مستثمر يطرح مشروعاً سريع الربح", rarity: 1, choices: [
+                    { text: "ابنِ مصنعاً ملوثاً (Eco++)", effect: { economy: 35, health: -15, happiness: -10, population: 30 }, feedback: "ثراء سريع لكن على حساب البيئة!" },
+                    { text: "ارفض العرض", effect: { economy: 5 }, feedback: "حماية البيئة أولاً." }
+                ]},
+                { id: 'NEW_TECH', title: "اكتشاف تقني جديد", rarity: 1, choices: [
+                    { text: "ادعم البحث العلمي", effect: { economy: 15, happiness: 5, population: 15 }, feedback: "تحسّن في كل القطاعات." },
+                    { text: "خفض ميزانية الأبحاث", effect: { economy: 5, happiness: -5 }, feedback: "لم نتمكن من الاستفادة الكاملة." }
+                ]},
+                // Rare Events (rarity: 5)
+                { id: 'TREASURE', title: "اكتشاف كنز مدفون قديم! 💎", rarity: 5, choices: [
+                    { text: "احصل على الكنز", effect: { economy: 100, happiness: 20 }, feedback: "ثروة هائلة للمدينة!" },
+                    { text: "اعرضه في متحف", effect: { economy: 20, happiness: 40 }, feedback: "جذب سياحي وسعادة عظيمة." }
+                ]},
+                { id: 'TECH_REVOLUTION', title: "ثورة تكنولوجية! 🚀", rarity: 5, choices: [
+                    { text: "تبنّى التكنولوجيا", effect: { population: 50, economy: 50, health: 25, happiness: 25 }, feedback: "نقلة نوعية للمدينة!" },
+                    { text: "انتظر", effect: { economy: 10 }, feedback: "لم نغتنم الفرصة بالكامل." }
+                ]},
+                // Crisis Events (Only if health < 30 or happiness < 30)
+                { id: 'PLAGUE', title: "وباء ينتشر في المدينة! 🦠", rarity: 0.5, condition: (stats) => stats.health < 30, choices: [
+                    { text: "ابنِ مستشفى ميداني", effect: { health: 30, economy: -25 }, feedback: "سيطرنا على الوباء بتكلفة عالية." },
+                    { text: "تجاهل الأزمة", effect: { health: -50, population: -100, happiness: -20 }, feedback: "خسائر فادحة!" }
+                ]},
+                { id: 'REVOLT', title: "احتجاجات واسعة النطاق! 😡", rarity: 0.5, condition: (stats) => stats.happiness < 30, choices: [
+                    { text: "قدم تنازلات", effect: { happiness: 35, economy: -15 }, feedback: "الهدوء عاد، لكن الخزينة تأثرت." },
+                    { text: "قمع الاحتجاجات", effect: { happiness: -10, health: -10 }, feedback: "الأوضاع تزداد سوءاً!" }
+                ]}
+            ],
+        };
 
-function makeBasicLevel(levelIndex) {
-    // تم تصميم المراحل لتعمل بالتسلسل 0-9
-    const H=20, W=120 + levelIndex*10; // زيادة طول المراحل
-    const map=Array.from({length:H},()=>Array(W).fill(TILE.EMPTY));
-    const baseY=H-3;
-    const moving = [];
-    const enemies = [];
-    const coins = []; 
-    
-    // 1. توليد التضاريس الأساسية
-    for(let x=0;x<W;x++){
-        let y = baseY;
+        // #2. حالة اللعبة العالمية
+        let gameState = {
+            stats: { ...CITY_DATA.stats },
+            currentStageIndex: 0,
+            lastPlayed: Date.now(),
+            currentEvent: null,
+        };
+
+        const STAT_LABELS = {
+            population: "👥 السكان",
+            happiness: "😀 السعادة",
+            health: "❤️ الصحة",
+            economy: "💰 الاقتصاد",
+        };
+
+        const GAME_LOOP_INTERVAL = 30000; // 30 ثانية لكل دورة لعب
         
-        // تضاريس متغيرة (منحدرات وحفر بسيطة)
-        if(levelIndex >= 2 && x>20 && x<W-20) {
-            y += Math.floor(Math.sin(x*0.5/(6+(levelIndex%4)))*2);
+        // #3. الدوال الأساسية
+
+        /** تهيئة اللعبة وتحميل الحالة */
+        function init() {
+            try {
+                loadState();
+                applyOfflineGrowth();
+            } catch (e) {
+                console.error("Failed to load state or apply growth, starting fresh.", e);
+            }
+            renderStats();
+            citySpeak();
+            
+            // بدء حلقة اللعبة
+            setInterval(gameLoop, GAME_LOOP_INTERVAL);
+            
+            // تشغيل الدورة الأولى فورًا
+            gameLoop();
         }
-        
-        // إضافة الحفر (Pits)
-        if(levelIndex >= 4 && x>60 && x<W-60 && (x%30)===0){
-            for(let k=0;k<(levelIndex<7?2:3);k++) {
-                if(x+k < W) map[baseY-1][x+k] = TILE.EMPTY; 
+
+        /** دورة اللعب الأساسية */
+        function gameLoop() {
+            if (gameState.currentEvent) return; // لا تبدأ حدث جديد وهناك قرار معلق
+
+            checkStageUnlock();
+            pickEvent();
+            saveState(); // حفظ بعد كل دورة
+        }
+
+        /** تحميل حالة اللعبة من localStorage */
+        function loadState() {
+            const savedState = localStorage.getItem('city_alive_state');
+            if (savedState) {
+                const loaded = JSON.parse(savedState);
+                // دمج الحالة المحملة مع الابتدائية لضمان عدم فقدان مفاتيح
+                gameState.stats = { ...CITY_DATA.stats, ...loaded.stats };
+                gameState.currentStageIndex = loaded.currentStageIndex || 0;
+                gameState.lastPlayed = loaded.lastPlayed || Date.now();
+                showNotification("تم استعادة حالة المدينة. مرحباً بعودتك!");
+            } else {
+                showNotification("بدأت مدينة جديدة! مرحباً بك أيها الحاكم.");
             }
         }
-        
-        for(let py=y;py<H;py++) map[py][x]=TILE.SOLID;
-    }
-    
-    // 2. إضافة التحديات والمنصات (تنوع حسب رقم المرحلة)
-    
-    // منصات عائمة
-    const mpCount = Math.floor(levelIndex/3) + 1;
-    for(let m=0;m<mpCount;m++){
-        const mx= 30 + m*Math.floor(W/(mpCount+1));
-        const yTop= Math.max(5, baseY - 5 - (m%3));
-        moving.push({x:mx*CFG.tile,y:yTop*CFG.tile,w:CFG.tile*2,h:CFG.tile/2,t:0,dir:(m%2?1:-1),range:CFG.tile*2});
-    }
-    
-    // تحديات الأشواك والنوابض (Spikes & Springs)
-    for(let x=40;x<W-40;x+=20){
-        let groundY = map.length;
-        for(let py=0;py<H;py++) if(map[py][x]===TILE.SOLID){ groundY=py; break; }
-        
-        if(levelIndex >= 3 && groundY < H-1){
-            if(Math.random()<0.3) map[groundY][x]=TILE.SPIKE; 
+
+        /** حفظ حالة اللعبة إلى localStorage */
+        function saveState() {
+            localStorage.setItem('city_alive_state', JSON.stringify({
+                stats: gameState.stats,
+                currentStageIndex: gameState.currentStageIndex,
+                lastPlayed: Date.now(),
+            }));
         }
-        
-        if(levelIndex >= 5 && Math.random()<0.2){
-            map[groundY-1][x] = TILE.SPRING; 
-        }
-    }
-    
-    // 3. إضافة العملات
-    for (let x = 10; x < W - 10; x += 6) {
-        if(Math.random() < 0.4 || (levelIndex >= 7 && (x%15)===0)){
-            let groundY = map.length;
-            for(let py=0;py<H;py++) if(map[py][x]===TILE.SOLID){ groundY=py; break; }
-            if (groundY < H - 2) {
-                coins.push({x: x*CFG.tile + CFG.tile/2, y: (groundY-2)*CFG.tile + CFG.tile/2});
+
+        /** تطبيق نمو بسيط عند العودة بعد فترة غياب (Offline Growth) */
+        function applyOfflineGrowth() {
+            const now = Date.now();
+            const timeDiff = now - gameState.lastPlayed;
+            
+            // تجاهل النمو إذا كان الفارق أقل من 15 دقيقة
+            if (timeDiff < 900000) return; 
+
+            const cyclesMissed = Math.floor(timeDiff / GAME_LOOP_INTERVAL);
+            const maxCycles = 50; // حد أقصى للنمو لـ 25 دقيقة (لتجنب القيم المبالغ فيها)
+            const actualCycles = Math.min(cyclesMissed, maxCycles);
+            
+            if (actualCycles > 0) {
+                // نمو أساسي بسيط
+                const growthFactor = actualCycles * 0.05; // نمو بطيء
+                gameState.stats.population += Math.floor(gameState.stats.population * growthFactor);
+                gameState.stats.economy += Math.floor(gameState.stats.economy * growthFactor);
+                // تذبذب الصحة والسعادة (ممكن أن تزيد أو تنقص حسب الحظ)
+                gameState.stats.health += Math.floor(Math.random() * 10 * actualCycles - 5 * actualCycles);
+                gameState.stats.happiness += Math.floor(Math.random() * 10 * actualCycles - 5 * actualCycles);
+                
+                showNotification(`تم تطبيق نمو زمني ${actualCycles} دورة غياب.`);
             }
         }
-    }
 
-    // 4. إضافة الأعداء (تنوع أكبر حسب مستوى المرحلة)
-    const enemyTypes = [ENEMY.WALKER, ENEMY.TURTLE, ENEMY.FLIER, ENEMY.SHOOTER];
-    const maxType = Math.min(3, Math.floor(levelIndex/2)); // زيادة أنواع الأعداء تدريجياً
-    const enemyCount = 2 + Math.floor(levelIndex*0.8);
-    
-    for(let i=0;i<enemyCount;i++){
-        const bx=30+i*Math.floor((W-60)/enemyCount);
-        const ex=Math.min(W-8,bx+10+(levelIndex%10));
-        let yTop = map.length;
-        for(let y=0;y<H;y++) if(map[y][bx]===TILE.SOLID){ yTop=y; break; }
-        
-        const type = enemyTypes[Math.min(maxType, Math.floor(Math.random()*(maxType+1)))];
+        /** عرض الإحصائيات في الواجهة */
+        function renderStats() {
+            const statsBox = document.getElementById('stats-box');
+            statsBox.innerHTML = ''; // مسح الإحصائيات القديمة
+            
+            // التأكد من أن القيم لا تنزل عن الصفر
+            Object.keys(gameState.stats).forEach(key => {
+                gameState.stats[key] = Math.max(0, gameState.stats[key]);
+                // حدود عليا (اختياري، لكن يضمن تذبذباً منطقياً)
+                if (['happiness', 'health'].includes(key)) {
+                    gameState.stats[key] = Math.min(150, gameState.stats[key]);
+                }
+            });
 
-        const base={x:bx*CFG.tile,y:(yTop-1)*CFG.tile,w:28,h:28,minX:bx*CFG.tile,maxX:ex*CFG.tile,dir:(i%2?1:-1)};
-        
-        if(type===ENEMY.WALKER) enemies.push({...base,type:ENEMY.WALKER});
-        else if(type===ENEMY.TURTLE) enemies.push({...base,type:ENEMY.TURTLE});
-        else if(type===ENEMY.FLIER) enemies.push({...base,type:ENEMY.FLIER,y:(Math.max(3,yTop-6))*CFG.tile,w:28,h:22});
-        else if(type===ENEMY.SHOOTER) enemies.push({...base,type:ENEMY.SHOOTER,cool:Math.random()*CFG.enemy.fireRate});
-    }
-
-
-    // 5. نقطة البداية والنهاية
-    const sx=3, sy=baseY-4;
-    const gx=W-4, gyEnd=baseY;
-    for(let y=gyEnd-4;y<=gyEnd-1;y++) if(y>=0) map[y][gx]=TILE.GOAL;
-
-    return {W,H,map,start:{x:sx*CFG.tile,y:Math.max(0,sy)*CFG.tile},enemies,moving, coins};
-}
-
-/* ================ LEVEL GENERATION: JSON LEVELS ================= */
-
-const JSON_LEVEL_CACHE = {};
-let JSON_LOAD_PROMISE = null;
-
-// تم تحديث fetchJsonLevel لضمان تسلسل المراحل بعد الـ 10 الأساسية
-function fetchJsonLevel(index) {
-    const jsonIndex = (index - CFG.basicLevelCount) % CFG.jsonFiles.length; // استخدام الباقي لضمان تدوير الملفات
-    const fileName = CFG.jsonFiles[jsonIndex];
-    
-    if (JSON_LEVEL_CACHE[fileName]) {
-        return Promise.resolve(JSON_LEVEL_CACHE[fileName]);
-    }
-    
-    if (JSON_LOAD_PROMISE) {
-        return JSON_LOAD_PROMISE;
-    }
-
-    JSON_LOAD_PROMISE = fetch(fileName)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`Failed to load ${fileName}: ${response.statusText}`);
+            // عرض كل إحصائية
+            for (const key in gameState.stats) {
+                const statDiv = document.createElement('div');
+                statDiv.className = 'stat-item';
+                statDiv.innerHTML = `<span>${STAT_LABELS[key]}</span><span class="stat-value">${Math.floor(gameState.stats[key])}</span>`;
+                statsBox.appendChild(statDiv);
             }
-            return response.json();
-        })
-        .then(data => {
-            data.W = data.map[0].length;
-            data.H = data.map.length;
-            if(!data.coins) data.coins = []; 
-            JSON_LEVEL_CACHE[fileName] = data;
-            JSON_LOAD_PROMISE = null;
-            return data;
-        })
-        .catch(error => {
-            console.error(error);
-            JSON_LOAD_PROMISE = null;
-            // إذا فشل تحميل الـ JSON، نرجع إلى آخر مرحلة أساسية
-            return makeBasicLevel(CFG.basicLevelCount - 1); 
-        });
-        
-    return JSON_LOAD_PROMISE;
-}
-
-
-/* On-demand cache & Level Gateway */
-const LEVELS = new Proxy({ store: {} }, {
-    get(t, k) {
-        const i = Number(k);
-        if (Number.isNaN(i) || i < 0) return undefined;
-        
-        // المراحل الأساسية (0 إلى 9)
-        if (i < CFG.basicLevelCount) {
-            if (!t.store[i]) t.store[i] = makeBasicLevel(i);
-            return t.store[i];
+            
+            renderProgress();
         }
         
-        // المراحل الخارجية (10 فما فوق)
-        // يتم طلب تحميل المراحل الخارجية عند الحاجة
-        if (!t.store[i]) {
-            t.store[i] = {W: 960/CFG.tile, H: 540/CFG.tile, map:[], enemies:[], moving:[], coins:[], isAsync: true}; 
-            fetchJsonLevel(i)
-                .then(data => {
-                    t.store[i] = data;
-                })
-                .catch(err => {
-                    t.store[i] = makeBasicLevel(CFG.basicLevelCount - 1); 
-                });
+        /** عرض شريط التقدم نحو المرحلة التالية */
+        function renderProgress() {
+            const currentStage = CITY_DATA.thresholds[gameState.currentStageIndex];
+            const nextStage = CITY_DATA.thresholds[gameState.currentStageIndex + 1];
+            const stageInfo = document.getElementById('stage-info');
+            const progressFill = document.getElementById('progress-fill');
+
+            if (!nextStage) {
+                stageInfo.textContent = `🥳 وصلت المدينة إلى أقصى المراحل: ${currentStage.name}!`;
+                progressFill.style.width = '100%';
+                progressFill.style.backgroundColor = '#ffcc00';
+                return;
+            }
+
+            stageInfo.textContent = `مرحلة ${currentStage.name} | التقدم نحو: ${nextStage.name} (سكان: ${gameState.stats.population}/${nextStage.pop_req}, اقتصاد: ${gameState.stats.economy}/${nextStage.eco_req})`;
+            
+            // حساب التقدم باستخدام السكان والاقتصاد
+            const popProgress = Math.min(gameState.stats.population / nextStage.pop_req, 1);
+            const ecoProgress = Math.min(gameState.stats.economy / nextStage.eco_req, 1);
+            const overallProgress = (popProgress + ecoProgress) / 2 * 100;
+            
+            progressFill.style.width = `${overallProgress}%`;
+            progressFill.style.backgroundColor = overallProgress >= 100 ? var(--color-warning) : var(--color-success);
+        }
+
+        /** اختيار وعرض حدث جديد */
+        function pickEvent() {
+            const allEvents = CITY_DATA.events;
+            let eventPool = [];
+
+            // تجميع الأحداث العادية
+            eventPool.push(...allEvents.filter(e => e.rarity === 1));
+
+            // إضافة الأحداث النادرة بفرصة 5%
+            if (Math.random() < 0.05) {
+                eventPool.push(...allEvents.filter(e => e.rarity === 5));
+            }
+            
+            // إضافة أحداث الأزمات إذا كانت الشروط مطبقة
+            const crisisEvents = allEvents.filter(e => e.condition && e.condition(gameState.stats));
+            if (crisisEvents.length > 0 && Math.random() < 0.3) {
+                eventPool.push(...crisisEvents);
+            }
+
+            if (eventPool.length === 0) {
+                eventPool = allEvents.filter(e => e.rarity === 1); // fallback
+            }
+
+            // اختيار حدث عشوائي من المجمع
+            const eventIndex = Math.floor(Math.random() * eventPool.length);
+            const selectedEvent = eventPool[eventIndex];
+            
+            if (!selectedEvent) return; // لا يوجد حدث
+
+            gameState.currentEvent = selectedEvent;
+            
+            const eventTitleEl = document.getElementById('event-title');
+            const decisionBoxEl = document.getElementById('decision-box');
+
+            eventTitleEl.textContent = selectedEvent.title;
+            decisionBoxEl.innerHTML = ''; // مسح القرارات القديمة
+
+            selectedEvent.choices.forEach((choice, index) => {
+                const button = document.createElement('button');
+                button.className = 'decision-button';
+                button.textContent = choice.text;
+                button.onclick = () => applyEffect(selectedEvent, index);
+                decisionBoxEl.appendChild(button);
+            });
+            
+            // رسالة تنبيه للمستخدم
+            showNotification(`⚠️ حدث جديد يتطلب قرارك!`);
+        }
+
+        /** تطبيق تأثير القرار على الإحصائيات */
+        function applyEffect(event, choiceIndex) {
+            const choice = event.choices[choiceIndex];
+            const effect = choice.effect;
+
+            // تطبيق التأثيرات
+            for (const key in effect) {
+                gameState.stats[key] += effect[key];
+            }
+            
+            // إظهار التغذية الراجعة
+            showNotification(`✅ قرارك: ${choice.text}. ${choice.feedback}`, 5000);
+            
+            // إعادة تعيين الحدث
+            gameState.currentEvent = null;
+            document.getElementById('event-title').textContent = "لا يوجد أحداث حالياً...";
+            document.getElementById('decision-box').innerHTML = '<button class="decision-button disabled-button" disabled>انتظر الحدث القادم</button>';
+            
+            // تحديث الواجهة وحفظ الحالة
+            renderStats();
+            checkStageUnlock();
+            citySpeak();
+            saveState();
+        }
+
+        /** التحقق من عتبات فتح المرحلة الجديدة */
+        function checkStageUnlock() {
+            const currentStageIndex = gameState.currentStageIndex;
+            const nextStage = CITY_DATA.thresholds[currentStageIndex + 1];
+
+            if (!nextStage) return; // لا توجد مراحل أخرى
+
+            if (gameState.stats.population >= nextStage.pop_req && gameState.stats.economy >= nextStage.eco_req) {
+                gameState.currentStageIndex++;
+                const newStage = CITY_DATA.thresholds[gameState.currentStageIndex];
+                
+                // مكافأة فتح المرحلة
+                gameState.stats.population += 50;
+                gameState.stats.happiness += 20;
+                gameState.stats.health += 20;
+                gameState.stats.economy += 50;
+                
+                showNotification(`🎉 تهانينا! تمت ترقية المدينة إلى: ${newStage.name}!`, 10000);
+                renderStats();
+                citySpeak();
+                saveState();
+            }
+        }
+
+        /** تحديث رسالة "كلام المدينة" */
+        function citySpeak() {
+            const speakBox = document.getElementById('city-speak');
+            let message = "المدينة تتنفس ببطء...";
+
+            if (gameState.stats.health < 30) {
+                message = "المدينة مريضة! ❤️ يجب التدخل فوراً.";
+            } else if (gameState.stats.happiness < 30) {
+                message = "المدينة غاضبة! 😡 الاحتجاجات وشيكة.";
+            } else if (gameState.stats.economy > 1000 && gameState.stats.health > 80 && gameState.stats.happiness > 80) {
+                message = "ازدهار ورخاء! 🌟 المدينة في أوج مجدها.";
+            } else if (gameState.stats.population > 5000) {
+                message = "توسع حضري! 🏙️ المدينة تكبر وتتطلب المزيد.";
+            } else if (gameState.stats.health > 70 && gameState.stats.happiness > 70) {
+                message = "استقرار جيد. ✨ الوضع تحت السيطرة.";
+            }
+            
+            speakBox.textContent = `${CITY_DATA.thresholds[gameState.currentStageIndex].name} | ${message}`;
         }
         
-        return t.store[i];
-    }
-});
+        /** عرض إشعارات نصية قصيرة */
+        function showNotification(text, duration = 3000) {
+            const notificationEl = document.getElementById('notification');
+            notificationEl.textContent = text;
+            notificationEl.style.display = 'block';
+            
+            clearTimeout(notificationEl.timer);
+            notificationEl.timer = setTimeout(() => {
+                notificationEl.style.display = 'none';
+            }, duration);
+        }
 
-
-/* ================ OVERLAYS ================ */
-function showOverlay(title, bodyHTML, buttons){
-  hideOverlay();
-  const frag=tplOverlay.content.cloneNode(true);
-  frag.querySelector('#ovTitle').textContent=title;
-  frag.querySelector('#ovBody').innerHTML=bodyHTML;
-  frag.querySelector('#ovHint').textContent=T('hint');
-  const box=frag.querySelector('#ovButtons');
-  (buttons||[]).forEach(b=>{ const el=document.createElement('button'); el.className='btn '+(b.primary?'primary':'ghost'); el.textContent=b.label; el.addEventListener('click',b.on); box.appendChild(el); });
-  document.body.appendChild(frag); state.overlayEl=document.getElementById('overlay');
-}
-function hideOverlay(){ if(state.overlayEl){ state.overlayEl.remove(); state.overlayEl=null; } }
-function splashHTML(){ return `
-  <div class="splash">
-    <div class="splash-head"><canvas class="splash-canvas" id="splashCanvas"></canvas><div class="splash-title">${I18N[lang].title}</div></div>
-    <div class="splash-body">${I18N[lang].desc}<div class="hint" style="margin-top:8px">${I18N[lang].drops}</div></div>
-  </div>`;}
-function renderSplash(){ const c=document.getElementById('splashCanvas'); if(!c) return;
-  const r=c.parentElement.getBoundingClientRect(); c.width=r.width|0; c.height=r.height|0; const x=c.getContext('2d');
-  x.fillStyle='#0e1422'; x.fillRect(0,0,c.width,c.height);
-  x.fillStyle='#ffffffaa'; for(let i=0;i<100;i++) x.fillRect(Math.random()*c.width, Math.random()*c.height*0.6, 2, 2);
-  const hill=(y,col)=>{ x.fillStyle=col; for(let i=-1;i<6;i++){ const bx=i*240; x.beginPath(); x.moveTo(bx,y+200); x.lineTo(bx+120,y+40); x.lineTo(bx+240,y+200); x.closePath(); x.fill(); } };
-  hill(c.height*0.45,'#17304a'); hill(c.height*0.55,'#1c3a5a'); hill(c.height*0.65,'#204568');
-  requestAnimationFrame(renderSplash);
-}
-
-/* ================ SCALING & FLOW ================ */
-function applyScaling(levelIndex){
-  const b=Math.floor(levelIndex/CFG.scaling.bandSize); 
-  state.band=b;
-  const eMul=Math.pow(CFG.scaling.enemySpeedMul,b), 
-        eFire=Math.pow(CFG.scaling.enemyFireRateMul,b), 
-        eBullet=Math.pow(CFG.scaling.enemyBulletSpeedMul,b);
-  const pSpd=Math.pow(CFG.scaling.playerSpeedMul,b), 
-        pJmp=Math.pow(CFG.scaling.playerJumpMul,b);
-        const pBul=Math.pow(CFG.scaling.playerBulletSpeedMul,b);
-        const upgradeMul = 1 + (state.upgrades.bulletDmg * SHOP_MAP.bulletDmg.inc);
-
-
-  runtime.enemy.walkerSpeed=CFG.enemy.walkerSpeed*eMul;
-  runtime.enemy.turtleSpeed=CFG.enemy.turtleSpeed*eMul;
-  runtime.enemy.flierSpeed =CFG.enemy.flierSpeed *eMul;
-  runtime.enemy.shooterSpeed=CFG.enemy.shooterSpeed*eMul;
-  runtime.enemy.fireRate   =CFG.enemy.fireRate   *eFire;
-  runtime.enemy.bulletSpeed=CFG.enemy.bulletSpeed*eBullet;
-  // دمج الـ Scaling مع ترقيات اللاعب
-  runtime.player.maxDX=CFG.maxDX*pSpd;
-  runtime.player.jumpV=CFG.jumpV*pJmp;
-  runtime.player.bulletSpeed=(CFG.player.bulletSpeed*pBul) * upgradeMul;
-}
-
-function resetRun(){ 
-  state.hearts=3; 
-  state.shield=0; 
-  state.coins=0; 
-  state.boosts={speed:0,jump:0}; 
-  state.upgrades=SHOP_ITEMS.reduce((acc, item) => (acc[item.id] = 0, acc), {}); 
-  applyUpgrades(); 
-  saveProgress(); 
-}
-
-function startMenu(){
-  state.scene='menu'; 
-  updateHUD();
-  const hasSave=loadProgress();
-  showOverlay(I18N[lang].title, splashHTML(), [
-    {label:I18N[lang].start, primary:true, on:()=>{ hideOverlay(); resetRun(); startLevel(0,true); }},
-   ...(has?[{label:I18N[lang].cont, on:()=>{ hideOverlay(); startLevel(state.level,true); }}]:[])
-  ]);
-  setTimeout(renderSplash,0);
-}
-
-// تعديل startLevel لضمان التسلسل
-function startLevel(i,reset=true){
-  state.level=Math.max(0, i|0); 
-  applyScaling(state.level);
-  
-  const L=LEVELS[state.level];
-  // التعامل مع تحميل المراحل غير الأساسية (بعد الـ 10 الأولى)
-  if (L.isAsync) {
-    state.scene='loading';
-    updateHUD();
-    showOverlay(T('stage',state.level+1), lang==='ar'?'جار تحميل المرحلة...':'Loading Stage...', []);
-    // محاولة إعادة تحميل المرحلة بعد 100 مللي ثانية
-    setTimeout(() => startLevel(i, reset), 100); 
-    return;
-  }
-  
-  hideOverlay();
-  currentLevelData = L;
-  enemies=JSON.parse(JSON.stringify(L.enemies)); 
-  enemies.forEach(e=>e._dead=false);
-  movingPlatforms=JSON.parse(JSON.stringify(L.moving));
-  // إعادة تعيين العملات الخاصة بالمرحلة فقط
-  drops=L.coins.map(c => ({...c, w:16, h:16, type:'coin', ttl:9999})); 
-  
-  eBullets.length=0; pBullets.length=0;
-  if(reset) Object.assign(player,{x:L.start.x,y:L.start.y,dx:0,dy:0,on:false,coyote:0,jumpBuf:0,inv:0,facing:1});
-  state.camX=player.x+player.w/2 - canvas.width/2;
-  state.camY=player.y+player.h/2 - canvas.height/2;
-  state.scene='playing'; 
-  updateHUD(); 
-  saveProgress(); 
-  wantFocus();
-}
-
-function finishLevel(){
-  SFX.win(); 
-  saveProgress();
-  state.level++; 
-  setTimeout(()=>{ startLevel(state.level, true); }, 1000); 
-}
-
-function gameOver(){
-  SFX.hit();
-  const lvl=state.level;
-  showOverlay(I18N[lang].lose, '', [
-    {label:T('restart')+' ↺', primary:true, on:()=>{ hideOverlay(); state.level=lvl; startLevel(state.level,true); }},
-    {label:T('menu')+' ⌂', on:()=>{ hideOverlay(); startMenu(); }}
-  ]);
-  state.scene='menu';
-}
-
-function togglePause(){
-  if(state.scene==='playing'){
-    state.scene='pause';
-    showOverlay(T('paused'),'',[
-      {label:T('resume')+' ▶', primary:true, on:()=>{ hideOverlay(); state.scene='playing'; }},
-      {label:T('shop')+' 🛒', on:()=>{ hideOverlay(); showShop(); }}, 
-      {label:T('restart')+' ↺', on:()=>{ hideOverlay(); startLevel(state.level,true); }},
-      {label:T('menu')+' ⌂', on:()=>{ hideOverlay(); startMenu(); }},
-      {label: muted?'🔊 Music':'🔇 Music', on:()=>{ muted=!muted; HUD.btnMusic.textContent=muted?'🔇':'🔊'; hideOverlay(); togglePause(); }},
-      {label:(lang==='ar'?'English':'العربية'), on:()=>{ lang=(lang==='ar'?'en':'ar'); document.documentElement.lang=lang; document.documentElement.dir=(lang==='ar'?'rtl':'ltr'); HUD.btnLang.textContent=(lang==='ar'?'العربية':'English'); updateHUD(); hideOverlay(); togglePause(); }}
-    ]);
-  }else if(state.scene==='pause'){ 
-    hideOverlay(); 
-    state.scene='playing'; 
-  }
-}
-
-/* ================ DROPS ================= */
-function spawnDrop(x,y){
-  const r=Math.random(); 
-  const type=r<0.25?'heart': r<0.5?'shield': r<0.75?'speed':'jump';
-  drops.push({x:x-9,y:y-6,w:18,h:18,type,ttl:5});
-}
-function updateDrops(dt){
-  const maxShields = SHOP_MAP.shieldCapacity.initial + (state.upgrades.shieldCapacity * SHOP_MAP.shieldCapacity.inc);
-
-  for(let i=drops.length-1;i>=0;i--){
-    const d=drops[i]; 
-    d.ttl-=dt;
-    if(rects(player,d)){
-      if(d.type==='coin'){ 
-          state.coins++;
-          SFX.coin();
-      }
-      else if(d.type==='heart' && state.hearts<CFG.player.maxHearts) state.hearts++;
-      else if(d.type==='shield') state.shield=Math.min(maxShields,state.shield+1);
-      else if(d.type==='speed') state.boosts.speed=Math.min(5,state.boosts.speed+1);
-      else if(d.type==='jump') state.boosts.jump=Math.min(5,state.boosts.jump+1);
-      else if(d.type!=='coin') SFX.pick(); 
-      
-      vibrate(20); 
-      updateHUD(); 
-      drops.splice(i,1); 
-      saveProgress();
-    }else if(d.ttl<=0 && d.type!=='coin') drops.splice(i,1); 
-  }
-}
-function drawDrops(){
-  drops.forEach(d=>{
-    const x=d.x-state.camX,y=d.y-state.camY;
-    const g=ctx.createRadialGradient(x+d.w/2,y+d.h/2,2,x+d.w/2,y+d.h/2,18); g.addColorStop(0,'#ffffff88'); g.addColorStop(1,'#ffffff00');
-    ctx.fillStyle=g; ctx.beginPath(); ctx.arc(x+d.w/2,y+d.h/2,18,0,Math.PI*2); ctx.fill();
-    
-    // رسم العملة
-    if (d.type === 'coin') {
-        ctx.fillStyle = getCSS('--coin');
-        ctx.beginPath();
-        ctx.arc(x, y, 6, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = '#0008';
-        ctx.font = '8px sans-serif';
-        ctx.fillText('💰', x-5, y+4);
-
-    } else {
-        // رسم باقي التعزيزات
-        ctx.fillStyle= d.type==='heart'?'#e74c3c': d.type==='shield'?'#3498db': d.type==='speed'?'#f1c40f':'#2ecc71';
-        if(d.type==='heart'){ ctx.beginPath(); ctx.moveTo(x+9,y+6); ctx.bezierCurveTo(x+2,y+0,x,y+10,x+9,y+14); ctx.bezierCurveTo(x+18,y+10,x+16,y+0,x+9,y+6); ctx.fill(); }
-        else if(d.type==='shield'){ ctx.fillRect(x+4,y+5,10,10); ctx.fillRect(x+6,y+15,6,2); }
-        else if(d.type==='speed'){ ctx.fillRect(x+4,y+10,12,4); ctx.fillRect(x+10,y+6,4,4); }
-        else { ctx.fillRect(x+7,y+4,4,10); ctx.fillRect(x+4,y+10,10,4); }
-    }
-  });
-}
-
-/* ================ MECHANICS ================ */
-function shoot(){
-  const t=nowSec(); 
-  if(t-state.lastShotAt<CFG.player.shootCooldown) return; 
-  state.lastShotAt=t; 
-  SFX.shoot();
-  const dir=player.facing; 
-  // رسم الرصاصة (السلاح)
-  pBullets.push({
-    x: player.x + player.w / 2 + (dir * player.w / 2),
-    y: player.y + player.h / 2, 
-    w: 12, h: 4, 
-    dx: dir * runtime.player.bulletSpeed, 
-    dy: 0
-  });
-}
-function defeatEnemy(e){
-  if(e._dead) return;
-  // احتمال سقوط عملة عند قتل العدو
-  if(Math.random() < 0.6) drops.push({x:e.x+e.w/2, y:e.y, w:16, h:16, type:'coin', ttl:9999}); 
-  else spawnDrop(e.x+e.w/2, e.y);
-  const proto={minX:e.minX,maxX:e.maxX,y:e.y,w:e.w,h:e.h,type:e.type};
-  e._dead=true;
-  setTimeout(()=>{ Object.assign(e,{...proto,x:proto.minX,dir:1,_dead:false,cool:Math.random()*runtime.enemy.fireRate}); },3000);
-}
-function hurtPlayer(){
-  if(player.inv>0) return;
-  const maxShields = SHOP_MAP.shieldCapacity.initial + (state.upgrades.shieldCapacity * SHOP_MAP.shieldCapacity.inc);
-  if(state.shield>0){ 
-    state.shield=Math.min(maxShields,state.shield-1); // التأكد من عدم النزول تحت الصفر
-    player.inv=1.0; 
-    SFX.hit(); 
-    vibrate(40); 
-    updateHUD(); 
-    saveProgress(); 
-    return; 
-  }
-  state.hearts--; 
-  player.inv=1.0; 
-  SFX.hit(); 
-  vibrate(60); 
-  updateHUD(); 
-  saveProgress();
-  if(state.hearts<=0){ gameOver(); return; }
-  const L=currentLevelData; 
-  Object.assign(player,{x:L.start.x,y:L.start.y,dx:0,dy:0,on:false});
-}
-
-/* ================ PHYSICS ================= */
-function tileAt(px,py){
-  const L=currentLevelData; 
-  if (!L || L.isAsync) return TILE.SOLID; 
-  const tx=(px/CFG.tile)|0, ty=(py/CFG.tile)|0;
-  if(tx<0||ty<0||tx>=L.W||ty>=L.H) return TILE.SOLID;
-  return L.map[ty][tx];
-}
-
-function moveAndCollide(ent){
-  ent.x+=ent.dx;
-  if(ent.dx!==0){
-    const s=Math.sign(ent.dx), cx=ent.x+(s>0?ent.w:0);
-    const pts=[{x:cx,y:ent.y+2},{x:cx,y:ent.y+ent.h-2}];
-    for(const p of pts){
-      const t=tileAt(p.x,p.y);
-      if(t===TILE.SOLID){
-        const tx=(p.x/CFG.tile)|0;
-        ent.x=tx*CFG.tile - (s>0?ent.w:-CFG.tile);
-        ent.dx=0;
-        break;
-      }
-    }
-  }
-  ent.y+=ent.dy; ent.on=false;
-  const vy=ent.y+(ent.dy>0?ent.h:0),
-        pts2=[{x:ent.x+2,y:vy},{x:ent.x+ent.w-2,y:vy}];
-  for(const p of pts2){
-    const t=tileAt(p.x,p.y);
-    if(t===TILE.SOLID||t===TILE.MOVING){
-      const ty=(p.y/CFG.tile)|0;
-      ent.y=ty*CFG.tile - (ent.dy>0?ent.h:-CFG.tile);
-      if(ent.dy>0) ent.on=true;
-      ent.dy=0;
-      break;
-    }
-  }
-  for(const mp of movingPlatforms){
-    const r={x:mp.x,y:mp.y,w:mp.w,h:mp.h},
-          feet={x:ent.x+2,y:ent.y+ent.h,w:ent.w-4,h:2};
-    if(rects(feet,r)){
-      ent.y=mp.y-ent.h;
-      ent.on=true;
-      ent.x+=(mp.x-(mp._px||mp.x));
-    }
-    mp._px=mp.x;
-  }
-}
-
-function interactTiles(){
-  const L=currentLevelData; 
-  if (!L || L.isAsync) return;
-  const feet={x:player.x+player.w/2,y:player.y+player.h-2};
-  const t=tileAt(feet.x,feet.y);
-  if(t===TILE.SPIKE){ hurtPlayer(); }
-  if(t===TILE.SPRING){
-    player.dy=-CFG.springV*(1+state.boosts.jump*0.1);
-    player.on=false;
-    SFX.spring();
-  }
-  if(t===TILE.WATER){
-    state.hearts=0;
-    updateHUD();
-    saveProgress();
-    gameOver();
-    return;
-  }
-  const gx=(L.W-4)*CFG.tile,
-        gyTop = groundTopAt(L.map,L.W-4);
-  const goalBox={x:gx,y:(gyTop-4)*CFG.tile,w:CFG.tile,h:CFG.tile*4};
-  if(rects(player,goalBox)) finishLevel();
-}
-
-function groundTopAt(map,x){
-  for(let y=0;y<map.length;y++)
-    if(map[y][x]===TILE.SOLID) return y;
-  return map.length-2;
-}
-
-/* ================ UPDATE & DRAW ================ */
-let last=performance.now();
-function update(dt){
-  if(state.scene!=='playing') return;
-
-  const L = currentLevelData;
-  if (!L || L.isAsync) return; 
-
-  movingPlatforms.forEach(mp=>{
-    mp.t+=dt*mp.dir;
-    const off=Math.sin(mp.t)*mp.range;
-    mp.x+=(off-(mp._p||0));
-    mp._p=off;
-  });
-
-  let acc=CFG.moveAcc*(1+state.boosts.speed*0.1),
-      maxDX=runtime.player.maxDX, // تم نقل تطبيق الـ Scaling هنا
-      jumpV=runtime.player.jumpV; 
-  let ax=0;
-  if(keys.left){ ax-=acc; player.facing=-1; }
-  if(keys.right){ ax+=acc; player.facing=1; }
-  player.dx=clamp(player.dx+ax, -maxDX, maxDX);
-  if(player.on && ax===0) player.dx*=CFG.friction;
-  player.dy=clamp(player.dy+CFG.gravity, -CFG.maxDY, CFG.maxDY);
-
-  // منطق Coyote Time و Jump Buffer
-  if(keys.jump) player.jumpBuf=CFG.jumpBuffer;
-  else player.jumpBuf=Math.max(0,player.jumpBuf-dt);
-  player.coyote = player.on? CFG.coyoteTime : Math.max(0,player.coyote-dt);
-  if(player.jumpBuf>0 && player.coyote>0){
-    player.dy=-jumpV;
-    player.on=false;
-    player.coyote=0;
-    player.jumpBuf=0;
-    SFX.jump();
-    vibrate(20);
-  }
-  // Variable Jump Height
-  if(!keys.jump && player.dy<-2) player.dy*=CFG.variableJumpCut;
-
-  moveAndCollide(player);
-
-  const worldFloor=(L.H-2)*CFG.tile;
-  if(player.y > worldFloor+8){
-    state.hearts=0;
-    updateHUD();
-    saveProgress();
-    gameOver();
-    return;
-  }
-
-  interactTiles();
-
-  if(state.hasGun && keys.shoot) shoot();
-
-  enemies.forEach(e=>{
-    if(e._dead) return;
-    const sp = e.type===ENEMY.FLIER?runtime.enemy.flierSpeed :
-               e.type===ENEMY.SHOOTER?runtime.enemy.shooterSpeed :
-               e.type===ENEMY.TURTLE?runtime.enemy.turtleSpeed :
-               runtime.enemy.walkerSpeed;
-    e.x += e.dir * sp * dt * 60;
-    if(e.x<e.minX){ e.x=e.minX; e.dir=1; }
-    if(e.x+e.w>e.maxX){ e.x=e.maxX-e.w; e.dir=-1; }
-    if(e.type===ENEMY.SHOOTER){
-      e.cool=(e.cool||0)-dt;
-      if(e.cool<=0){
-        e.cool=runtime.enemy.fireRate;
-        const dir=(player.x<e.x?-1:1);
-        eBullets.push({x:e.x+(dir>0?e.w:0),y:e.y+10,w:10,h:10,dx:dir*runtime.enemy.bulletSpeed,dy:0});
-      }
-    }
-    if(player.inv<=0 && rects(player,e)){
-      const stomp = player.dy>0 && (player.y+player.h-e.y)<14;
-      if(stomp && (e.type===ENEMY.WALKER||e.type===ENEMY.TURTLE)){
-        player.dy=-(runtime.player.jumpV*0.8);
-        SFX.hit();
-        defeatEnemy(e);
-      } else {
-        hurtPlayer();
-      }
-    }
-  });
-
-  eBullets.forEach(b=>{ b.x+=b.dx; b.y+=b.dy; });
-  eBullets=eBullets.filter(b=>{
-    if(rects(player,b)){ hurtPlayer(); return false; }
-    return onScreen(b,L);
-  });
-  pBullets.forEach(b=>{ b.x+=b.dx; b.y+=b.dy; });
-  pBullets=pBullets.filter(b=>{
-    let alive=true;
-    for(const e of enemies){
-      if(e._dead) continue;
-      if(rects(b,{x:e.x,y:e.y,w:e.w,h:e.h})){
-        SFX.hit();
-        defeatEnemy(e);
-        alive=false;
-        break;
-      }
-    }
-    return alive && onScreen(b,L);
-  });
-
-  updateDrops(dt);
-
-  const targetX=clamp(player.x+player.w/2 - canvas.width/2, 0, L.W*CFG.tile - canvas.width);
-  const targetY=clamp(player.y+player.h/2 - canvas.height*0.6, 0, L.H*CFG.tile-canvas.height);
-  state.camX=lerp(state.camX,targetX,CFG.cameraLerp);
-  state.camY=lerp(state.camY,targetY,CFG.cameraLerp);
-
-  if(player.inv>0) player.inv=Math.max(0,player.inv-dt);
-}
-function onScreen(b,L){ return b.x>-64 && b.x<L.W*CFG.tile+64 && b.y>-64 && b.y<L.H*CFG.tile+64; }
-
-function getCSS(v){ return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
-function drawParallax(offset, baseY, color){
-  ctx.fillStyle=color; for(let i=-1;i<6;i++){ const x=((i*240-(offset%240))|0);
-    ctx.beginPath(); ctx.moveTo(x,baseY+120); ctx.lineTo(x+120,baseY+40); ctx.lineTo(x+240,baseY+200); ctx.closePath(); ctx.fill();
-  }
-}
-function draw(){
-  ctx.fillStyle=getCSS('--sky'); ctx.fillRect(0,0,canvas.width,canvas.height);
-  drawParallax(state.camX*0.5, 90-state.camY*0.5, '#b3e5fc');
-  drawParallax(state.camX*0.8, 50-state.camY*0.8, '#d0f0ff');
-  
-  const L = currentLevelData;
-  if (state.scene === 'playing' && L && !L.isAsync) {
-    const T=CFG.tile; const sx=(state.camX/T)|0, ex=Math.ceil((state.camX+canvas.width)/T);
-    for(let y=0;y<L.H;y++){
-      for(let x=sx;x<Math.min(ex,L.W);x++){
-        const t=L.map[y][x], px=x*T-state.camX, py=y*T-state.camY;
-        if(t===TILE.SOLID){ ctx.fillStyle=getCSS('--ground'); ctx.fillRect(px,py,T,T); ctx.fillStyle=getCSS('--ground-top'); ctx.fillRect(px,py,T,6); }
-        else if(t===TILE.SPIKE){ ctx.fillStyle=getCSS('--spike'); ctx.beginPath(); ctx.moveTo(px,py+T); ctx.lineTo(px+T/2,py); ctx.lineTo(px+T,py+T); ctx.closePath(); ctx.fill(); }
-        else if(t===TILE.SPRING){ ctx.fillStyle=getCSS('--spring'); ctx.fillRect(px+6,py+T-10,T-12,10); ctx.fillStyle='#85c1e9'; ctx.fillRect(px+6,py+T-16,T-12,6); }
-        else if(t===TILE.WATER){ ctx.fillStyle=getCSS('--water'); ctx.fillRect(px,py,T,T); ctx.fillStyle='#ffffff22'; ctx.fillRect(px,py+T-6,T,6); }
-        else if(t===TILE.GOAL){ ctx.fillStyle='#fff'; ctx.fillRect(px+T/2-2,py,4,T*4); ctx.fillStyle=getCSS('--goal'); ctx.beginPath(); ctx.moveTo(px+T/2+2,py+6); ctx.lineTo(px+T/2+22,py+16); ctx.lineTo(px+T/2+2,py+26); ctx.closePath(); ctx.fill(); }
-      }
-    }
-  }
-
-  movingPlatforms.forEach(mp=>{ const x=mp.x-state.camX,y=mp.y-state.camY; ctx.fillStyle='#bdc3c7'; ctx.fillRect(x,y,mp.w,mp.h); ctx.fillStyle='#95a5a6'; ctx.fillRect(x,y,mp.w,4); });
-  enemies.forEach(e=>{
-    if(e._dead) return; const x=e.x-state.camX,y=e.y-state.camY;
-    if(e.type===ENEMY.WALKER) ctx.fillStyle=getCSS('--enemy');
-    else if(e.type===ENEMY.TURTLE) ctx.fillStyle=getCSS('--turtle');
-    else if(e.type===ENEMY.FLIER) ctx.fillStyle=getCSS('--flier');
-    else ctx.fillStyle=getCSS('--shooter');
-    ctx.fillRect(x,y,e.w,e.h); ctx.fillStyle='#000'; ctx.fillRect(x+6,y+8,4,4); ctx.fillRect(x+e.w-10,y+8,4,4);
-  });
-  ctx.fillStyle='#f39c12'; eBullets.forEach(b=> ctx.fillRect(b.x-state.camX,b.y-state.camY,b.w,b.h));
-  // رسم رصاص اللاعب (السلاح)
-  ctx.fillStyle='#2ecc71'; pBullets.forEach(b=> {
-    // رسم مستطيل يمثل الرصاصة
-    ctx.fillRect(b.x-state.camX,b.y-state.camY,b.w,b.h);
-    // رسم مقدمة حادة للرصاصة (لتبدو كسلاح)
-    const tipX = b.x-state.camX + (b.dx > 0 ? b.w : 0);
-    const triW = 4, triH = b.h + 2;
-    ctx.beginPath();
-    ctx.moveTo(tipX, b.y-state.camY - 1);
-    ctx.lineTo(tipX + (b.dx > 0 ? triW : -triW), b.y-state.camY + b.h/2);
-    ctx.lineTo(tipX, b.y-state.camY + b.h + 1);
-    ctx.fill();
-  });
-  drawDrops();
-  
-  if (state.scene === 'playing' || state.scene === 'pause') {
-      ctx.globalAlpha = player.inv>0? 0.5 + 0.5*Math.sin(performance.now()/40) : 1;
-      const px=player.x-state.camX, py=player.y-state.camY;
-      ctx.fillStyle=getCSS('--player'); ctx.fillRect(px,py+6,player.w,player.h-6);
-      ctx.beginPath(); ctx.arc(px+player.w/2, py+6, player.w/2, 0, Math.PI*2); ctx.fill();
-      ctx.fillStyle='#fff'; const eyeY=py+2;
-      if(player.facing===1){ ctx.fillRect(px+player.w/2, eyeY, 4,4); ctx.fillRect(px+player.w/2+6, eyeY, 4,4); }
-      else { ctx.fillRect(px+player.w/2-10, eyeY, 4,4); ctx.fillRect(px+player.w/2-4, eyeY, 4,4); }
-      ctx.fillStyle='#000'; ctx.fillRect(px+player.w/2-4, py+player.h-6, 8,2);
-      ctx.globalAlpha=1;
-  }
-}
-
-/* ================ HUD, LOOP, FIT ================ */
-function updateHUD(){
-  const heart=(lang==='ar'?'❤':'♥'); HUD.hearts.textContent=heart.repeat(state.hearts);
-  HUD.shield.textContent='🛡 '+state.shield;
-  HUD.coins.textContent='💰 '+state.coins; 
-  HUD.stage.textContent=T('stage',state.level+1);
-}
-let lastT=performance.now();
-function loop(t){ const dt=Math.min(0.05,(t-lastT)/1000); lastT=t; if(state.scene==='playing') update(dt); draw(); requestAnimationFrame(loop); }
-function fit(){ const s=Math.min(innerWidth/CFG.viewW, innerHeight/CFG.viewH); canvas.style.width=Math.max(320,(CFG.viewW*s)|0)+'px'; canvas.style.height=Math.max(240,(CFG.viewH*s)|0)+'px'; }
-addEventListener('resize',fit);
-
-/* ================ INIT ================ */
-function init(){
-  const has=loadProgress();
-  // التأكد من تطبيق الترقيات المحملة قبل بدء أي شيء
-  applyUpgrades(); 
-  document.documentElement.lang=lang; 
-  document.documentElement.dir=(lang==='ar'?'rtl':'ltr'); 
-  HUD.btnLang.textContent=(lang==='ar'?'العربية':'English'); 
-
-  showOverlay(I18N[lang].title, splashHTML(), [
-    {label:I18N[lang].start, primary:true, on:()=>{ hideOverlay(); resetRun(); startLevel(0,true); }},
-   ...(has?[{label:I18N[lang].cont, on:()=>{ hideOverlay(); startLevel(state.level,true); }}]:[])
-  ]);
-  setTimeout(renderSplash,0);
-}
-
-// إضافة وظيفة buyUpgrade إلى الكائن العالمي
-window.buyUpgrade = buyUpgrade;
-
-fit();
-init();
-requestAnimationFrame(t=>{ lastT=t; loop(t); });
-
-})();
-</script>
+        // #4. تشغيل اللعبة
+        init();
+    </script>
 </body>
 </html>
 
