@@ -42,8 +42,6 @@ html,body{margin:0;background:#0d1117;color:var(--text);font-family:system-ui,Se
   color:#fff; font-size:24px; font-weight:900;
   display: flex; align-items: center; justify-content: center;
 }
-/* لا نحتاج إلى rules خاصة بـ :first-child أو :last-child الآن */
-
 /* تصميم عصي التحكم (D-Pad style) للحركة */
 #btnLeft { border-radius: 50% 10% 10% 50%; }
 #btnRight { border-radius: 10% 50% 50% 10%; }
@@ -142,7 +140,8 @@ const CFG={
   scaling:{bandSize:5, enemySpeedMul:1.07, enemyFireRateMul:0.96, enemyBulletSpeedMul:1.06, playerSpeedMul:1.05, playerJumpMul:1.04, playerBulletSpeedMul:1.04},
   vibration:true,
   basicLevelCount: 10,
-  jsonFiles: ['sentences1.json', 'sentences2.json', 'sentences3.json', 'sentences4.json']
+  // ملفات JSON وهمية لتجنب الخطأ، يمكنك استبدالها بمسارات حقيقية للمراحل الإضافية
+  jsonFiles: ['sentences1.json', 'sentences2.json', 'sentences3.json', 'sentences4.json'] 
 };
 
 const SHOP_ITEMS = [
@@ -207,7 +206,7 @@ const Assets = {
     
     // هذا هو ملف الـ spritesheet مدمج كـ Base64
     // يحتوي على: لاعب، أعداء، عملات، مؤثرات...
-    spritesheet_src: "data:image/png;base64,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',
+    spritesheet_src: "data:image/png;base64,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",
     
     // دالة لتحميل الصورة
     load: function(callback) {
@@ -517,8 +516,22 @@ function fetchJsonLevel(index) {
     const fileName = CFG.jsonFiles[jsonIndex];
     if (JSON_LEVEL_CACHE[fileName]) return Promise.resolve(JSON_LEVEL_CACHE[fileName]);
     if (JSON_LOAD_PROMISE) return JSON_LOAD_PROMISE;
+    
+    // محاكاة تحميل ملف JSON إذا لم يتم توفيره لتجنب الأخطاء
+    if (!fileName.includes('.json')) {
+        console.warn(`Missing level file definition for index ${index}. Falling back to basic level.`);
+        return Promise.resolve(makeBasicLevel(CFG.basicLevelCount - 1));
+    }
+    
     JSON_LOAD_PROMISE = fetch(fileName)
-        .then(response => { if (!response.ok) throw new Error(`Failed to load ${fileName}`); return response.json(); })
+        .then(response => { 
+            // إذا لم يتم العثور على ملف، نستخدم مستوى أساسي
+            if (!response.ok) {
+                console.warn(`Failed to fetch ${fileName}. Falling back to basic level.`);
+                throw new Error('Fallback');
+            }
+            return response.json(); 
+        })
         .then(data => {
             data.W = data.map[0].length; data.H = data.map.length; if(!data.coins) data.coins = []; 
             // إضافة بيانات الأنيميشن للأعداء المحملين من JSON
@@ -533,7 +546,12 @@ function fetchJsonLevel(index) {
             JSON_LOAD_PROMISE = null;
             return data;
         })
-        .catch(error => { console.error(error); JSON_LOAD_PROMISE = null; return makeBasicLevel(CFG.basicLevelCount - 1); });
+        .catch(error => { 
+            console.error(error); 
+            JSON_LOAD_PROMISE = null; 
+            // العودة إلى مستوى أساسي إذا فشل التحميل
+            return makeBasicLevel(CFG.basicLevelCount - 1); 
+        });
     return JSON_LOAD_PROMISE;
 }
 const LEVELS = new Proxy({ store: {} }, {
@@ -618,7 +636,8 @@ function startLevel(i,reset=true){
     state.scene='loading';
     updateHUD();
     showOverlay(T('stage',state.level+1), lang==='ar'?'جار تحميل المرحلة...':'Loading Stage...', []);
-    setTimeout(() => startLevel(i, reset), 100); 
+    // محاولة التحميل مرة أخرى بعد فترة قصيرة
+    setTimeout(() => { if (state.scene === 'loading') startLevel(i, reset); }, 100); 
     return;
   }
   
@@ -644,16 +663,19 @@ function finishLevel(){
   state.scene = 'loading'; // منع الحركة أثناء الانتقال
   SFX.win(); 
   saveProgress();
+  // =====================================
+  // ✨ إصلاح: انتقال سلس للمرحلة التالية
+  // =====================================
   state.level++; 
   setTimeout(()=>{ startLevel(state.level, true); }, 1000); 
 }
 
 function gameOver(){
-  if (state.scene === 'dead') return; // منع التشغيل المتعدد
-  SFX.hit();
   // =====================================
   // ✨ إصلاح رقم 1: استخدام حالة 'dead'
   // =====================================
+  if (state.scene === 'dead') return; // منع التشغيل المتعدد
+  SFX.hit();
   state.scene = 'dead'; 
   const lvl=state.level;
   showOverlay(T('lose'), '', [
