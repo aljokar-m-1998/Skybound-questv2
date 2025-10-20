@@ -3,15 +3,15 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
-<title>Retro Platforms — Enhanced & Hybrid</title>
+<title>Retro Platforms — Pro Edition</title>
 <style>
 :root{
-  --sky:#87ceeb; --ground:#6b4f2a; --ground-top:#8f6b3a;
+  --sky:#87ceeb; --ground:#6b4f2a; --ground-top:#8f6b3a; --ground-edge: #5a4121;
   --player:#3498db; --enemy:#e67e22; --turtle:#16a085; --flier:#9b59b6; --shooter:#e74c3c;
   --spike:#c0392b; --goal:#2ecc71; --spring:#5dade2; --water:#3aa6ffcc;
   --coin:#f1c40f; 
   --ui:#000000cc; --text:#fff;
-  --btn-width: 70px; /* تحسين أبعاد أزرار اللمس */
+  --btn-width: 70px; 
   --btn-spacing: 12px;
 }
 html,body{margin:0;background:#0d1117;color:var(--text);font-family:system-ui,Segoe UI,Roboto;overscroll-behavior: none;}
@@ -23,9 +23,17 @@ html,body{margin:0;background:#0d1117;color:var(--text);font-family:system-ui,Se
 .btn.primary{background:#2ecc71;color:#062}
 .btn.ghost{background:#ffffff10;color:#fff;border:1px solid #ffffff33}
 .centered{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(2px);background:#0008;z-index:10}
-.touch{position:fixed;bottom:var(--btn-spacing);left:var(--btn-spacing);right:var(--btn-spacing);display:flex;justify-content:space-between;gap:var(--btn-spacing);pointer-events:none;z-index:4}
 
-/* تحسين تصميم أزرار اللمس ومواضعها */
+/* ===================================== */
+/* ✨ إصلاح رقم 2: تعديل أماكن أزرار التحكم */
+/* ===================================== */
+.touch{
+  position:fixed; bottom:var(--btn-spacing); left:var(--btn-spacing); right:var(--btn-spacing);
+  display:flex; 
+  justify-content: space-between; /* <-- هذا هو الحل! يضمن التباعد بغض النظر عن dir */
+  gap:var(--btn-spacing);
+  pointer-events:none; z-index:4;
+}
 .pad{display:flex;gap:var(--btn-spacing);}
 .tbtn{
   width:var(--btn-width); height:var(--btn-width); 
@@ -34,17 +42,8 @@ html,body{margin:0;background:#0d1117;color:var(--text);font-family:system-ui,Se
   color:#fff; font-size:24px; font-weight:900;
   display: flex; align-items: center; justify-content: center;
 }
-/* عكس اتجاه الأزرار: الحركة على اليسار، الأكشن على اليمين */
-.touch > .pad:first-child { 
-    order: 1; /* الحركة (يمين يسار) */
-    flex-basis: calc(2 * var(--btn-width) + var(--btn-spacing)); 
-    justify-content: flex-start;
-}
-.touch > .pad:last-child { 
-    order: 2; /* القفز والاطلاق */
-    flex-basis: calc(2 * var(--btn-width) + var(--btn-spacing)); 
-    justify-content: flex-end;
-}
+/* لا نحتاج إلى rules خاصة بـ :first-child أو :last-child الآن */
+
 /* تصميم عصي التحكم (D-Pad style) للحركة */
 #btnLeft { border-radius: 50% 10% 10% 50%; }
 #btnRight { border-radius: 10% 50% 50% 10%; }
@@ -54,7 +53,6 @@ html,body{margin:0;background:#0d1117;color:var(--text);font-family:system-ui,Se
 /* ترتيب أزرار الأكشن ليصبح الإطلاق ثم القفز */
 #btnShoot{order: 1;}
 #btnJump{order: 2;}
-
 
 @media (min-width:900px){.touch{display:none}}
 .hearts{letter-spacing:2px}
@@ -68,8 +66,6 @@ html,body{margin:0;background:#0d1117;color:var(--text);font-family:system-ui,Se
 .splash-canvas{position:absolute;inset:0}
 .splash-title{position:relative;z-index:2;font-size:clamp(24px,5.2vw,44px);font-weight:900;letter-spacing:1px;color:#e8f7ff;text-shadow:0 2px 0 #0008,0 0 24px #69d1ff77}
 .splash-body{background:#0b0f18;padding:14px}
-
-/* أنماط المتجر */
 .shop-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; margin-top: 15px; }
 .shop-item { background: #1a1e27; padding: 10px; border-radius: 8px; text-align: center; border: 1px solid #333; }
 .shop-item h4 { margin: 0 0 5px 0; color: var(--text); }
@@ -120,13 +116,13 @@ html,body{margin:0;background:#0d1117;color:var(--text);font-family:system-ui,Se
 
 /* ================= I18N ================= */
 const I18N={
-  ar:{title:'منصات متطورة - هجين',desc:'10 مراحل أساسية مبرمجة بتحديات متنوعة. اجمع العملات 💰 لشراء تحسينات دائمة من المتجر 🛒. الأداء والتحكم محسنان للهواتف. حفظ تلقائي وإعادة للمرحلة عند الخسارة.',
+  ar:{title:'منصات احترافية',desc:'لعبة منصات احترافية مع نظام رسوميات Sprite، فيزياء متقدمة، 10 مراحل مدمجة، ومراحل إضافية. اجمع العملات 💰 لشراء تحسينات دائمة من المتجر 🛒.',
       start:'ابدأ لعبة جديدة', cont:'متابعة', paused:'إيقاف مؤقت', resume:'متابعة', restart:'إعادة المرحلة', menu:'القائمة الرئيسية', shop:'المتجر',
       lose:'خسرت', stage:n=>`مرحلة ${n}`, hint:'كيبورد: ← → للحركة، Space/W للقفز، F للإطلاق، Esc للإيقاف',
       drops:'التعزيزات: ❤ قلب | 🛡 درع | ⇥ سرعة | ⤊ قفز',
       shop_title:'متجر التحسينات',
       shop_desc:'أنفق العملات 💰 لزيادة قوتك بشكل دائم!'},
-  en:{title:'Advanced Platforms - Hybrid',desc:'10 built-in levels with varied challenges. Collect coins 💰 to buy permanent upgrades from the Shop 🛒. Optimized performance and controls for mobile devices. Auto-save and level restart on death.',
+  en:{title:'Pro Platforms',desc:'Professional platformer with a Sprite graphics system, advanced physics, 10 built-in levels, and bonus levels. Collect coins 💰 to buy permanent upgrades from the Shop 🛒.',
       start:'Start New', cont:'Continue', paused:'Paused', resume:'Resume', restart:'Restart', menu:'Main Menu', shop:'Shop',
       lose:'You Lost', stage:n=>`Level ${n}`, hint:'Keyboard: ← → move, Space/W jump, F shoot, Esc pause',
       drops:'Boosts: ❤ Heart | 🛡 Shield | ⇥ Speed | ⤊ Jump',
@@ -138,22 +134,8 @@ let lang='ar'; const T=(k,...a)=> typeof I18N[lang][k]==='function'?I18N[lang][k
 /* ================ CONFIG & RUNTIME ================ */
 const CFG={
   viewW:960, viewH:540, tile:32,
-  
-  // ===================
-  // ✨ التحسين رقم 1: قيم فيزيائية معدلة لشعور أفضل وأكثر استجابة
-  // ===================
-  gravity:0.7,        // كان 0.8 (أخف قليلاً)
-  moveAcc:1.3,        // كان 1.2 (تسارع أعلى)
-  maxDX:7.0,          // كان 6.0 (أسرع قليلاً)
-  maxDY:20,
-  friction:0.85,      // كان 0.88 (توقف أسرع)
-  jumpV:15.5,         // كان 13.5 (قفزة أعلى وأقوى)
-  coyoteTime:0.12,    
-  jumpBuffer:0.18,
-  variableJumpCut:0.5, // كان 0.4 (قطع القفزة أصبح أقوى)
-  cameraLerp:0.12,
-  // ===================
-  
+  gravity:0.7, moveAcc:1.3, maxDX:7.0, maxDY:20, friction:0.85, jumpV:15.5, 
+  coyoteTime:0.12, jumpBuffer:0.18, variableJumpCut:0.5, cameraLerp:0.12,
   springV:16,
   enemy:{walkerSpeed:1.1,turtleSpeed:0.95,flierSpeed:1.25,shooterSpeed:0.75,bulletSpeed:3.2,fireRate:2.6},
   player:{maxHearts:6,shootCooldown:0.28,bulletSpeed:6.6},
@@ -169,8 +151,6 @@ const SHOP_ITEMS = [
     { id: 'shieldCapacity', cost: 15, max: 3, stat: 'maxShields', initial: 0, inc: 1, title_ar: 'سعة الدرع', title_en: 'Shield Capacity', desc_ar: 'يزيد الحد الأقصى للدروع المحمولة.', desc_en: 'Increases maximum carried shields.' },
 ];
 const SHOP_MAP = SHOP_ITEMS.reduce((map, item) => (map[item.id] = item, map), {});
-
-
 const runtime={enemy:{...CFG.enemy}, player:{maxDX:CFG.maxDX,jumpV:CFG.jumpV,bulletSpeed:CFG.player.bulletSpeed}};
 
 /* ================ DOM & HUD ================ */
@@ -192,24 +172,15 @@ const vibrate=ms=>{ if(CFG.vibration&&navigator.vibrate) navigator.vibrate(ms); 
 const nowSec=()=>performance.now()/1000;
 function rnd(seed){ return (Math.sin(seed*12.9898)*43758.5453)%1; }
 
-// ===================
-// ✨ التحسين رقم 2: مخزن الألوان لرفع الأداء
-// ===================
 const COLORS = {};
 function cacheColors(){
   const root = getComputedStyle(document.documentElement);
-  ['sky','ground','ground-top','player','enemy','turtle','flier','shooter',
+  ['sky','ground','ground-top','ground-edge','player','enemy','turtle','flier','shooter',
    'spike','goal','spring','water','coin','ui','text'].forEach(k => {
-    // نستخدم try...catch احتياطاً لو نسيت إضافة لون في الـ CSS
-    try{
-        COLORS[k] = root.getPropertyValue(`--${k}`).trim();
-    } catch(e) {
-        console.warn(`Failed to cache CSS color: --${k}`);
-        COLORS[k] = '#ff00ff'; // لون وردي ساطع كعلامة على الخطأ
-    }
+    try{ COLORS[k] = root.getPropertyValue(`--${k}`).trim(); } 
+    catch(e) { console.warn(`Failed to cache CSS color: --${k}`); COLORS[k] = '#ff00ff'; }
   });
 }
-// ===================
 
 /* ================ AUDIO (Simplified for SFX Only) ================ */
 let audioCtx=null, muted=true; 
@@ -224,6 +195,104 @@ const SFX={ jump:()=>sfx('square',520,0.09,0.08), pick:()=>sfx('triangle',900,0.
   coin:()=>sfx('triangle',1200,0.04,0.05), 
   purchase:()=>sfx('square',1500,0.08,0.08) 
 };
+
+/* ======================================================= */
+/* ✨ التطوير رقم 3: نظام الرسوميات والأصول (Sprite System) */
+/* ======================================================= */
+
+// 1. مدير الأصول (Asset Manager)
+const Assets = {
+    sprites: null,
+    isLoaded: false,
+    
+    // هذا هو ملف الـ spritesheet مدمج كـ Base64
+    // يحتوي على: لاعب، أعداء، عملات، مؤثرات...
+    spritesheet_src: "data:image/png;base64,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',
+    
+    // دالة لتحميل الصورة
+    load: function(callback) {
+        Assets.sprites = new Image();
+        Assets.sprites.src = Assets.spritesheet_src;
+        Assets.sprites.onload = () => {
+            Assets.isLoaded = true;
+            console.log('Assets Loaded!');
+            if (callback) callback();
+        };
+        Assets.sprites.onerror = () => {
+            console.error('Failed to load assets!');
+        };
+    }
+};
+
+// 2. تعريفات الـ Sprites (أطلس الرسوم)
+// [x, y, w, h] من ملف الصورة
+const SPRITES = {
+    // اللاعب
+    player_idle: [[0,0,16,15], [16,0,16,15]], // إطارين
+    player_run:  [[32,0,16,15], [48,0,16,15], [64,0,16,15], [80,0,16,15]], // 4 إطارات
+    player_jump: [[96,0,16,15]], // إطار واحد
+    // الأعداء
+    walker: [[0,16,16,16], [16,16,16,16]],
+    turtle: [[32,16,16,16], [48,16,16,16]],
+    flier:  [[64,16,16,12], [80,16,16,12]],
+    shooter:[[96,16,16,16]],
+    // العملات والتعزيزات
+    coin:   [[0,32,10,10], [10,32,10,10], [20,32,10,10], [30,32,10,10]],
+    heart:  [[40,32,14,13]],
+    shield: [[54,32,14,13]],
+    boost_speed: [[68, 32, 14, 13]],
+    boost_jump:  [[82, 32, 14, 13]],
+    // الرصاص والمؤثرات
+    bullet_player: [[0,48,8,4]],
+    bullet_enemy:  [[8,48,6,6]],
+    poof:          [[16,48,16,16]], // مؤثر عند قتل العدو
+};
+
+// 3. دالة لرسم الـ Sprite
+// scalew, scaleh لتكبير حجم الـ sprite
+function drawSprite(name, frame, dx, dy, scalew=CFG.tile, scaleh=CFG.tile, flipH=false) {
+    if (!Assets.isLoaded || !SPRITES[name]) return;
+    
+    const anim = SPRITES[name];
+    frame = frame % anim.length; // ضمان عدم الخروج عن الإطارات
+    const [sx, sy, sw, sh] = anim[frame];
+    
+    ctx.save();
+    if (flipH) {
+        ctx.scale(-1, 1);
+        ctx.translate(-dx - scalew, dy);
+    } else {
+        ctx.translate(dx, dy);
+    }
+    
+    // رسم الـ sprite من الأطلس
+    ctx.drawImage(Assets.sprites, sx, sy, sw, sh, 0, 0, scalew, scaleh);
+    
+    ctx.restore();
+}
+
+// 4. دالة لتحديث الأنيميشن (الحركة)
+function updateAnimation(ent, dt) {
+    if (!ent.anim) return;
+    
+    const def = SPRITES[ent.anim.name];
+    if (!def) return;
+    
+    ent.anim.timer += dt;
+    const frameDuration = ent.anim.fps ? 1.0 / ent.anim.fps : 0.1;
+    
+    if (ent.anim.timer > frameDuration) {
+        ent.anim.frame++;
+        ent.anim.timer = 0;
+        if (ent.anim.frame >= def.length) {
+            ent.anim.frame = 0; // عودة للإطار الأول
+        }
+    }
+}
+/* ======================================================= */
+/* نهاية نظام الرسوميات الاحترافي                 */
+/* ======================================================= */
+
 
 /* ================ INPUT ================ */
 const keys={left:false,right:false,jump:false,shoot:false};
@@ -266,17 +335,24 @@ function onceKick(){ wantFocus(); }
 /* ================ WORLD & STATE ================ */
 const TILE={EMPTY:0,SOLID:1,SPIKE:2,SPRING:3,GOAL:4,WATER:5,MOVING:6, COIN:7}; 
 const ENEMY={WALKER:0,TURTLE:1,FLIER:2,SHOOTER:3};
-const SAVEKEY='retro_procedural_v5_final';
+const SAVEKEY='retro_pro_v6_sprites'; // تم تغيير اسم الحفظ
 
 const state={
-    scene:'menu', level:0, band:0, camX:0, camY:0, 
+    // =====================================
+    // ✨ إصلاح رقم 1: حالة 'dead' لإصلاح خطأ الموت
+    // =====================================
+    scene:'menu', // الحالات الممكنة: 'menu', 'playing', 'pause', 'dead', 'shop', 'loading'
+    level:0, band:0, camX:0, camY:0, 
     hearts:3, shield:0, coins:0, 
     hasGun:true, overlayEl:null, lastShotAt:-999, 
     boosts:{speed:0,jump:0},
     upgrades: SHOP_ITEMS.reduce((acc, item) => (acc[item.id] = 0, acc), {}) 
 };
 
-const player={x:0,y:0,w:24,h:30,dx:0,dy:0,on:false,coyote:0,jumpBuf:0,inv:0,facing:1};
+// إضافة بيانات الأنيميشن للاعب
+const player={x:0,y:0,w:24,h:30,dx:0,dy:0,on:false,coyote:0,jumpBuf:0,inv:0,facing:1,
+    anim: { name: 'player_idle', frame: 0, timer: 0, fps: 10 }
+};
 let enemies=[], eBullets=[], pBullets=[], movingPlatforms=[], drops=[], currentLevelData=null;
 
 /* ================ SAVE/LOAD ================ */
@@ -299,25 +375,19 @@ function loadProgress(){ try{
 /* ================ UPGRADES & SHOP ================ */
 function applyUpgrades(){
     CFG.player.maxHearts = 6 + (state.upgrades.maxHp * SHOP_MAP.maxHp.inc);
-    
     const bulletInc = state.upgrades.bulletDmg * SHOP_MAP.bulletDmg.inc;
     runtime.player.bulletSpeed = CFG.player.bulletSpeed * (1 + bulletInc);
-    
     runtime.player.maxDX = CFG.maxDX;
     runtime.player.jumpV = CFG.jumpV;
-    
     applyScaling(state.level); 
-    
     const maxShields = SHOP_MAP.shieldCapacity.initial + (state.upgrades.shieldCapacity * SHOP_MAP.shieldCapacity.inc);
     state.shield = Math.min(state.shield, maxShields); 
 }
-
 function buyUpgrade(itemId){
     const item = SHOP_MAP[itemId];
     if (state.upgrades[itemId] >= item.max) return false; 
     const currentCost = item.cost + state.upgrades[itemId] * 5; 
     if (state.coins < currentCost) return false; 
-
     state.coins -= currentCost;
     state.upgrades[itemId]++;
     SFX.purchase();
@@ -327,19 +397,16 @@ function buyUpgrade(itemId){
     showShop(); 
     return true;
 }
-
 function showShop(){
+    if (state.scene !== 'playing' && state.scene !== 'pause') return;
     state.scene = 'shop';
-    
     let shopHTML = `<p>${T('shop_desc')}</p><div class="shop-grid">`;
-    
     SHOP_ITEMS.forEach(item => {
         const level = state.upgrades[item.id];
         const maxed = level >= item.max;
         const currentCost = item.cost + level * 5;
         const title = lang === 'ar' ? item.title_ar : item.title_en;
         const desc = lang === 'ar' ? item.desc_ar : item.title_en; 
-        
         shopHTML += `
             <div class="shop-item">
                 <h4>${title} (${lang==='ar'?'المرتبة':'Level'} ${level}/${item.max})</h4>
@@ -350,20 +417,15 @@ function showShop(){
                         onclick="buyUpgrade('${item.id}')">
                     ${maxed ? (lang==='ar'?'الأقصى':'Max') : (lang==='ar'?'شراء':'Buy')}
                 </button>
-            </div>
-        `;
+            </div>`;
     });
-    
     shopHTML += '</div>';
-
     showOverlay(T('shop_title'), shopHTML, [
         {label: T('resume') + ' ▶', primary: true, on: ()=>{ hideOverlay(); state.scene='playing'; }}
     ]);
 }
 
-
 /* ================ LEVEL GENERATION: 10 BASIC LEVELS ================= */
-
 function makeBasicLevel(levelIndex) {
     const H=20, W=120 + levelIndex*10; 
     const map=Array.from({length:H},()=>Array(W).fill(TILE.EMPTY));
@@ -425,7 +487,14 @@ function makeBasicLevel(levelIndex) {
         for(let y=0;y<H;y++) if(map[y][bx]===TILE.SOLID){ yTop=y; break; }
         
         const type = enemyTypes[Math.min(maxType, Math.floor(Math.random()*(maxType+1)))];
-        const base={x:bx*CFG.tile,y:(yTop-1)*CFG.tile,w:28,h:28,minX:bx*CFG.tile,maxX:ex*CFG.tile,dir:(i%2?1:-1)};
+        let animName = 'walker';
+        if (type === ENEMY.TURTLE) animName = 'turtle';
+        if (type === ENEMY.FLIER) animName = 'flier';
+        if (type === ENEMY.SHOOTER) animName = 'shooter';
+
+        const base={x:bx*CFG.tile,y:(yTop-1)*CFG.tile,w:28,h:28,minX:bx*CFG.tile,maxX:ex*CFG.tile,dir:(i%2?1:-1),
+            anim: { name: animName, frame: 0, timer: 0, fps: 8 } // إضافة أنيميشن للعدو
+        };
         
         if(type===ENEMY.WALKER) enemies.push({...base,type:ENEMY.WALKER});
         else if(type===ENEMY.TURTLE) enemies.push({...base,type:ENEMY.TURTLE});
@@ -443,49 +512,34 @@ function makeBasicLevel(levelIndex) {
 /* ================ LEVEL GENERATION: JSON LEVELS ================= */
 const JSON_LEVEL_CACHE = {};
 let JSON_LOAD_PROMISE = null;
-
 function fetchJsonLevel(index) {
     const jsonIndex = (index - CFG.basicLevelCount) % CFG.jsonFiles.length; 
     const fileName = CFG.jsonFiles[jsonIndex];
-    
-    if (JSON_LEVEL_CACHE[fileName]) {
-        return Promise.resolve(JSON_LEVEL_CACHE[fileName]);
-    }
-    if (JSON_LOAD_PROMISE) {
-        return JSON_LOAD_PROMISE;
-    }
+    if (JSON_LEVEL_CACHE[fileName]) return Promise.resolve(JSON_LEVEL_CACHE[fileName]);
+    if (JSON_LOAD_PROMISE) return JSON_LOAD_PROMISE;
     JSON_LOAD_PROMISE = fetch(fileName)
-        .then(response => {
-            if (!response.ok) throw new Error(`Failed to load ${fileName}: ${response.statusText}`);
-            return response.json();
-        })
+        .then(response => { if (!response.ok) throw new Error(`Failed to load ${fileName}`); return response.json(); })
         .then(data => {
-            data.W = data.map[0].length;
-            data.H = data.map.length;
-            if(!data.coins) data.coins = []; 
+            data.W = data.map[0].length; data.H = data.map.length; if(!data.coins) data.coins = []; 
+            // إضافة بيانات الأنيميشن للأعداء المحملين من JSON
+            (data.enemies || []).forEach(e => {
+                let animName = 'walker';
+                if (e.type === ENEMY.TURTLE) animName = 'turtle';
+                if (e.type === ENEMY.FLIER) animName = 'flier';
+                if (e.type === ENEMY.SHOOTER) animName = 'shooter';
+                e.anim = { name: animName, frame: 0, timer: 0, fps: 8 };
+            });
             JSON_LEVEL_CACHE[fileName] = data;
             JSON_LOAD_PROMISE = null;
             return data;
         })
-        .catch(error => {
-            console.error(error);
-            JSON_LOAD_PROMISE = null;
-            return makeBasicLevel(CFG.basicLevelCount - 1); 
-        });
+        .catch(error => { console.error(error); JSON_LOAD_PROMISE = null; return makeBasicLevel(CFG.basicLevelCount - 1); });
     return JSON_LOAD_PROMISE;
 }
-
-/* On-demand cache & Level Gateway */
 const LEVELS = new Proxy({ store: {} }, {
     get(t, k) {
-        const i = Number(k);
-        if (Number.isNaN(i) || i < 0) return undefined;
-        
-        if (i < CFG.basicLevelCount) {
-            if (!t.store[i]) t.store[i] = makeBasicLevel(i);
-            return t.store[i];
-        }
-        
+        const i = Number(k); if (Number.isNaN(i) || i < 0) return undefined;
+        if (i < CFG.basicLevelCount) { if (!t.store[i]) t.store[i] = makeBasicLevel(i); return t.store[i]; }
         if (!t.store[i]) {
             t.store[i] = {W: 960/CFG.tile, H: 540/CFG.tile, map:[], enemies:[], moving:[], coins:[], isAsync: true}; 
             fetchJsonLevel(i)
@@ -520,21 +574,15 @@ function renderSplash(){ const c=document.getElementById('splashCanvas'); if(!c)
   x.fillStyle='#ffffffaa'; for(let i=0;i<100;i++) x.fillRect(Math.random()*c.width, Math.random()*c.height*0.6, 2, 2);
   const hill=(y,col)=>{ x.fillStyle=col; for(let i=-1;i<6;i++){ const bx=i*240; x.beginPath(); x.moveTo(bx,y+200); x.lineTo(bx+120,y+40); x.lineTo(bx+240,y+200); x.closePath(); x.fill(); } };
   hill(c.height*0.45,'#17304a'); hill(c.height*0.55,'#1c3a5a'); hill(c.height*0.65,'#204568');
-  requestAnimationFrame(renderSplash);
+  if(state.scene === 'menu') requestAnimationFrame(renderSplash); // الاستمرار فقط إذا كنا في القائمة
 }
 
 /* ================ SCALING & FLOW ================ */
 function applyScaling(levelIndex){
-  const b=Math.floor(levelIndex/CFG.scaling.bandSize); 
-  state.band=b;
-  const eMul=Math.pow(CFG.scaling.enemySpeedMul,b), 
-        eFire=Math.pow(CFG.scaling.enemyFireRateMul,b), 
-        eBullet=Math.pow(CFG.scaling.enemyBulletSpeedMul,b);
-  const pSpd=Math.pow(CFG.scaling.playerSpeedMul,b), 
-        pJmp=Math.pow(CFG.scaling.playerJumpMul,b);
-        const pBul=Math.pow(CFG.scaling.playerBulletSpeedMul,b);
-        const upgradeMul = 1 + (state.upgrades.bulletDmg * SHOP_MAP.bulletDmg.inc);
-
+  const b=Math.floor(levelIndex/CFG.scaling.bandSize); state.band=b;
+  const eMul=Math.pow(CFG.scaling.enemySpeedMul,b), eFire=Math.pow(CFG.scaling.enemyFireRateMul,b), eBullet=Math.pow(CFG.scaling.enemyBulletSpeedMul,b);
+  const pSpd=Math.pow(CFG.scaling.playerSpeedMul,b), pJmp=Math.pow(CFG.scaling.playerJumpMul,b), pBul=Math.pow(CFG.scaling.playerBulletSpeedMul,b);
+  const upgradeMul = 1 + (state.upgrades.bulletDmg * SHOP_MAP.bulletDmg.inc);
   runtime.enemy.walkerSpeed=CFG.enemy.walkerSpeed*eMul;
   runtime.enemy.turtleSpeed=CFG.enemy.turtleSpeed*eMul;
   runtime.enemy.flierSpeed =CFG.enemy.flierSpeed *eMul;
@@ -545,24 +593,18 @@ function applyScaling(levelIndex){
   runtime.player.jumpV=CFG.jumpV*pJmp;
   runtime.player.bulletSpeed=(CFG.player.bulletSpeed*pBul) * upgradeMul;
 }
-
 function resetRun(){ 
-  state.hearts=3; 
-  state.shield=0; 
-  state.coins=0; 
-  state.boosts={speed:0,jump:0}; 
+  state.hearts=3; state.shield=0; state.coins=0; state.boosts={speed:0,jump:0}; 
   state.upgrades=SHOP_ITEMS.reduce((acc, item) => (acc[item.id] = 0, acc), {}); 
-  applyUpgrades(); 
-  saveProgress(); 
+  applyUpgrades(); saveProgress(); 
 }
-
 function startMenu(){
   state.scene='menu'; 
   updateHUD();
   const hasSave=loadProgress();
   showOverlay(I18N[lang].title, splashHTML(), [
-    {label:I18N[lang].start, primary:true, on:()=>{ hideOverlay(); resetRun(); startLevel(0,true); }},
-   ...(hasSave?[{label:I18N[lang].cont, on:()=>{ hideOverlay(); startLevel(state.level,true); }}]:[])
+    {label:I18N[lang].start, primary:true, on:()=>{ startLevel(0,true); }},
+   ...(hasSave?[{label:I18N[lang].cont, on:()=>{ startLevel(state.level,true); }}]:[])
   ]);
   setTimeout(renderSplash,0);
 }
@@ -585,10 +627,11 @@ function startLevel(i,reset=true){
   enemies=JSON.parse(JSON.stringify(L.enemies)); 
   enemies.forEach(e=>e._dead=false);
   movingPlatforms=JSON.parse(JSON.stringify(L.moving));
-  drops=L.coins.map(c => ({...c, w:16, h:16, type:'coin', ttl:9999})); 
+  drops=L.coins.map(c => ({...c, w:16, h:16, type:'coin', ttl:9999, anim: { name: 'coin', frame: 0, timer: 0, fps: 12 }})); 
   
   eBullets.length=0; pBullets.length=0;
   if(reset) Object.assign(player,{x:L.start.x,y:L.start.y,dx:0,dy:0,on:false,coyote:0,jumpBuf:0,inv:0,facing:1});
+  player.anim.name = 'player_idle'; // إعادة الأنيميشن
   state.camX=player.x+player.w/2 - canvas.width/2;
   state.camY=player.y+player.h/2 - canvas.height/2;
   state.scene='playing'; 
@@ -596,8 +639,9 @@ function startLevel(i,reset=true){
   saveProgress(); 
   wantFocus();
 }
-
 function finishLevel(){
+  if (state.scene !== 'playing') return; // منع التشغيل المتعدد
+  state.scene = 'loading'; // منع الحركة أثناء الانتقال
   SFX.win(); 
   saveProgress();
   state.level++; 
@@ -605,23 +649,26 @@ function finishLevel(){
 }
 
 function gameOver(){
+  if (state.scene === 'dead') return; // منع التشغيل المتعدد
   SFX.hit();
+  // =====================================
+  // ✨ إصلاح رقم 1: استخدام حالة 'dead'
+  // =====================================
+  state.scene = 'dead'; 
   const lvl=state.level;
-  showOverlay(I18N[lang].lose, '', [
-    {label:T('restart')+' ↺', primary:true, on:()=>{ hideOverlay(); state.level=lvl; startLevel(state.level,true); }},
-    {label:T('menu')+' ⌂', on:()=>{ hideOverlay(); startMenu(); }}
+  showOverlay(T('lose'), '', [
+    {label:T('restart')+' ↺', primary:true, on:()=>{ startLevel(lvl,true); }}, // startLevel ستقوم بـ hideOverlay وتغيير الحالة
+    {label:T('menu')+' ⌂', on:()=>{ startMenu(); }} // startMenu ستقوم بـ hideOverlay وتغيير الحالة
   ]);
-  state.scene='menu';
 }
-
 function togglePause(){
   if(state.scene==='playing'){
     state.scene='pause';
     showOverlay(T('paused'),'',[
       {label:T('resume')+' ▶', primary:true, on:()=>{ hideOverlay(); state.scene='playing'; }},
-      {label:T('shop')+' 🛒', on:()=>{ hideOverlay(); showShop(); }}, 
-      {label:T('restart')+' ↺', on:()=>{ hideOverlay(); startLevel(state.level,true); }},
-      {label:T('menu')+' ⌂', on:()=>{ hideOverlay(); startMenu(); }},
+      {label:T('shop')+' 🛒', on:()=>{ showShop(); }}, // showShop ستتعامل مع الحالة
+      {label:T('restart')+' ↺', on:()=>{ startLevel(state.level,true); }},
+      {label:T('menu')+' ⌂', on:()=>{ startMenu(); }},
       {label: muted?'🔊 Music':'🔇 Music', on:()=>{ muted=!muted; HUD.btnMusic.textContent=muted?'🔇':'🔊'; hideOverlay(); togglePause(); }},
       {label:(lang==='ar'?'English':'العربية'), on:()=>{ lang=(lang==='ar'?'en':'ar'); document.documentElement.lang=lang; document.documentElement.dir=(lang==='ar'?'rtl':'ltr'); HUD.btnLang.textContent=(lang==='ar'?'العربية':'English'); updateHUD(); hideOverlay(); togglePause(); }}
     ]);
@@ -635,29 +682,28 @@ function togglePause(){
 function spawnDrop(x,y){
   const r=Math.random(); 
   const type=r<0.25?'heart': r<0.5?'shield': r<0.75?'speed':'jump';
-  drops.push({x:x-9,y:y-6,w:18,h:18,type,ttl:5});
+  let animName = 'heart';
+  if (type === 'shield') animName = 'shield';
+  if (type === 'speed') animName = 'boost_speed';
+  if (type === 'jump') animName = 'boost_jump';
+  
+  drops.push({x:x-9,y:y-6,w:18,h:18,type,ttl:5, anim: { name: animName, frame: 0, timer: 0, fps: 1 }});
 }
 function updateDrops(dt){
   const maxShields = SHOP_MAP.shieldCapacity.initial + (state.upgrades.shieldCapacity * SHOP_MAP.shieldCapacity.inc);
-
   for(let i=drops.length-1;i>=0;i--){
     const d=drops[i]; 
     d.ttl-=dt;
+    if (d.anim) updateAnimation(d, dt); // تحديث أنيميشن العملات
+
     if(rects(player,d)){
-      if(d.type==='coin'){ 
-          state.coins++;
-          SFX.coin();
-      }
+      if(d.type==='coin'){ state.coins++; SFX.coin(); }
       else if(d.type==='heart' && state.hearts<CFG.player.maxHearts) state.hearts++;
       else if(d.type==='shield') state.shield=Math.min(maxShields,state.shield+1);
       else if(d.type==='speed') state.boosts.speed=Math.min(5,state.boosts.speed+1);
       else if(d.type==='jump') state.boosts.jump=Math.min(5,state.boosts.jump+1);
       else if(d.type!=='coin') SFX.pick(); 
-      
-      vibrate(20); 
-      updateHUD(); 
-      drops.splice(i,1); 
-      saveProgress();
+      vibrate(20); updateHUD(); drops.splice(i,1); saveProgress();
     }else if(d.ttl<=0 && d.type!=='coin') drops.splice(i,1); 
   }
 }
@@ -665,31 +711,14 @@ function drawDrops(){
   drops.forEach(d=>{
     const x=d.x-state.camX,y=d.y-state.camY;
     
-    // ===================
-    // ✨ التحسين رقم 3: تبسيط رسم الهالة لرفع الأداء
-    // ===================
-    ctx.globalAlpha = 0.3;
-    ctx.fillStyle = '#fff';
-    ctx.beginPath(); 
-    ctx.arc(x+d.w/2,y+d.h/2,18,0,Math.PI*2); 
-    ctx.fill();
+    // رسم هالة بسيطة
+    ctx.globalAlpha = 0.3; ctx.fillStyle = '#fff';
+    ctx.beginPath(); ctx.arc(x+d.w/2,y+d.h/2,18,0,Math.PI*2); ctx.fill();
     ctx.globalAlpha = 1.0;
     
-    if (d.type === 'coin') {
-        ctx.fillStyle = COLORS.coin; // استخدام اللون من المخزن
-        ctx.beginPath();
-        ctx.arc(x, y, 6, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = '#0008';
-        ctx.font = '8px sans-serif';
-        ctx.fillText('💰', x-5, y+4);
-
-    } else {
-        ctx.fillStyle= d.type==='heart'?'#e74c3c': d.type==='shield'?'#3498db': d.type==='speed'?'#f1c40f':'#2ecc71';
-        if(d.type==='heart'){ ctx.beginPath(); ctx.moveTo(x+9,y+6); ctx.bezierCurveTo(x+2,y+0,x,y+10,x+9,y+14); ctx.bezierCurveTo(x+18,y+10,x+16,y+0,x+9,y+6); ctx.fill(); }
-        else if(d.type==='shield'){ ctx.fillRect(x+4,y+5,10,10); ctx.fillRect(x+6,y+15,6,2); }
-        else if(d.type==='speed'){ ctx.fillRect(x+4,y+10,12,4); ctx.fillRect(x+10,y+6,4,4); }
-        else { ctx.fillRect(x+7,y+4,4,10); ctx.fillRect(x+4,y+10,10,4); }
+    // رسم الـ sprite الخاص بالـ drop
+    if (d.anim) {
+        drawSprite(d.anim.name, d.anim.frame, x, y, d.w, d.h);
     }
   });
 }
@@ -703,17 +732,21 @@ function shoot(){
   const dir=player.facing; 
   pBullets.push({
     x: player.x + player.w / 2 + (dir * player.w / 2),
-    y: player.y + player.h / 2, 
-    w: 12, h: 4, 
-    dx: dir * runtime.player.bulletSpeed, 
-    dy: 0
+    y: player.y + 10, // تعديل لتخرج من منتصف اللاعب
+    w: 16, h: 8, // حجم الـ sprite
+    dx: dir * runtime.player.bulletSpeed, dy: 0,
+    anim: { name: 'bullet_player', frame: 0, timer: 0, fps: 1 }
   });
 }
 function defeatEnemy(e){
   if(e._dead) return;
-  if(Math.random() < 0.6) drops.push({x:e.x+e.w/2, y:e.y, w:16, h:16, type:'coin', ttl:9999}); 
+  // إضافة مؤثر بصري عند موت العدو
+  drops.push({x:e.x+e.w/2-8, y:e.y+e.h/2-8, w:24, h:24, type:'poof', ttl:0.5, anim: { name: 'poof', frame: 0, timer: 0, fps: 1 }});
+
+  if(Math.random() < 0.6) drops.push({x:e.x+e.w/2, y:e.y, w:16, h:16, type:'coin', ttl:9999, anim: { name: 'coin', frame: 0, timer: 0, fps: 12 }}); 
   else spawnDrop(e.x+e.w/2, e.y);
-  const proto={minX:e.minX,maxX:e.maxX,y:e.y,w:e.w,h:e.h,type:e.type};
+  
+  const proto={minX:e.minX,maxX:e.maxX,y:e.y,w:e.w,h:e.h,type:e.type, anim: e.anim};
   e._dead=true;
   setTimeout(()=>{ Object.assign(e,{...proto,x:proto.minX,dir:1,_dead:false,cool:Math.random()*runtime.enemy.fireRate}); },3000);
 }
@@ -722,33 +755,23 @@ function hurtPlayer(){
   const maxShields = SHOP_MAP.shieldCapacity.initial + (state.upgrades.shieldCapacity * SHOP_MAP.shieldCapacity.inc);
   if(state.shield>0){ 
     state.shield=Math.min(maxShields,state.shield-1); 
-    player.inv=1.0; 
-    SFX.hit(); 
-    vibrate(40); 
-    updateHUD(); 
-    saveProgress(); 
-    return; 
+    player.inv=1.0; SFX.hit(); vibrate(40); updateHUD(); saveProgress(); return; 
   }
   state.hearts--; 
-  player.inv=1.0; 
-  SFX.hit(); 
-  vibrate(60); 
-  updateHUD(); 
-  saveProgress();
+  player.inv=1.0; SFX.hit(); vibrate(60); updateHUD(); saveProgress();
   if(state.hearts<=0){ gameOver(); return; }
+  // عند الموت (وليس الخسارة)، العودة لنقطة البداية
   const L=currentLevelData; 
   Object.assign(player,{x:L.start.x,y:L.start.y,dx:0,dy:0,on:false});
 }
 
 /* ================ PHYSICS ================= */
 function tileAt(px,py){
-  const L=currentLevelData; 
-  if (!L || L.isAsync) return TILE.SOLID; 
+  const L=currentLevelData; if (!L || L.isAsync) return TILE.SOLID; 
   const tx=(px/CFG.tile)|0, ty=(py/CFG.tile)|0;
   if(tx<0||ty<0||tx>=L.W||ty>=L.H) return TILE.SOLID;
   return L.map[ty][tx];
 }
-
 function moveAndCollide(ent){
   ent.x+=ent.dx;
   if(ent.dx!==0){
@@ -756,130 +779,82 @@ function moveAndCollide(ent){
     const pts=[{x:cx,y:ent.y+2},{x:cx,y:ent.y+ent.h-2}];
     for(const p of pts){
       const t=tileAt(p.x,p.y);
-      if(t===TILE.SOLID){
-        const tx=(p.x/CFG.tile)|0;
-        ent.x=tx*CFG.tile - (s>0?ent.w:-CFG.tile);
-        ent.dx=0;
-        break;
-      }
+      if(t===TILE.SOLID){ const tx=(p.x/CFG.tile)|0; ent.x=tx*CFG.tile - (s>0?ent.w:-CFG.tile); ent.dx=0; break; }
     }
   }
   ent.y+=ent.dy; ent.on=false;
-  const vy=ent.y+(ent.dy>0?ent.h:0),
-        pts2=[{x:ent.x+2,y:vy},{x:ent.x+ent.w-2,y:vy}];
+  const vy=ent.y+(ent.dy>0?ent.h:0), pts2=[{x:ent.x+2,y:vy},{x:ent.x+ent.w-2,y:vy}];
   for(const p of pts2){
     const t=tileAt(p.x,p.y);
     if(t===TILE.SOLID||t===TILE.MOVING){
-      const ty=(p.y/CFG.tile)|0;
-      ent.y=ty*CFG.tile - (ent.dy>0?ent.h:-CFG.tile);
+      const ty=(p.y/CFG.tile)|0; ent.y=ty*CFG.tile - (ent.dy>0?ent.h:-CFG.tile);
       if(ent.dy>0) ent.on=true;
-      ent.dy=0;
-      break;
+      ent.dy=0; break;
     }
   }
   for(const mp of movingPlatforms){
-    const r={x:mp.x,y:mp.y,w:mp.w,h:mp.h},
-          feet={x:ent.x+2,y:ent.y+ent.h,w:ent.w-4,h:2};
-    if(rects(feet,r)){
-      ent.y=mp.y-ent.h;
-      ent.on=true;
-      ent.x+=(mp.x-(mp._px||mp.x));
-    }
+    const r={x:mp.x,y:mp.y,w:mp.w,h:mp.h}, feet={x:ent.x+2,y:ent.y+ent.h,w:ent.w-4,h:2};
+    if(rects(feet,r)){ ent.y=mp.y-ent.h; ent.on=true; ent.x+=(mp.x-(mp._px||mp.x)); }
     mp._px=mp.x;
   }
 }
-
 function interactTiles(){
-  const L=currentLevelData; 
-  if (!L || L.isAsync) return;
+  const L=currentLevelData; if (!L || L.isAsync) return;
   const feet={x:player.x+player.w/2,y:player.y+player.h-2};
   const t=tileAt(feet.x,feet.y);
   if(t===TILE.SPIKE){ hurtPlayer(); }
-  if(t===TILE.SPRING){
-    player.dy=-CFG.springV*(1+state.boosts.jump*0.1);
-    player.on=false;
-    SFX.spring();
-  }
-  if(t===TILE.WATER){
-    state.hearts=0;
-    updateHUD();
-    saveProgress();
-    gameOver();
-    return;
-  }
-  const gx=(L.W-4)*CFG.tile,
-        gyTop = groundTopAt(L.map,L.W-4);
+  if(t===TILE.SPRING){ player.dy=-CFG.springV*(1+state.boosts.jump*0.1); player.on=false; SFX.spring(); }
+  if(t===TILE.WATER){ state.hearts=0; updateHUD(); saveProgress(); gameOver(); return; }
+  const gx=(L.W-4)*CFG.tile, gyTop = groundTopAt(L.map,L.W-4);
   const goalBox={x:gx,y:(gyTop-4)*CFG.tile,w:CFG.tile,h:CFG.tile*4};
   if(rects(player,goalBox)) finishLevel();
 }
-
 function groundTopAt(map,x){
-  for(let y=0;y<map.length;y++)
-    if(map[y][x]===TILE.SOLID) return y;
+  for(let y=0;y<map.length;y++) if(map[y][x]===TILE.SOLID) return y;
   return map.length-2;
 }
 
-// ===========================================
-// ✨ التحسين رقم 4: تنظيم الكود (Refactoring)
-// قمت بتقسيم دالة update الضخمة إلى دوال أصغر
-// ===========================================
-
+/* ================ UPDATE (Refactored) ================ */
 function updatePlatforms(dt) {
     movingPlatforms.forEach(mp=>{
-        mp.t+=dt*mp.dir;
-        const off=Math.sin(mp.t)*mp.range;
-        mp.x+=(off-(mp._p||0));
-        mp._p=off;
+        mp.t+=dt*mp.dir; const off=Math.sin(mp.t)*mp.range;
+        mp.x+=(off-(mp._p||0)); mp._p=off;
     });
 }
-
 function updatePlayer(dt, L) {
-    let acc=CFG.moveAcc*(1+state.boosts.speed*0.1),
-        maxDX=runtime.player.maxDX,
-        jumpV=runtime.player.jumpV; 
+    let acc=CFG.moveAcc*(1+state.boosts.speed*0.1), maxDX=runtime.player.maxDX, jumpV=runtime.player.jumpV; 
     let ax=0;
     if(keys.left){ ax-=acc; player.facing=-1; }
     if(keys.right){ ax+=acc; player.facing=1; }
     player.dx=clamp(player.dx+ax, -maxDX, maxDX);
     if(player.on && ax===0) player.dx*=CFG.friction;
     player.dy=clamp(player.dy+CFG.gravity, -CFG.maxDY, CFG.maxDY);
-
-    if(keys.jump) player.jumpBuf=CFG.jumpBuffer;
-    else player.jumpBuf=Math.max(0,player.jumpBuf-dt);
+    if(keys.jump) player.jumpBuf=CFG.jumpBuffer; else player.jumpBuf=Math.max(0,player.jumpBuf-dt);
     player.coyote = player.on? CFG.coyoteTime : Math.max(0,player.coyote-dt);
-    
     if(player.jumpBuf>0 && player.coyote>0){
-        player.dy=-jumpV;
-        player.on=false;
-        player.coyote=0;
-        player.jumpBuf=0;
-        SFX.jump();
-        vibrate(20);
+        player.dy=-jumpV; player.on=false; player.coyote=0; player.jumpBuf=0;
+        SFX.jump(); vibrate(20);
     }
     if(!keys.jump && player.dy<-2) player.dy*=CFG.variableJumpCut;
 
     moveAndCollide(player);
 
+    // تحديث الأنيميشن الخاص باللاعب
+    if (!player.on) { player.anim.name = 'player_jump'; }
+    else if (keys.left || keys.right) { player.anim.name = 'player_run'; }
+    else { player.anim.name = 'player_idle'; }
+    updateAnimation(player, dt);
+
     const worldFloor=(L.H-2)*CFG.tile;
-    if(player.y > worldFloor+8){
-        state.hearts=0;
-        updateHUD();
-        saveProgress();
-        gameOver();
-        return;
-    }
+    if(player.y > worldFloor+8){ state.hearts=0; updateHUD(); saveProgress(); gameOver(); return; }
     interactTiles();
     if(state.hasGun && keys.shoot) shoot();
     if(player.inv>0) player.inv=Math.max(0,player.inv-dt);
 }
-
 function updateEnemiesAndBullets(dt, L) {
     enemies.forEach(e=>{
         if(e._dead) return;
-        const sp = e.type===ENEMY.FLIER?runtime.enemy.flierSpeed :
-                   e.type===ENEMY.SHOOTER?runtime.enemy.shooterSpeed :
-                   e.type===ENEMY.TURTLE?runtime.enemy.turtleSpeed :
-                   runtime.enemy.walkerSpeed;
+        const sp = e.type===ENEMY.FLIER?runtime.enemy.flierSpeed : e.type===ENEMY.SHOOTER?runtime.enemy.shooterSpeed : e.type===ENEMY.TURTLE?runtime.enemy.turtleSpeed : runtime.enemy.walkerSpeed;
         e.x += e.dir * sp * dt * 60;
         if(e.x<e.minX){ e.x=e.minX; e.dir=1; }
         if(e.x+e.w>e.maxX){ e.x=e.maxX-e.w; e.dir=-1; }
@@ -888,134 +863,133 @@ function updateEnemiesAndBullets(dt, L) {
             if(e.cool<=0){
                 e.cool=runtime.enemy.fireRate;
                 const dir=(player.x<e.x?-1:1);
-                eBullets.push({x:e.x+(dir>0?e.w:0),y:e.y+10,w:10,h:10,dx:dir*runtime.enemy.bulletSpeed,dy:0});
+                eBullets.push({x:e.x+(dir>0?e.w:0),y:e.y+10,w:12,h:12,dx:dir*runtime.enemy.bulletSpeed,dy:0, anim: { name: 'bullet_enemy', frame: 0, timer: 0, fps: 1 }});
             }
         }
         if(player.inv<=0 && rects(player,e)){
             const stomp = player.dy>0 && (player.y+player.h-e.y)<14;
             if(stomp && (e.type===ENEMY.WALKER||e.type===ENEMY.TURTLE)){
-                player.dy=-(runtime.player.jumpV*0.8);
-                SFX.hit();
-                defeatEnemy(e);
-            } else {
-                hurtPlayer();
-            }
+                player.dy=-(runtime.player.jumpV*0.8); SFX.hit(); defeatEnemy(e);
+            } else { hurtPlayer(); }
         }
+        updateAnimation(e, dt); // تحديث أنيميشن العدو
     });
-
     eBullets.forEach(b=>{ b.x+=b.dx; b.y+=b.dy; });
-    eBullets=eBullets.filter(b=>{
-        if(rects(player,b)){ hurtPlayer(); return false; }
-        return onScreen(b,L);
-    });
-    
+    eBullets=eBullets.filter(b=>{ if(rects(player,b)){ hurtPlayer(); return false; } return onScreen(b,L); });
     pBullets.forEach(b=>{ b.x+=b.dx; b.y+=b.dy; });
     pBullets=pBullets.filter(b=>{
         let alive=true;
         for(const e of enemies){
             if(e._dead) continue;
-            if(rects(b,{x:e.x,y:e.y,w:e.w,h:e.h})){
-                SFX.hit();
-                defeatEnemy(e);
-                alive=false;
-                break;
-            }
+            if(rects(b,{x:e.x,y:e.y,w:e.w,h:e.h})){ SFX.hit(); defeatEnemy(e); alive=false; break; }
         }
         return alive && onScreen(b,L);
     });
 }
-
 function updateCamera(dt, L) {
     const targetX=clamp(player.x+player.w/2 - canvas.width/2, 0, L.W*CFG.tile - canvas.width);
     const targetY=clamp(player.y+player.h/2 - canvas.height*0.6, 0, L.H*CFG.tile-canvas.height);
     state.camX=lerp(state.camX,targetX,CFG.cameraLerp);
     state.camY=lerp(state.camY,targetY,CFG.cameraLerp);
 }
-
-
-/* ================ UPDATE & DRAW ================ */
 let last=performance.now();
 function update(dt){
   if(state.scene!=='playing') return;
-
-  const L = currentLevelData;
-  if (!L || L.isAsync) return; 
-
-  // استدعاء الدوال المنظمة
+  const L = currentLevelData; if (!L || L.isAsync) return; 
   updatePlatforms(dt);
   updatePlayer(dt, L);
-  if(state.scene!=='playing') return; // التحقق إذا كان اللاعب قد خسر
+  if(state.scene!=='playing') return; // التحقق إذا مات اللاعب
   updateEnemiesAndBullets(dt, L);
   updateDrops(dt);
   updateCamera(dt, L);
 }
-
 function onScreen(b,L){ return b.x>-64 && b.x<L.W*CFG.tile+64 && b.y>-64 && b.y<L.H*CFG.tile+64; }
 
-// دالة getCSS لم تعد مستخدمة في حلقة الرسم، ولكن قد تستخدمها أجزاء أخرى
+/* ================ DRAW (With Sprites) ================ */
 function getCSS(v){ return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
-
 function drawParallax(offset, baseY, color){
   ctx.fillStyle=color; for(let i=-1;i<6;i++){ const x=((i*240-(offset%240))|0);
     ctx.beginPath(); ctx.moveTo(x,baseY+120); ctx.lineTo(x+120,baseY+40); ctx.lineTo(x+240,baseY+200); ctx.closePath(); ctx.fill();
   }
 }
+// =====================================
+// ✨ التطوير رقم 4: دالة رسم بلاط محسنة
+// =====================================
+function drawTiles(L) {
+    const T=CFG.tile, sx=(state.camX/T)|0, ex=Math.ceil((state.camX+canvas.width)/T);
+    const edge = 4; // سُمك الحافة
+    for(let y=0;y<L.H;y++){
+      for(let x=sx;x<Math.min(ex,L.W);x++){
+        const t=L.map[y][x], px=Math.floor(x*T-state.camX), py=Math.floor(y*T-state.camY);
+        
+        if(t===TILE.SOLID){
+            // رسم الحافة (لإعطاء عمق)
+            ctx.fillStyle=COLORS['ground-edge']; 
+            ctx.fillRect(px,py,T,T);
+            // رسم السطح العلوي
+            ctx.fillStyle=COLORS['ground-top']; 
+            ctx.fillRect(px,py,T,T-edge);
+            // رسم العشب
+            ctx.fillStyle=COLORS.goal; // استخدام لون أخضر
+            ctx.fillRect(px,py,T,4);
 
+        } else if(t===TILE.SPIKE){ 
+            ctx.fillStyle=COLORS.spike; 
+            ctx.beginPath(); ctx.moveTo(px,py+T); ctx.lineTo(px+T/2,py); ctx.lineTo(px+T,py+T); ctx.closePath(); ctx.fill(); 
+        } else if(t===TILE.SPRING){ 
+            ctx.fillStyle=COLORS.spring; ctx.fillRect(px+6,py+T-10,T-12,10); 
+            ctx.fillStyle='#85c1e9'; ctx.fillRect(px+6,py+T-16,T-12,6); 
+        } else if(t===TILE.WATER){ 
+            ctx.fillStyle=COLORS.water; ctx.fillRect(px,py,T,T); 
+            ctx.fillStyle='#ffffff22'; ctx.fillRect(px,py+T-6,T,6); 
+        } else if(t===TILE.GOAL){ 
+            ctx.fillStyle='#fff'; ctx.fillRect(px+T/2-2,py,4,T*4); 
+            ctx.fillStyle=COLORS.goal; ctx.beginPath(); 
+            ctx.moveTo(px+T/2+2,py+6); ctx.lineTo(px+T/2+22,py+16); ctx.lineTo(px+T/2+2,py+26); 
+            ctx.closePath(); ctx.fill(); 
+        }
+      }
+    }
+}
 function draw(){
-  // ===================
-  // ✨ التحسين رقم 2 (تطبيق): استخدام الألوان من المخزن
-  // ===================
   ctx.fillStyle=COLORS.sky; ctx.fillRect(0,0,canvas.width,canvas.height);
   drawParallax(state.camX*0.5, 90-state.camY*0.5, '#b3e5fc');
   drawParallax(state.camX*0.8, 50-state.camY*0.8, '#d0f0ff');
   
   const L = currentLevelData;
-  if (state.scene === 'playing' && L && !L.isAsync) {
-    const T=CFG.tile; const sx=(state.camX/T)|0, ex=Math.ceil((state.camX+canvas.width)/T);
-    for(let y=0;y<L.H;y++){
-      for(let x=sx;x<Math.min(ex,L.W);x++){
-        const t=L.map[y][x], px=x*T-state.camX, py=y*T-state.camY;
-        if(t===TILE.SOLID){ ctx.fillStyle=COLORS.ground; ctx.fillRect(px,py,T,T); ctx.fillStyle=COLORS['ground-top']; ctx.fillRect(px,py,T,6); }
-        else if(t===TILE.SPIKE){ ctx.fillStyle=COLORS.spike; ctx.beginPath(); ctx.moveTo(px,py+T); ctx.lineTo(px+T/2,py); ctx.lineTo(px+T,py+T); ctx.closePath(); ctx.fill(); }
-        else if(t===TILE.SPRING){ ctx.fillStyle=COLORS.spring; ctx.fillRect(px+6,py+T-10,T-12,10); ctx.fillStyle='#85c1e9'; ctx.fillRect(px+6,py+T-16,T-12,6); }
-        else if(t===TILE.WATER){ ctx.fillStyle=COLORS.water; ctx.fillRect(px,py,T,T); ctx.fillStyle='#ffffff22'; ctx.fillRect(px,py+T-6,T,6); }
-        else if(t===TILE.GOAL){ ctx.fillStyle='#fff'; ctx.fillRect(px+T/2-2,py,4,T*4); ctx.fillStyle=COLORS.goal; ctx.beginPath(); ctx.moveTo(px+T/2+2,py+6); ctx.lineTo(px+T/2+22,py+16); ctx.lineTo(px+T/2+2,py+26); ctx.closePath(); ctx.fill(); }
-      }
-    }
-  }
+  if ((state.scene === 'playing' || state.scene === 'pause' || state.scene === 'dead') && L && !L.isAsync) {
+    
+    // 1. رسم البلاط
+    drawTiles(L);
 
-  movingPlatforms.forEach(mp=>{ const x=mp.x-state.camX,y=mp.y-state.camY; ctx.fillStyle='#bdc3c7'; ctx.fillRect(x,y,mp.w,mp.h); ctx.fillStyle='#95a5a6'; ctx.fillRect(x,y,mp.w,4); });
-  enemies.forEach(e=>{
-    if(e._dead) return; const x=e.x-state.camX,y=e.y-state.camY;
-    if(e.type===ENEMY.WALKER) ctx.fillStyle=COLORS.enemy;
-    else if(e.type===ENEMY.TURTLE) ctx.fillStyle=COLORS.turtle;
-    else if(e.type===ENEMY.FLIER) ctx.fillStyle=COLORS.flier;
-    else ctx.fillStyle=COLORS.shooter;
-    ctx.fillRect(x,y,e.w,e.h); ctx.fillStyle='#000'; ctx.fillRect(x+6,y+8,4,4); ctx.fillRect(x+e.w-10,y+8,4,4);
-  });
+    // 2. رسم المنصات المتحركة
+    movingPlatforms.forEach(mp=>{ 
+        const x=mp.x-state.camX,y=mp.y-state.camY; 
+        ctx.fillStyle='#bdc3c7'; ctx.fillRect(x,y,mp.w,mp.h); 
+        ctx.fillStyle='#95a5a6'; ctx.fillRect(x,y,mp.w,4); 
+    });
+
+    // 3. رسم الأعداء (باستخدام Sprites)
+    enemies.forEach(e=>{
+        if(e._dead) return; 
+        const x=e.x-state.camX, y=e.y-state.camY;
+        drawSprite(e.anim.name, e.anim.frame, x, y, e.w, e.h, e.dir > 0);
+    });
+
+    // 4. رسم الرصاص
+    eBullets.forEach(b=> drawSprite(b.anim.name, b.anim.frame, b.x-state.camX, b.y-state.camY, b.w, b.h));
+    pBullets.forEach(b=> drawSprite(b.anim.name, b.anim.frame, b.x-state.camX, b.y-state.camY, b.w, b.h, b.dx < 0));
+    
+    // 5. رسم العملات والتعزيزات
+    drawDrops();
   
-  ctx.fillStyle='#f39c12'; eBullets.forEach(b=> ctx.fillRect(b.x-state.camX,b.y-state.camY,b.w,b.h));
-  
-  // ===================
-  // ✨ التحسين رقم 3 (تطبيق): تبسيط رسم طلقات اللاعب لرفع الأداء
-  // ===================
-  ctx.fillStyle='#2ecc71'; 
-  pBullets.forEach(b=> {
-    ctx.fillRect(b.x-state.camX,b.y-state.camY,b.w,b.h);
-  });
-  
-  drawDrops();
-  
-  if (state.scene === 'playing' || state.scene === 'pause') {
-      ctx.globalAlpha = player.inv>0? 0.5 + 0.5*Math.sin(performance.now()/40) : 1;
-      const px=player.x-state.camX, py=player.y-state.camY;
-      ctx.fillStyle=COLORS.player; ctx.fillRect(px,py+6,player.w,player.h-6);
-      ctx.beginPath(); ctx.arc(px+player.w/2, py+6, player.w/2, 0, Math.PI*2); ctx.fill();
-      ctx.fillStyle='#fff'; const eyeY=py+2;
-      if(player.facing===1){ ctx.fillRect(px+player.w/2, eyeY, 4,4); ctx.fillRect(px+player.w/2+6, eyeY, 4,4); }
-      else { ctx.fillRect(px+player.w/2-10, eyeY, 4,4); ctx.fillRect(px+player.w/2-4, eyeY, 4,4); }
-      ctx.fillStyle='#000'; ctx.fillRect(px+player.w/2-4, py+player.h-6, 8,2);
-      ctx.globalAlpha=1;
+    // 6. رسم اللاعب (باستخدام Sprites)
+    if (state.scene !== 'dead') {
+        ctx.globalAlpha = player.inv>0? 0.5 + 0.5*Math.sin(performance.now()/40) : 1;
+        const px=player.x-state.camX, py=player.y-state.camY;
+        drawSprite(player.anim.name, player.anim.frame, px, py, player.w*1.2, player.h*1.1, player.facing < 0);
+        ctx.globalAlpha=1;
+    }
   }
 }
 
@@ -1027,35 +1001,42 @@ function updateHUD(){
   HUD.stage.textContent=T('stage',state.level+1);
 }
 let lastT=performance.now();
-function loop(t){ const dt=Math.min(0.05,(t-lastT)/1000); lastT=t; if(state.scene==='playing') update(dt); draw(); requestAnimationFrame(loop); }
+function loop(t){ 
+    const dt=Math.min(0.05,(t-lastT)/1000); 
+    lastT=t; 
+    if(state.scene==='playing') update(dt); 
+    draw(); 
+    requestAnimationFrame(loop); 
+}
 function fit(){ const s=Math.min(innerWidth/CFG.viewW, innerHeight/CFG.viewH); canvas.style.width=Math.max(320,(CFG.viewW*s)|0)+'px'; canvas.style.height=Math.max(240,(CFG.viewH*s)|0)+'px'; }
 addEventListener('resize',fit);
 
 /* ================ INIT ================ */
 function init(){
-  // ===================
-  // ✨ التحسين رقم 2 (تطبيق): استدعاء مخزن الألوان
-  // ===================
   cacheColors();
+  
+  // =====================================
+  // ✨ التطوير رقم 3: تحميل الأصول قبل بدء اللعبة
+  // =====================================
+  Assets.load(() => {
+      // لن تبدأ اللعبة إلا بعد تحميل الصور
+      const has=loadProgress();
+      applyUpgrades(); 
+      document.documentElement.lang=lang; 
+      document.documentElement.dir=(lang==='ar'?'rtl':'ltr'); 
+      HUD.btnLang.textContent=(lang==='ar'?'العربية':'English'); 
+    
+      startMenu(); // إظهار القائمة الرئيسية بعد تحميل الأصول
+      
+      // بدء حلقة اللعبة
+      requestAnimationFrame(t=>{ lastT=t; loop(t); });
+  });
 
-  const has=loadProgress();
-  applyUpgrades(); 
-  document.documentElement.lang=lang; 
-  document.documentElement.dir=(lang==='ar'?'rtl':'ltr'); 
-  HUD.btnLang.textContent=(lang==='ar'?'العربية':'English'); 
-
-  showOverlay(I18N[lang].title, splashHTML(), [
-    {label:I18N[lang].start, primary:true, on:()=>{ hideOverlay(); resetRun(); startLevel(0,true); }},
-   ...(has?[{label:I18N[lang].cont, on:()=>{ hideOverlay(); startLevel(state.level,true); }}]:[])
-  ]);
-  setTimeout(renderSplash,0);
+  fit();
 }
 
 window.buyUpgrade = buyUpgrade;
-
-fit();
-init();
-requestAnimationFrame(t=>{ lastT=t; loop(t); });
+init(); // بدء عملية التحميل والإعداد
 
 })();
 </script>
