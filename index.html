@@ -3,15 +3,18 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
-<title>Retro Platforms — Hybrid Levels</title>
+<title>Retro Platforms — Enhanced & Hybrid</title>
 <style>
 :root{
   --sky:#87ceeb; --ground:#6b4f2a; --ground-top:#8f6b3a;
   --player:#3498db; --enemy:#e67e22; --turtle:#16a085; --flier:#9b59b6; --shooter:#e74c3c;
   --spike:#c0392b; --goal:#2ecc71; --spring:#5dade2; --water:#3aa6ffcc;
+  --coin:#f1c40f; /* لون جديد للعملة */
   --ui:#000000cc; --text:#fff;
+  --btn-width: 80px; /* تحسين أبعاد أزرار اللمس */
+  --btn-spacing: 12px;
 }
-html,body{margin:0;background:#0d1117;color:var(--text);font-family:system-ui,Segoe UI,Roboto}
+html,body{margin:0;background:#0d1117;color:var(--text);font-family:system-ui,Segoe UI,Roboto;overscroll-behavior: none;}
 #game{display:block;margin:0 auto;background:var(--sky);image-rendering:pixelated;outline:none}
 .topbar{position:fixed;top:8px;left:8px;right:8px;display:flex;gap:8px;align-items:center;z-index:5}
 .panel{background:var(--ui);padding:8px 12px;border-radius:12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
@@ -20,9 +23,26 @@ html,body{margin:0;background:#0d1117;color:var(--text);font-family:system-ui,Se
 .btn.primary{background:#2ecc71;color:#062}
 .btn.ghost{background:#ffffff10;color:#fff;border:1px solid #ffffff33}
 .centered{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(2px);background:#0008;z-index:10}
-.touch{position:fixed;bottom:16px;left:16px;right:16px;display:flex;justify-content:space-between;gap:16px;pointer-events:none;z-index:4}
-.pad{display:flex;gap:16px}
-.tbtn{width:84px;height:84px;border-radius:50%;background:#ffffff22;border:2px solid #ffffff55;pointer-events:auto;touch-action:none;user-select:none;backdrop-filter:blur(6px);color:#fff;font-size:22px;font-weight:800}
+.touch{position:fixed;bottom:var(--btn-spacing);left:var(--btn-spacing);right:var(--btn-spacing);display:flex;justify-content:space-between;gap:var(--btn-spacing);pointer-events:none;z-index:4}
+
+/* تحسين تصميم أزرار اللمس ومواضعها */
+.pad{display:flex;gap:var(--btn-spacing);}
+.tbtn{
+  width:var(--btn-width); height:var(--btn-width); 
+  border-radius:50%; background:#ffffff22; border:2px solid #ffffff55;
+  pointer-events:auto; touch-action:none; user-select:none; backdrop-filter:blur(6px);
+  color:#fff; font-size:24px; font-weight:900;
+  display: flex; align-items: center; justify-content: center;
+}
+#btnLeft{order: 1;}
+#btnRight{order: 2;}
+#btnJump{order: 3;}
+#btnShoot{order: 4;}
+
+/* تغيير ترتيب أزرار الحركة لتكون متجاورة */
+.touch > .pad:first-child { flex-basis: calc(2 * var(--btn-width) + var(--btn-spacing)); }
+.touch > .pad:last-child { flex-basis: calc(2 * var(--btn-width) + var(--btn-spacing)); justify-content: flex-end;}
+
 @media (min-width:900px){.touch{display:none}}
 .hearts{letter-spacing:2px}
 .hint{opacity:.8;font-size:12px;margin-top:6px}
@@ -35,6 +55,13 @@ html,body{margin:0;background:#0d1117;color:var(--text);font-family:system-ui,Se
 .splash-canvas{position:absolute;inset:0}
 .splash-title{position:relative;z-index:2;font-size:clamp(24px,5.2vw,44px);font-weight:900;letter-spacing:1px;color:#e8f7ff;text-shadow:0 2px 0 #0008,0 0 24px #69d1ff77}
 .splash-body{background:#0b0f18;padding:14px}
+
+/* أنماط المتجر */
+.shop-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; margin-top: 15px; }
+.shop-item { background: #1a1e27; padding: 10px; border-radius: 8px; text-align: center; border: 1px solid #333; }
+.shop-item h4 { margin: 0 0 5px 0; color: var(--text); }
+.shop-item p { margin: 0 0 10px 0; font-size: 14px; color: #aaa; }
+.shop-cost { font-weight: bold; color: var(--coin); display: block; margin-bottom: 8px;}
 </style>
 </head>
 <body>
@@ -42,10 +69,10 @@ html,body{margin:0;background:#0d1117;color:var(--text);font-family:system-ui,Se
     <div class="panel grow" id="hudLeft">
       <span id="hearts" class="hearts">❤❤❤</span>
       <span id="shield" class="hint">🛡 0</span>
-      <span id="stage" class="badge">L1</span>
+      <span id="coins" style="color:var(--coin); font-weight:bold;">💰 0</span> <span id="stage" class="badge">L1</span>
     </div>
     <div class="panel" id="hudRight">
-      <button class="btn ghost" id="btnLang">العربية</button>
+      <button class="btn ghost" id="btnShop" title="المتجر">🛒</button> <button class="btn ghost" id="btnLang">العربية</button>
       <button class="btn ghost" id="btnMusic">🔇</button>
       <button class="btn ghost" id="btnPause">⏸︎</button>
     </div>
@@ -59,8 +86,8 @@ html,body{margin:0;background:#0d1117;color:var(--text);font-family:system-ui,Se
       <button class="tbtn" id="btnRight">▶</button>
     </div>
     <div class="pad">
-      <button class="tbtn" id="btnJump">⤊</button>
       <button class="tbtn" id="btnShoot">✹</button>
+      <button class="tbtn" id="btnJump">⤊</button>
     </div>
   </div>
 
@@ -80,31 +107,45 @@ html,body{margin:0;background:#0d1117;color:var(--text);font-family:system-ui,Se
 
 /* ================= I18N ================= */
 const I18N={
-  ar:{title:'منصات إجرائية متدرجة',desc:'بداية واضحة وسهلة ثم تضاريس طبيعية بمنحدرات تدريجية، حفر ومياه وأشواك. تبدأ ومعك سلاح. اقتل الأعداء لتحصل على تعزيزات (سرعة/قفز) وقلوب ودروع. أول 5 مراحل مبرمجة والبقية من ملفات JSON. حفظ تلقائي مع إعادة نفس المرحلة عند الخسارة.',
-      start:'ابدأ لعبة جديدة', cont:'متابعة', paused:'إيقاف مؤقت', resume:'متابعة', restart:'إعادة المرحلة', menu:'القائمة الرئيسية',
+  ar:{title:'منصات متطورة - هجين',desc:'10 مراحل أساسية مبرمجة بتحديات متنوعة. اجمع العملات 💰 لشراء تحسينات دائمة من المتجر 🛒. الأداء والتحكم محسنان للهواتف. حفظ تلقائي وإعادة للمرحلة عند الخسارة.',
+      start:'ابدأ لعبة جديدة', cont:'متابعة', paused:'إيقاف مؤقت', resume:'متابعة', restart:'إعادة المرحلة', menu:'القائمة الرئيسية', shop:'المتجر',
       lose:'خسرت', stage:n=>`مرحلة ${n}`, hint:'كيبورد: ← → للحركة، Space/W للقفز، F للإطلاق، Esc للإيقاف',
-      drops:'التعزيزات: ❤ قلب | 🛡 درع | ⇥ سرعة | ⤊ قفز'},
-  en:{title:'Hybrid Procedural Platforms',desc:'Clear, easy start then natural terrain with gentle slopes, pits, water, spikes. Start with a gun. Defeat enemies for boosts (speed/jump), hearts, shields. First 5 levels are built-in, rest are loaded from JSON files. Auto-save; restart same level on death.',
-      start:'Start New', cont:'Continue', paused:'Paused', resume:'Resume', restart:'Restart', menu:'Main Menu',
+      drops:'التعزيزات: ❤ قلب | 🛡 درع | ⇥ سرعة | ⤊ قفز',
+      shop_title:'متجر التحسينات',
+      shop_desc:'أنفق العملات 💰 لزيادة قوتك بشكل دائم!'},
+  en:{title:'Advanced Platforms - Hybrid',desc:'10 built-in levels with varied challenges. Collect coins 💰 to buy permanent upgrades from the Shop 🛒. Optimized performance and controls for mobile devices. Auto-save and level restart on death.',
+      start:'Start New', cont:'Continue', paused:'Paused', resume:'Resume', restart:'Restart', menu:'Main Menu', shop:'Shop',
       lose:'You Lost', stage:n=>`Level ${n}`, hint:'Keyboard: ← → move, Space/W jump, F shoot, Esc pause',
-      drops:'Boosts: ❤ Heart | 🛡 Shield | ⇥ Speed | ⤊ Jump'}
+      drops:'Boosts: ❤ Heart | 🛡 Shield | ⇥ Speed | ⤊ Jump',
+      shop_title:'Upgrades Shop',
+      shop_desc:'Spend Coins 💰 to permanently increase your power!'}
 };
 let lang='ar'; const T=(k,...a)=> typeof I18N[lang][k]==='function'?I18N[lang][k](...a):I18N[lang][k];
 
 /* ================ CONFIG & RUNTIME ================ */
 const CFG={
   viewW:960, viewH:540, tile:32,
-  gravity:0.6, moveAcc:0.8, maxDX:5.2, maxDY:18, friction:0.86, jumpV:12.2,
-  coyoteTime:0.09, jumpBuffer:0.12, variableJumpCut:0.45, cameraLerp:0.12,
+  gravity:0.65, moveAcc:0.9, maxDX:5.8, maxDY:19, friction:0.84, jumpV:13, // تحسين فيزياء التحكم
+  coyoteTime:0.1, jumpBuffer:0.15, variableJumpCut:0.45, cameraLerp:0.12,
   springV:16,
   enemy:{walkerSpeed:1.1,turtleSpeed:0.95,flierSpeed:1.25,shooterSpeed:0.75,bulletSpeed:3.2,fireRate:2.6},
   player:{maxHearts:6,shootCooldown:0.28,bulletSpeed:6.6},
   scaling:{bandSize:5, enemySpeedMul:1.07, enemyFireRateMul:0.96, enemyBulletSpeedMul:1.06, playerSpeedMul:1.05, playerJumpMul:1.04, playerBulletSpeedMul:1.04},
   vibration:true,
-  // إضافة عدد المراحل الأساسية المبرمجة
-  basicLevelCount: 5,
+  // زيادة عدد المراحل الأساسية إلى 10
+  basicLevelCount: 10,
   jsonFiles: ['sentences1.json', 'sentences2.json', 'sentences3.json', 'sentences4.json']
 };
+
+const SHOP_ITEMS = [
+    { id: 'bulletDmg', cost: 10, max: 5, stat: 'playerBulletSpeed', initial: 1, inc: 0.2, title_ar: 'قوة الإطلاق', title_en: 'Bullet Power', desc_ar: 'يزيد سرعة وتأثير الرصاص.', desc_en: 'Increases bullet speed and impact.' },
+    { id: 'maxHp', cost: 20, max: 2, stat: 'maxHearts', initial: CFG.player.maxHearts, inc: 1, title_ar: 'الحد الأقصى للقلوب', title_en: 'Max Hearts', desc_ar: 'يزيد عدد قلوبك القصوى بقلب واحد.', desc_en: 'Increases your maximum health by one heart.' },
+    { id: 'shieldCapacity', cost: 15, max: 3, stat: 'maxShields', initial: 0, inc: 1, title_ar: 'سعة الدرع', title_en: 'Shield Capacity', desc_ar: 'يزيد الحد الأقصى للدروع المحمولة.', desc_en: 'Increases maximum carried shields.' },
+];
+// تحويل المتجر إلى كائن للوصول السريع
+const SHOP_MAP = SHOP_ITEMS.reduce((map, item) => (map[item.id] = item, map), {});
+
+
 const runtime={enemy:{...CFG.enemy}, player:{maxDX:CFG.maxDX,jumpV:CFG.jumpV,bulletSpeed:CFG.player.bulletSpeed}};
 
 /* ================ DOM & HUD ================ */
@@ -112,7 +153,9 @@ const canvas=document.getElementById('game'), ctx=canvas.getContext('2d');
 const tplOverlay=document.getElementById('tplOverlay');
 const HUD={
   hearts:document.getElementById('hearts'), shield:document.getElementById('shield'), stage:document.getElementById('stage'),
-  btnPause:document.getElementById('btnPause'), btnLang:document.getElementById('btnLang'), btnMusic:document.getElementById('btnMusic')
+  coins:document.getElementById('coins'), // عنصر العملات
+  btnPause:document.getElementById('btnPause'), btnLang:document.getElementById('btnLang'), btnMusic:document.getElementById('btnMusic'),
+  btnShop:document.getElementById('btnShop') // زر المتجر
 };
 const TOUCH={ left:document.getElementById('btnLeft'), right:document.getElementById('btnRight'), jump:document.getElementById('btnJump'), shoot:document.getElementById('btnShoot') };
 
@@ -124,9 +167,8 @@ const vibrate=ms=>{ if(CFG.vibration&&navigator.vibrate) navigator.vibrate(ms); 
 const nowSec=()=>performance.now()/1000;
 function rnd(seed){ return (Math.sin(seed*12.9898)*43758.5453)%1; }
 
-/* ================ AUDIO (Modified) ================ */
-let audioCtx=null, muted=true; // تم تعيين muted على true بشكل افتراضي لتوافق مع إزالة BGM
-
+/* ================ AUDIO (Simplified for SFX Only) ================ */
+let audioCtx=null, muted=true; // تم تعيين muted على true بشكل افتراضي
 function ensureAudio(){ if(!audioCtx){ try{ audioCtx=new (window.AudioContext||window.webkitAudioContext)(); }catch{} } }
 function sfx(type='sine',f=440,dur=0.08,g=0.07){ if(muted) return; ensureAudio(); if(!audioCtx) return;
   const t0=audioCtx.currentTime,o=audioCtx.createOscillator(),ga=audioCtx.createGain();
@@ -135,13 +177,14 @@ function sfx(type='sine',f=440,dur=0.08,g=0.07){ if(muted) return; ensureAudio()
 }
 // المحافظة على المؤثرات الصوتية الحالية
 const SFX={ jump:()=>sfx('square',520,0.09,0.08), pick:()=>sfx('triangle',900,0.08,0.06), hit:()=>sfx('sawtooth',180,0.12,0.07),
-  win:()=>{ sfx('square',660,0.16,0.08); setTimeout(()=>sfx('square',880,0.13,0.06),120); }, spring:()=>sfx('triangle',720,0.1,0.07), shoot:()=>sfx('square',720,0.06,0.06) };
-
-// حذف دوال startBGM() و stopBGM() بالكامل بناءً على الطلب
+  win:()=>{ sfx('square',660,0.16,0.08); setTimeout(()=>sfx('square',880,0.13,0.06),120); }, spring:()=>sfx('triangle',720,0.1,0.07), shoot:()=>sfx('square',720,0.06,0.06),
+  coin:()=>sfx('triangle',1200,0.04,0.05), // صوت جديد للعملة
+  purchase:()=>sfx('square',1500,0.08,0.08) // صوت جديد للشراء
+};
 
 /* ================ INPUT ================ */
 const keys={left:false,right:false,jump:false,shoot:false};
-function wantFocus(){ ensureAudio(); /* startBGM(); */ canvas.focus(); } // تم حذف startBGM
+function wantFocus(){ ensureAudio(); canvas.focus(); }
 addEventListener('keydown',e=>{
   if(['ArrowLeft','KeyA'].includes(e.code)) keys.left=true;
   if(['ArrowRight','KeyD'].includes(e.code)) keys.right=true;
@@ -160,89 +203,204 @@ addEventListener('keyup',e=>{
   b.addEventListener('pointerdown',e=>{ e.preventDefault(); keys[k]=true; vibrate(15); wantFocus(); });
   ['pointerup','pointerleave','pointercancel'].forEach(ev=> b.addEventListener(ev,e=>{ e.preventDefault(); keys[k]=false; }));
 });
-// تحديث معالج زر الموسيقى ليعكس الإزالة
 HUD.btnMusic.textContent='🔇';
-HUD.btnMusic.addEventListener('click',()=>{ muted=!muted; HUD.btnMusic.textContent=muted?'🔇':'🔊'; /* if(muted) stopBGM(); else startBGM(); */ });
+HUD.btnMusic.addEventListener('click',()=>{ muted=!muted; HUD.btnMusic.textContent=muted?'🔇':'🔊'; });
 HUD.btnLang.addEventListener('click',()=>{ lang=(lang==='ar'?'en':'ar'); document.documentElement.lang=lang; document.documentElement.dir=(lang==='ar'?'rtl':'ltr'); HUD.btnLang.textContent=(lang==='ar'?'العربية':'English'); updateHUD(); if(state.scene==='menu') startMenu(); if(state.scene==='pause'){ hideOverlay(); togglePause(); } });
 HUD.btnPause.addEventListener('click',()=>togglePause());
+HUD.btnShop.addEventListener('click',()=>showShop()); // معالج زر المتجر
 addEventListener('pointerdown',onceKick,{once:true}); addEventListener('keydown',onceKick,{once:true});
 function onceKick(){ wantFocus(); }
 
 /* ================ WORLD & STATE ================ */
-const TILE={EMPTY:0,SOLID:1,SPIKE:2,SPRING:3,GOAL:4,WATER:5,MOVING:6};
+const TILE={EMPTY:0,SOLID:1,SPIKE:2,SPRING:3,GOAL:4,WATER:5,MOVING:6, COIN:7}; // إضافة COIN
 const ENEMY={WALKER:0,TURTLE:1,FLIER:2,SHOOTER:3};
-const SAVEKEY='retro_procedural_v4_hybrid'; // تغيير مفتاح الحفظ لتجنب تعارضات
+const SAVEKEY='retro_procedural_v5_final';
 
-const state={scene:'menu', level:0, band:0, camX:0, camY:0, hearts:3, shield:0, hasGun:true, overlayEl:null, lastShotAt:-999, boosts:{speed:0,jump:0}};
+const state={
+    scene:'menu', level:0, band:0, camX:0, camY:0, 
+    hearts:3, shield:0, coins:0, // إضافة العملات
+    hasGun:true, overlayEl:null, lastShotAt:-999, 
+    boosts:{speed:0,jump:0},
+    upgrades: SHOP_ITEMS.reduce((acc, item) => (acc[item.id] = 0, acc), {}) // حالة الترقيات الدائمة
+};
+
 const player={x:0,y:0,w:24,h:30,dx:0,dy:0,on:false,coyote:0,jumpBuf:0,inv:0,facing:1};
-let enemies=[], eBullets=[], pBullets=[], movingPlatforms=[], drops=[], currentLevelData=null; // إضافة currentLevelData لتخزين بيانات المرحلة الحالية
+let enemies=[], eBullets=[], pBullets=[], movingPlatforms=[], drops=[], currentLevelData=null;
 
 /* ================ SAVE/LOAD ================ */
 function saveProgress(){ try{
   localStorage.setItem(SAVEKEY, JSON.stringify({
     level: state.level, hearts: state.hearts, shield: state.shield,
-    boosts: state.boosts, lang
+    boosts: state.boosts, lang, coins: state.coins, upgrades: state.upgrades // حفظ العملات والترقيات
   }));
 }catch{}}
 function loadProgress(){ try{
   const s=JSON.parse(localStorage.getItem(SAVEKEY)||'null'); if(!s) return false;
   state.level=Number.isFinite(s.level)?s.level:0; state.hearts=s.hearts||3; state.shield=s.shield||0; state.boosts=s.boosts||{speed:0,jump:0};
+  state.coins=s.coins||0; // تحميل العملات
+  state.upgrades=s.upgrades||SHOP_ITEMS.reduce((acc, item) => (acc[item.id] = 0, acc), {}); // تحميل الترقيات
   lang=s.lang||lang; document.documentElement.lang=lang; document.documentElement.dir=(lang==='ar'?'rtl':'ltr'); HUD.btnLang.textContent=(lang==='ar'?'العربية':'English');
+  applyUpgrades(); // تطبيق الترقيات المحملة
   return true;
 }catch{ return false; }}
 
-/* ================ LEVEL GENERATION: BASIC 5 LEVELS ================= */
+/* ================ UPGRADES & SHOP ================ */
+function applyUpgrades(){
+    // إعادة تعيين الحد الأقصى للقلوب بناءً على الترقية
+    CFG.player.maxHearts = 6 + (state.upgrades.maxHp * SHOP_MAP.maxHp.inc);
+    
+    // إعادة تعيين سرعة الرصاص بناءً على الترقية
+    const bulletInc = state.upgrades.bulletDmg * SHOP_MAP.bulletDmg.inc;
+    runtime.player.bulletSpeed = CFG.player.bulletSpeed * (1 + bulletInc);
 
-// دالة مبسطة لتوليد المراحل الخمس الأساسية
+    // تطبيق قيم الدرع (لا تحتاج تغيير CFG ولكن تستخدم في منطق اللعب)
+}
+
+function buyUpgrade(itemId){
+    const item = SHOP_MAP[itemId];
+    if (state.upgrades[itemId] >= item.max) return false; // وصلت للحد الأقصى
+    const currentCost = item.cost + state.upgrades[itemId] * 5; // زيادة التكلفة
+    if (state.coins < currentCost) return false; // لا يوجد عملات كافية
+
+    state.coins -= currentCost;
+    state.upgrades[itemId]++;
+    SFX.purchase();
+    applyUpgrades(); // تطبيق الترقية فوراً
+    saveProgress();
+    updateHUD();
+    showShop(); // إعادة فتح المتجر
+    return true;
+}
+
+function showShop(){
+    // إيقاف اللعبة وعرض المتجر
+    state.scene = 'shop';
+    
+    let shopHTML = `<p>${T('shop_desc')}</p><div class="shop-grid">`;
+    
+    SHOP_ITEMS.forEach(item => {
+        const level = state.upgrades[item.id];
+        const maxed = level >= item.max;
+        const currentCost = item.cost + level * 5;
+        const title = lang === 'ar' ? item.title_ar : item.title_en;
+        const desc = lang === 'ar' ? item.desc_ar : item.desc_en;
+        
+        shopHTML += `
+            <div class="shop-item">
+                <h4>${title} (المرتبة ${level}/${item.max})</h4>
+                <p>${desc}</p>
+                <span class="shop-cost">${maxed ? 'تمت الترقية' : `💰 ${currentCost}`}</span>
+                <button class="btn ${maxed ? 'ghost' : 'primary'}" 
+                        ${maxed || state.coins < currentCost ? 'disabled' : ''}
+                        onclick="buyUpgrade('${item.id}')">
+                    ${maxed ? 'الأقصى' : 'شراء'}
+                </button>
+            </div>
+        `;
+    });
+    
+    shopHTML += '</div>';
+
+    showOverlay(T('shop_title'), shopHTML, [
+        {label: T('resume') + ' ▶', primary: true, on: ()=>{ hideOverlay(); state.scene='playing'; }}
+    ]);
+}
+
+
+/* ================ LEVEL GENERATION: 10 BASIC LEVELS ================= */
+
+// دالة محسّنة وموسّعة لتوليد 10 مراحل أساسية متنوعة
 function makeBasicLevel(levelIndex) {
-    const H=20, W=120 + levelIndex*8;
+    const H=20, W=120 + levelIndex*10; // زيادة طول المراحل
     const map=Array.from({length:H},()=>Array(W).fill(TILE.EMPTY));
     const baseY=H-3;
-
-    // الأرضية
+    const moving = [];
+    const enemies = [];
+    const coins = []; // مصفوفة جديدة للعملات
+    
+    // 1. توليد التضاريس الأساسية
     for(let x=0;x<W;x++){
         let y = baseY;
-        if(levelIndex >= 1 && x>20 && x<W-20) y += Math.floor(Math.sin(x*0.5/(4+levelIndex))*1.5);
-        if(levelIndex >= 3 && x>50 && x<W-50 && Math.random()<0.02) y = H-1; // حفرة بسيطة
+        
+        // تضاريس متغيرة (منحدرات وحفر بسيطة)
+        if(levelIndex >= 2 && x>20 && x<W-20) {
+            y += Math.floor(Math.sin(x*0.5/(6+(levelIndex%4)))*2);
+        }
+        
+        // إضافة الحفر (Pits)
+        if(levelIndex >= 4 && x>60 && x<W-60 && (x%30)===0){
+            for(let k=0;k<(levelIndex<7?2:3);k++) {
+                if(x+k < W) map[baseY-1][x+k] = TILE.EMPTY; // حفرة في الأرضية
+            }
+        }
+        
         for(let py=y;py<H;py++) map[py][x]=TILE.SOLID;
     }
-
-    // المنصات العائمة (أكثر من المستوى 1)
-    const moving = [];
-    if(levelIndex >= 1){
-        for(let m=0;m<1+levelIndex;m++){
-            const mx= 22 + m*Math.floor(W/(2+levelIndex));
-            const yTop= Math.max(3, baseY-3-m);
-            map[Math.floor(yTop/CFG.tile)][mx]=TILE.MOVING; // لا نستخدم TILE.MOVING مباشرة في makeBasicLevel
-            moving.push({x:mx*CFG.tile,y:yTop*CFG.tile,w:CFG.tile*2,h:CFG.tile/2,t:0,dir:(m%2?1:-1),range:CFG.tile*2});
+    
+    // 2. إضافة التحديات والمنصات
+    
+    // منصات عائمة
+    const mpCount = Math.floor(levelIndex/3) + 1;
+    for(let m=0;m<mpCount;m++){
+        const mx= 30 + m*Math.floor(W/(mpCount+1));
+        const yTop= Math.max(5, baseY - 5 - (m%3));
+        moving.push({x:mx*CFG.tile,y:yTop*CFG.tile,w:CFG.tile*2,h:CFG.tile/2,t:0,dir:(m%2?1:-1),range:CFG.tile*2});
+    }
+    
+    // تحديات الأشواك والنوابض (Spikes & Springs)
+    for(let x=40;x<W-40;x+=20){
+        const y = map.length;
+        let groundY = map.length;
+        for(let py=0;py<H;py++) if(map[py][x]===TILE.SOLID){ groundY=py; break; }
+        
+        if(levelIndex >= 3 && groundY < H-1){
+            if(Math.random()<0.3) map[groundY][x]=TILE.SPIKE; // شوكة على الأرض
+        }
+        
+        if(levelIndex >= 5 && Math.random()<0.2){
+            map[groundY-1][x] = TILE.SPRING; // نابض
+        }
+    }
+    
+    // 3. إضافة العملات
+    for (let x = 10; x < W - 10; x += 6) {
+        if(Math.random() < 0.4 || (levelIndex >= 7 && (x%15)===0)){
+            let groundY = map.length;
+            for(let py=0;py<H;py++) if(map[py][x]===TILE.SOLID){ groundY=py; break; }
+            if (groundY < H - 2) {
+                coins.push({x: x*CFG.tile + CFG.tile/2, y: (groundY-2)*CFG.tile + CFG.tile/2});
+            }
         }
     }
 
-    // الأعداء
-    const enemies = [];
-    if(levelIndex >= 1){
-        const enemyCount = 1 + levelIndex*2;
-        for(let i=0;i<enemyCount;i++){
-            const bx=20+i*Math.floor((W-40)/enemyCount);
-            const ex=Math.min(W-8,bx+10);
-            const yTop = map.length;
-            for(let y=0;y<H;y++) if(map[y][bx]===TILE.SOLID){ yTop=y; break; }
-            const type = (i+levelIndex)%4;
-            const base={x:bx*CFG.tile,y:(yTop-1)*CFG.tile,w:28,h:28,minX:bx*CFG.tile,maxX:ex*CFG.tile,dir:(i%2?1:-1)};
-            if(type===0) enemies.push({...base,type:ENEMY.WALKER});
-            else if(type===1 && levelIndex>=2) enemies.push({...base,type:ENEMY.TURTLE});
-            else if(type===2 && levelIndex>=3) enemies.push({...base,type:ENEMY.FLIER,y:(Math.max(3,yTop-6))*CFG.tile,w:28,h:22});
-            else if(type===3 && levelIndex>=4) enemies.push({...base,type:ENEMY.SHOOTER,cool:Math.random()*CFG.enemy.fireRate});
-        }
+    // 4. إضافة الأعداء (تنوع أكبر حسب مستوى المرحلة)
+    const enemyTypes = [ENEMY.WALKER, ENEMY.TURTLE, ENEMY.FLIER, ENEMY.SHOOTER];
+    const maxType = Math.min(3, Math.floor(levelIndex/2));
+    const enemyCount = 2 + Math.floor(levelIndex*0.8);
+    
+    for(let i=0;i<enemyCount;i++){
+        const bx=30+i*Math.floor((W-60)/enemyCount);
+        const ex=Math.min(W-8,bx+10+(levelIndex%10));
+        let yTop = map.length;
+        for(let y=0;y<H;y++) if(map[y][bx]===TILE.SOLID){ yTop=y; break; }
+        
+        const type = enemyTypes[Math.min(maxType, Math.floor(Math.random()*(maxType+1)))];
+
+        const base={x:bx*CFG.tile,y:(yTop-1)*CFG.tile,w:28,h:28,minX:bx*CFG.tile,maxX:ex*CFG.tile,dir:(i%2?1:-1)};
+        
+        if(type===ENEMY.WALKER) enemies.push({...base,type:ENEMY.WALKER});
+        else if(type===ENEMY.TURTLE) enemies.push({...base,type:ENEMY.TURTLE});
+        else if(type===ENEMY.FLIER) enemies.push({...base,type:ENEMY.FLIER,y:(Math.max(3,yTop-6))*CFG.tile,w:28,h:22});
+        else if(type===ENEMY.SHOOTER) enemies.push({...base,type:ENEMY.SHOOTER,cool:Math.random()*CFG.enemy.fireRate});
     }
 
 
-    // نقطة البداية والنهاية
-    const sx=3, sy=H-4;
-    const gx=W-4, gyEnd=H-3;
+    // 5. نقطة البداية والنهاية
+    const sx=3, sy=baseY-4;
+    const gx=W-4, gyEnd=baseY;
     for(let y=gyEnd-4;y<=gyEnd-1;y++) if(y>=0) map[y][gx]=TILE.GOAL;
 
-    return {W,H,map,start:{x:sx*CFG.tile,y:Math.max(0,sy)*CFG.tile},enemies,moving};
+    return {W,H,map,start:{x:sx*CFG.tile,y:Math.max(0,sy)*CFG.tile},enemies,moving, coins};
 }
 
 /* ================ LEVEL GENERATION: JSON LEVELS ================= */
@@ -250,16 +408,13 @@ function makeBasicLevel(levelIndex) {
 const JSON_LEVEL_CACHE = {};
 let JSON_LOAD_PROMISE = null;
 
-// دالة لتحميل ملف JSON معين
 function fetchJsonLevel(index) {
     const fileName = CFG.jsonFiles[(index - CFG.basicLevelCount) % CFG.jsonFiles.length];
     
-    // التحقق من ذاكرة التخزين المؤقت
     if (JSON_LEVEL_CACHE[fileName]) {
         return Promise.resolve(JSON_LEVEL_CACHE[fileName]);
     }
     
-    // منع التحميل المتعدد لنفس الملف في نفس الوقت
     if (JSON_LOAD_PROMISE) {
         return JSON_LOAD_PROMISE;
     }
@@ -272,17 +427,16 @@ function fetchJsonLevel(index) {
             return response.json();
         })
         .then(data => {
-            // تخزين البيانات وبعض التعديلات الضرورية
             data.W = data.map[0].length;
             data.H = data.map.length;
+            if(!data.coins) data.coins = []; // ضمان وجود مصفوفة العملات
             JSON_LEVEL_CACHE[fileName] = data;
-            JSON_LOAD_PROMISE = null; // إنهاء وعد التحميل
+            JSON_LOAD_PROMISE = null;
             return data;
         })
         .catch(error => {
             console.error(error);
             JSON_LOAD_PROMISE = null;
-            // في حالة فشل التحميل، نرجع مستوى أساسي بسيط كاحتياطي
             return makeBasicLevel(CFG.basicLevelCount - 1);
         });
         
@@ -296,23 +450,21 @@ const LEVELS = new Proxy({ store: {} }, {
         const i = Number(k);
         if (Number.isNaN(i) || i < 0) return undefined;
         
-        // المراحل الأساسية (0 إلى 4)
+        // المراحل الأساسية (0 إلى 9)
         if (i < CFG.basicLevelCount) {
             if (!t.store[i]) t.store[i] = makeBasicLevel(i);
             return t.store[i];
         }
         
-        // المراحل الخارجية (5 فما فوق)
+        // المراحل الخارجية (10 فما فوق)
         if (!t.store[i]) {
-            // نضع وعد (Promise) مؤقتًا لتجنب الحلقات اللانهائية أثناء التحميل
-            t.store[i] = {W: 960/CFG.tile, H: 540/CFG.tile, map:[], enemies:[], moving:[], isAsync: true}; 
+            t.store[i] = {W: 960/CFG.tile, H: 540/CFG.tile, map:[], enemies:[], moving:[], coins:[], isAsync: true}; 
             fetchJsonLevel(i)
                 .then(data => {
-                    t.store[i] = data; // استبدال البيانات المؤقتة بالبيانات المحملة
+                    t.store[i] = data;
                 })
                 .catch(err => {
-                    console.error("Error loading JSON level, using fallback:", err);
-                    t.store[i] = makeBasicLevel(CFG.basicLevelCount - 1); // استخدام مستوى احتياطي
+                    t.store[i] = makeBasicLevel(CFG.basicLevelCount - 1); 
                 });
         }
         
@@ -355,8 +507,12 @@ function applyScaling(levelIndex){
         eFire=Math.pow(CFG.scaling.enemyFireRateMul,b), 
         eBullet=Math.pow(CFG.scaling.enemyBulletSpeedMul,b);
   const pSpd=Math.pow(CFG.scaling.playerSpeedMul,b), 
-        pJmp=Math.pow(CFG.scaling.playerJumpMul,b), 
-        pBul=Math.pow(CFG.scaling.playerBulletSpeedMul,b);
+        pJmp=Math.pow(CFG.scaling.playerJumpMul,b);
+        // تم تحديث ضرب سرعة الرصاص هنا لتأخذ في الاعتبار الترقيات
+        const pBul=Math.pow(CFG.scaling.playerBulletSpeedMul,b);
+        const upgradeMul = 1 + (state.upgrades.bulletDmg * SHOP_MAP.bulletDmg.inc);
+
+
   runtime.enemy.walkerSpeed=CFG.enemy.walkerSpeed*eMul;
   runtime.enemy.turtleSpeed=CFG.enemy.turtleSpeed*eMul;
   runtime.enemy.flierSpeed =CFG.enemy.flierSpeed *eMul;
@@ -365,13 +521,16 @@ function applyScaling(levelIndex){
   runtime.enemy.bulletSpeed=CFG.enemy.bulletSpeed*eBullet;
   runtime.player.maxDX=CFG.maxDX*pSpd;
   runtime.player.jumpV=CFG.jumpV*pJmp;
-  runtime.player.bulletSpeed=CFG.player.bulletSpeed*pBul;
+  runtime.player.bulletSpeed=(CFG.player.bulletSpeed*pBul) * upgradeMul;
 }
 
 function resetRun(){ 
   state.hearts=3; 
   state.shield=0; 
+  state.coins=0; // إعادة تعيين العملات فقط في بداية لعبة جديدة
   state.boosts={speed:0,jump:0}; 
+  state.upgrades=SHOP_ITEMS.reduce((acc, item) => (acc[item.id] = 0, acc), {}); // إعادة تعيين الترقيات
+  applyUpgrades(); // تطبيق القيم الافتراضية للترقيات
   saveProgress(); 
 }
 
@@ -392,11 +551,9 @@ function startLevel(i,reset=true){
   
   const L=LEVELS[state.level];
   if (L.isAsync) {
-    // إذا كانت المرحلة تحمل، ننتظر حتى تكتمل
     state.scene='loading';
     updateHUD();
     showOverlay(T('stage',state.level+1),'جار تحميل المرحلة...','');
-    // نستخدم setImmediate أو setTimeout(0) كبديل لـ requestAnimationFrame
     setTimeout(() => startLevel(i, reset), 100); 
     return;
   }
@@ -406,7 +563,10 @@ function startLevel(i,reset=true){
   enemies=JSON.parse(JSON.stringify(L.enemies)); 
   enemies.forEach(e=>e._dead=false);
   movingPlatforms=JSON.parse(JSON.stringify(L.moving));
-  drops.length=0; eBullets.length=0; pBullets.length=0;
+  // إعادة تعيين العملات الخاصة بالمرحلة فقط
+  drops=L.coins.map(c => ({...c, w:16, h:16, type:'coin', ttl:9999})); 
+  
+  eBullets.length=0; pBullets.length=0;
   if(reset) Object.assign(player,{x:L.start.x,y:L.start.y,dx:0,dy:0,on:false,coyote:0,jumpBuf:0,inv:0,facing:1});
   state.camX=player.x+player.w/2 - canvas.width/2;
   state.camY=player.y+player.h/2 - canvas.height/2;
@@ -419,7 +579,6 @@ function startLevel(i,reset=true){
 function finishLevel(){
   SFX.win(); 
   saveProgress();
-  // تعديل: ضمان التقدم السليم للمرحلة لمنع القفز.
   state.level++; 
   setTimeout(()=>{ startLevel(state.level, true); }, 1000); 
 }
@@ -439,9 +598,10 @@ function togglePause(){
     state.scene='pause';
     showOverlay(I18N[lang].paused,'',[
       {label:I18N[lang].resume+' ▶', primary:true, on:()=>{ hideOverlay(); state.scene='playing'; }},
+      {label:I18N[lang].shop+' 🛒', on:()=>{ hideOverlay(); showShop(); }}, // إضافة زر المتجر للقائمة
       {label:I18N[lang].restart+' ↺', on:()=>{ hideOverlay(); startLevel(state.level,true); }},
       {label:I18N[lang].menu+' ⌂', on:()=>{ hideOverlay(); startMenu(); }},
-      {label: muted?'🔊 Music':'🔇 Music', on:()=>{ muted=!muted; HUD.btnMusic.textContent=muted?'🔇':'🔊'; hideOverlay(); togglePause(); }}, // تحديث الزر
+      {label: muted?'🔊 Music':'🔇 Music', on:()=>{ muted=!muted; HUD.btnMusic.textContent=muted?'🔇':'🔊'; hideOverlay(); togglePause(); }},
       {label:(lang==='ar'?'English':'العربية'), on:()=>{ lang=(lang==='ar'?'en':'ar'); document.documentElement.lang=lang; document.documentElement.dir=(lang==='ar'?'rtl':'ltr'); HUD.btnLang.textContent=(lang==='ar'?'العربية':'English'); updateHUD(); hideOverlay(); togglePause(); }}
     ]);
   }else if(state.scene==='pause'){ 
@@ -457,20 +617,27 @@ function spawnDrop(x,y){
   drops.push({x:x-9,y:y-6,w:18,h:18,type,ttl:5});
 }
 function updateDrops(dt){
+  const maxShields = SHOP_MAP.shieldCapacity.initial + (state.upgrades.shieldCapacity * SHOP_MAP.shieldCapacity.inc);
+
   for(let i=drops.length-1;i>=0;i--){
     const d=drops[i]; 
     d.ttl-=dt;
     if(rects(player,d)){
-      if(d.type==='heart' && state.hearts<CFG.player.maxHearts) state.hearts++;
-      else if(d.type==='shield') state.shield=Math.min(9,state.shield+1);
+      if(d.type==='coin'){ // جمع العملات
+          state.coins++;
+          SFX.coin();
+      }
+      else if(d.type==='heart' && state.hearts<CFG.player.maxHearts) state.hearts++;
+      else if(d.type==='shield') state.shield=Math.min(maxShields,state.shield+1);
       else if(d.type==='speed') state.boosts.speed=Math.min(5,state.boosts.speed+1);
       else if(d.type==='jump') state.boosts.jump=Math.min(5,state.boosts.jump+1);
-      SFX.pick(); 
+      else if(d.type!=='coin') SFX.pick(); 
+      
       vibrate(20); 
       updateHUD(); 
       drops.splice(i,1); 
       saveProgress();
-    }else if(d.ttl<=0) drops.splice(i,1);
+    }else if(d.ttl<=0 && d.type!=='coin') drops.splice(i,1); // العملات لا تختفي
   }
 }
 function drawDrops(){
@@ -478,11 +645,25 @@ function drawDrops(){
     const x=d.x-state.camX,y=d.y-state.camY;
     const g=ctx.createRadialGradient(x+d.w/2,y+d.h/2,2,x+d.w/2,y+d.h/2,18); g.addColorStop(0,'#ffffff88'); g.addColorStop(1,'#ffffff00');
     ctx.fillStyle=g; ctx.beginPath(); ctx.arc(x+d.w/2,y+d.h/2,18,0,Math.PI*2); ctx.fill();
-    ctx.fillStyle= d.type==='heart'?'#e74c3c': d.type==='shield'?'#3498db': d.type==='speed'?'#f1c40f':'#2ecc71';
-    if(d.type==='heart'){ ctx.beginPath(); ctx.moveTo(x+9,y+6); ctx.bezierCurveTo(x+2,y+0,x,y+10,x+9,y+14); ctx.bezierCurveTo(x+18,y+10,x+16,y+0,x+9,y+6); ctx.fill(); }
-    else if(d.type==='shield'){ ctx.fillRect(x+4,y+5,10,10); ctx.fillRect(x+6,y+15,6,2); }
-    else if(d.type==='speed'){ ctx.fillRect(x+4,y+10,12,4); ctx.fillRect(x+10,y+6,4,4); }
-    else { ctx.fillRect(x+7,y+4,4,10); ctx.fillRect(x+4,y+10,10,4); }
+    
+    // رسم العملة
+    if (d.type === 'coin') {
+        ctx.fillStyle = getCSS('--coin');
+        ctx.beginPath();
+        ctx.arc(x, y, 6, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#0008';
+        ctx.font = '8px sans-serif';
+        ctx.fillText('💰', x-5, y+4);
+
+    } else {
+        // رسم باقي التعزيزات
+        ctx.fillStyle= d.type==='heart'?'#e74c3c': d.type==='shield'?'#3498db': d.type==='speed'?'#f1c40f':'#2ecc71';
+        if(d.type==='heart'){ ctx.beginPath(); ctx.moveTo(x+9,y+6); ctx.bezierCurveTo(x+2,y+0,x,y+10,x+9,y+14); ctx.bezierCurveTo(x+18,y+10,x+16,y+0,x+9,y+6); ctx.fill(); }
+        else if(d.type==='shield'){ ctx.fillRect(x+4,y+5,10,10); ctx.fillRect(x+6,y+15,6,2); }
+        else if(d.type==='speed'){ ctx.fillRect(x+4,y+10,12,4); ctx.fillRect(x+10,y+6,4,4); }
+        else { ctx.fillRect(x+7,y+4,4,10); ctx.fillRect(x+4,y+10,10,4); }
+    }
   });
 }
 
@@ -493,11 +674,14 @@ function shoot(){
   state.lastShotAt=t; 
   SFX.shoot();
   const dir=player.facing; 
-  pBullets.push({x:player.x+player.w/2,y:player.y+player.h/2,w:10,h:6,dx:dir*runtime.player.bulletSpeed,dy:0});
+  // زيادة حجم الرصاص قليلاً ليناسب الزيادة في القوة
+  pBullets.push({x:player.x+player.w/2,y:player.y+player.h/2,w:12,h:8,dx:dir*runtime.player.bulletSpeed,dy:0});
 }
 function defeatEnemy(e){
   if(e._dead) return;
-  spawnDrop(e.x+e.w/2, e.y);
+  // احتمال سقوط عملة عند قتل العدو
+  if(Math.random() < 0.6) drops.push({x:e.x+e.w/2, y:e.y, w:16, h:16, type:'coin', ttl:9999}); 
+  else spawnDrop(e.x+e.w/2, e.y);
   const proto={minX:e.minX,maxX:e.maxX,y:e.y,w:e.w,h:e.h,type:e.type};
   e._dead=true;
   setTimeout(()=>{ Object.assign(e,{...proto,x:proto.minX,dir:1,_dead:false,cool:Math.random()*runtime.enemy.fireRate}); },3000);
@@ -520,14 +704,14 @@ function hurtPlayer(){
   updateHUD(); 
   saveProgress();
   if(state.hearts<=0){ gameOver(); return; }
-  const L=currentLevelData; // استخدام بيانات المرحلة المحملة
+  const L=currentLevelData; 
   Object.assign(player,{x:L.start.x,y:L.start.y,dx:0,dy:0,on:false});
 }
 
 /* ================ PHYSICS ================= */
 function tileAt(px,py){
-  const L=currentLevelData; // استخدام بيانات المرحلة المحملة
-  if (!L || L.isAsync) return TILE.SOLID; // منع المشاكل أثناء التحميل
+  const L=currentLevelData; 
+  if (!L || L.isAsync) return TILE.SOLID; 
   const tx=(px/CFG.tile)|0, ty=(py/CFG.tile)|0;
   if(tx<0||ty<0||tx>=L.W||ty>=L.H) return TILE.SOLID;
   return L.map[ty][tx];
@@ -574,7 +758,7 @@ function moveAndCollide(ent){
 }
 
 function interactTiles(){
-  const L=currentLevelData; // استخدام بيانات المرحلة المحملة
+  const L=currentLevelData; 
   if (!L || L.isAsync) return;
   const feet={x:player.x+player.w/2,y:player.y+player.h-2};
   const t=tileAt(feet.x,feet.y);
@@ -609,7 +793,7 @@ function update(dt){
   if(state.scene!=='playing') return;
 
   const L = currentLevelData;
-  if (!L || L.isAsync) return; // لا تعمل إذا كانت المرحلة لا تزال قيد التحميل
+  if (!L || L.isAsync) return; 
 
   movingPlatforms.forEach(mp=>{
     mp.t+=dt*mp.dir;
@@ -755,7 +939,7 @@ function draw(){
   ctx.fillStyle='#2ecc71'; pBullets.forEach(b=> ctx.fillRect(b.x-state.camX,b.y-state.camY,b.w,b.h));
   drawDrops();
   
-  if (state.scene === 'playing') {
+  if (state.scene === 'playing' || state.scene === 'pause') {
       ctx.globalAlpha = player.inv>0? 0.5 + 0.5*Math.sin(performance.now()/40) : 1;
       const px=player.x-state.camX, py=player.y-state.camY;
       ctx.fillStyle=getCSS('--player'); ctx.fillRect(px,py+6,player.w,player.h-6);
@@ -772,6 +956,7 @@ function draw(){
 function updateHUD(){
   const heart=(lang==='ar'?'❤':'♥'); HUD.hearts.textContent=heart.repeat(state.hearts);
   HUD.shield.textContent='🛡 '+state.shield;
+  HUD.coins.textContent='💰 '+state.coins; // عرض العملات
   HUD.stage.textContent=(lang==='ar'?('م'+(state.level+1)):('L'+(state.level+1)));
 }
 let lastT=performance.now();
@@ -780,6 +965,7 @@ function fit(){ const s=Math.min(innerWidth/CFG.viewW, innerHeight/CFG.viewH); c
 addEventListener('resize',fit);
 
 /* ================ INIT ================ */
+// تم تحديث وظيفة init لتطبيق الترقيات المحملة
 function init(){
   const has=loadProgress();
   showOverlay(I18N[lang].title, splashHTML(), [
@@ -788,6 +974,9 @@ function init(){
   ]);
   setTimeout(renderSplash,0);
 }
+
+// إضافة وظيفة buyUpgrade إلى الكائن العالمي
+window.buyUpgrade = buyUpgrade;
 
 fit();
 init();
